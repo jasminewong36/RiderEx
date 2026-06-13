@@ -35,7 +35,8 @@ async def run_pipeline(request: FeedbackRequest):
 @app.get("/health")
 async def health():
     band_configured = bool(os.getenv("BAND_API_KEY"))
-    return {"status": "ok", "service": "RiderEx", "agents": 5, "band_configured": band_configured}
+    aiml_configured = bool(os.getenv("AIML_API_KEY"))
+    return {"status": "ok", "service": "RiderEx", "agents": 5, "band_configured": band_configured, "aiml_configured": aiml_configured}
 
 @app.get("/", response_class=HTMLResponse)
 async def index():

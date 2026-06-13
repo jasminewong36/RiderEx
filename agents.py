@@ -19,18 +19,21 @@ import logging
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from anthropic import Anthropic
+from openai import OpenAI
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-MODEL = "claude-sonnet-4-5-20250929"
+MODEL = "claude-sonnet-4-5"
 USE_BAND = bool(os.getenv("BAND_API_KEY"))
 
-# ── Direct Claude client (always available) ─────────────────────────
-anthropic_client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+# ── AI/ML API client (OpenAI-compatible, routes to Claude) ──────────
+aiml_client = OpenAI(
+    api_key=os.getenv("AIML_API_KEY"),
+    base_url=os.getenv("AIML_BASE_URL", "https://api.aimlapi.com/v1"),
+)
 
 # ── In-memory Band channel simulation ───────────────────────────────
 # When BAND_API_KEY is set, this is replaced by real Band WebSocket messages
@@ -62,13 +65,15 @@ def parse_json(text: str) -> dict:
         return {"raw_response": text}
 
 def call_claude(system: str, user: str) -> dict:
-    resp = anthropic_client.messages.create(
+    resp = aiml_client.chat.completions.create(
         model=MODEL,
         max_tokens=4096,
-        system=system,
-        messages=[{"role": "user", "content": user}]
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
     )
-    return parse_json(resp.content[0].text)
+    return parse_json(resp.choices[0].message.content)
 
 
 # ── Band SDK integration (used when BAND_API_KEY is set) ────────────
