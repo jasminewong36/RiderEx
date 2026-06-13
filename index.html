@@ -162,6 +162,21 @@
   .error{background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.3);border-radius:10px;padding:14px;color:#f43f5e;font-size:13px;margin-bottom:14px;display:none}
   .error.show{display:block}
 
+  /* ── FILTERS ────────────────────────────────────────────────── */
+  .filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px}
+  .filter-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);min-width:80px;flex-shrink:0}
+  .filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+  .fpill{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted2);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit}
+  .fpill:hover{border-color:var(--primary);color:var(--text)}
+  .fpill.active{background:var(--primary);border-color:var(--primary);color:white}
+  .fpill-red.active{background:var(--red);border-color:var(--red)}
+  .fpill-amber.active{background:var(--amber);border-color:var(--amber)}
+  .fpill-green.active{background:var(--green);border-color:var(--green)}
+  .fpill-blue.active{background:var(--primary);border-color:var(--primary)}
+  .fpill-cyan.active{background:var(--cyan);border-color:var(--cyan)}
+  .fpill-purple.active{background:var(--purple);border-color:var(--purple)}
+
   /* ── DASHBOARD ──────────────────────────────────────────────── */
   .dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
   .dash-header h2{font-size:22px;font-weight:800;letter-spacing:-0.5px}
@@ -412,8 +427,58 @@
   <div class="dash-header">
     <div>
       <h2>📊 Metrics Dashboard</h2>
-      <p>Aggregated from all pipeline runs in this session</p>
+      <p id="dash-subtitle">Aggregated from all pipeline runs in this session</p>
     </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">Category</span>
+      <div class="filter-pills" id="filter-category">
+        <button class="fpill active" data-val="ALL" onclick="setFilter('category','ALL',this)">All</button>
+        <button class="fpill fpill-red" data-val="SAFETY" onclick="setFilter('category','SAFETY',this)">🚨 Safety</button>
+        <button class="fpill fpill-amber" data-val="COMFORT" onclick="setFilter('category','COMFORT',this)">😟 Comfort</button>
+        <button class="fpill fpill-purple" data-val="ROUTE" onclick="setFilter('category','ROUTE',this)">🗺️ Route</button>
+        <button class="fpill fpill-cyan" data-val="SOFTWARE" onclick="setFilter('category','SOFTWARE',this)">📱 Software</button>
+        <button class="fpill fpill-green" data-val="COMPLIMENT" onclick="setFilter('category','COMPLIMENT',this)">🌟 Compliment</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Priority</span>
+      <div class="filter-pills" id="filter-priority">
+        <button class="fpill active" data-val="ALL" onclick="setFilter('priority','ALL',this)">All</button>
+        <button class="fpill fpill-red" data-val="P1" onclick="setFilter('priority','P1',this)">P1 Critical</button>
+        <button class="fpill fpill-amber" data-val="P2" onclick="setFilter('priority','P2',this)">P2 High</button>
+        <button class="fpill fpill-blue" data-val="P3" onclick="setFilter('priority','P3',this)">P3 Medium</button>
+        <button class="fpill fpill-green" data-val="P4" onclick="setFilter('priority','P4',this)">P4 Low</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Time Range</span>
+      <div class="filter-pills" id="filter-time">
+        <button class="fpill active" data-val="ALL" onclick="setFilter('time','ALL',this)">All Time</button>
+        <button class="fpill" data-val="7" onclick="setFilter('time','7',this)">Last 7 Days</button>
+        <button class="fpill" data-val="30" onclick="setFilter('time','30',this)">Last 30 Days</button>
+        <button class="fpill" data-val="1" onclick="setFilter('time','1',this)">Today</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Safety Level</span>
+      <div class="filter-pills" id="filter-safety">
+        <button class="fpill active" data-val="ALL" onclick="setFilter('safety','ALL',this)">All</button>
+        <button class="fpill fpill-red" data-val="CRITICAL" onclick="setFilter('safety','CRITICAL',this)">Critical</button>
+        <button class="fpill fpill-amber" data-val="HIGH" onclick="setFilter('safety','HIGH',this)">High</button>
+        <button class="fpill fpill-blue" data-val="MEDIUM" onclick="setFilter('safety','MEDIUM',this)">Medium</button>
+        <button class="fpill fpill-green" data-val="NONE" onclick="setFilter('safety','NONE',this)">None</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active filter summary -->
+  <div id="filter-summary" style="display:none;margin-bottom:16px;padding:10px 14px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:8px;font-size:12px;color:var(--pri3);display:flex;align-items:center;justify-content:space-between">
+    <span id="filter-summary-text"></span>
+    <button onclick="resetFilters()" style="background:none;border:none;color:var(--pri3);cursor:pointer;font-size:12px;text-decoration:underline">Reset all filters</button>
   </div>
 
   <!-- Empty state -->
@@ -821,14 +886,64 @@ function seedMetrics() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
 }
 
+// ── Filters ───────────────────────────────────────────────────
+const activeFilters = { category:'ALL', priority:'ALL', time:'ALL', safety:'ALL' };
+
+function setFilter(type, val, btn) {
+  activeFilters[type] = val;
+  document.querySelectorAll(`#filter-${type} .fpill`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateFilterSummary();
+  renderDashboard();
+}
+
+function resetFilters() {
+  Object.keys(activeFilters).forEach(k => activeFilters[k] = 'ALL');
+  document.querySelectorAll('.fpill').forEach(b => {
+    b.classList.toggle('active', b.dataset.val === 'ALL');
+  });
+  updateFilterSummary();
+  renderDashboard();
+}
+
+function updateFilterSummary() {
+  const active = Object.entries(activeFilters).filter(([,v]) => v !== 'ALL');
+  const el = document.getElementById('filter-summary');
+  if (active.length === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  document.getElementById('filter-summary-text').textContent =
+    'Filtering by: ' + active.map(([k,v]) => `${k.charAt(0).toUpperCase()+k.slice(1)}: ${v}`).join(' · ');
+}
+
+function applyFilters(metrics) {
+  return metrics.filter(m => {
+    if (activeFilters.category !== 'ALL' && m.category !== activeFilters.category) return false;
+    if (activeFilters.priority !== 'ALL' && m.priority !== activeFilters.priority) return false;
+    if (activeFilters.safety !== 'ALL' && m.safety_level !== activeFilters.safety) return false;
+    if (activeFilters.time !== 'ALL') {
+      const days = parseInt(activeFilters.time);
+      if (new Date(m.ts) < new Date(Date.now() - days * 86400000)) return false;
+    }
+    return true;
+  });
+}
+
 // ── Dashboard rendering ────────────────────────────────────────
 function renderDashboard() {
-  const metrics = getMetrics();
+  const all = getMetrics();
+  const metrics = applyFilters(all);
   const empty = document.getElementById('dash-empty');
   const content = document.getElementById('dash-content');
 
+  const hasFilters = Object.values(activeFilters).some(v => v !== 'ALL');
+  document.getElementById('dash-subtitle').textContent = hasFilters
+    ? `Showing ${metrics.length} of ${all.length} rides — filtered`
+    : `${all.length} total rides processed`;
+
   if (metrics.length === 0) {
     empty.style.display = 'block';
+    empty.querySelector('h3').textContent = all.length > 0 ? 'No rides match this filter' : 'No data yet';
+    empty.querySelector('p').textContent = all.length > 0 ? 'Try adjusting the filters above.' : 'Run the pipeline at least once to see metrics here.';
     content.style.display = 'none';
     return;
   }
