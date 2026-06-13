@@ -1,0 +1,15 @@
+# Secrets — never commit these
+.env
+agent_config.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# macOS
+.DS_Store
