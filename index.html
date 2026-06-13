@@ -618,7 +618,7 @@ function loadSample(type) {
 }
 
 // Auto-generate IDs on load
-window.addEventListener('DOMContentLoaded', genIds);
+window.addEventListener('DOMContentLoaded', () => { genIds(); seedMetrics(); });
 
 function setRating(n) {
   rating = n;
@@ -738,6 +738,87 @@ function clearMetrics() {
     localStorage.removeItem(STORAGE_KEY);
     renderDashboard();
   }
+}
+
+// ── Sample data seed ──────────────────────────────────────────
+function seedMetrics() {
+  if (getMetrics().length > 0) return; // only seed once
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function wPick(items, weights) {
+    const total = weights.reduce((a,b) => a+b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < items.length; i++) { r -= weights[i]; if (r <= 0) return items[i]; }
+    return items[items.length - 1];
+  }
+
+  const cats    = ['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];
+  const catW    = [18, 22, 16, 12, 32];
+  const priMap  = { SAFETY:'P1', COMFORT:'P3', ROUTE:'P2', SOFTWARE:'P2', COMPLIMENT:'P4' };
+  const priOverride = { SAFETY:['P1','P1','P1','P2'], COMFORT:['P2','P3','P3','P3'], ROUTE:['P2','P2','P3'], SOFTWARE:['P2','P3'], COMPLIMENT:['P4'] };
+  const slMap   = { SAFETY:['CRITICAL','HIGH','HIGH','MEDIUM'], COMFORT:['LOW','NONE'], ROUTE:['NONE','LOW'], SOFTWARE:['NONE'], COMPLIMENT:['NONE'] };
+  const sentMap = { SAFETY:['VERY_NEGATIVE','NEGATIVE'], COMFORT:['NEGATIVE','NEGATIVE','NEUTRAL'], ROUTE:['NEGATIVE','VERY_NEGATIVE','NEUTRAL'], SOFTWARE:['NEGATIVE','NEUTRAL'], COMPLIMENT:['POSITIVE','VERY_POSITIVE'] };
+  const churnMap= { SAFETY:['HIGH','HIGH','MEDIUM'], COMFORT:['MEDIUM','HIGH','LOW'], ROUTE:['MEDIUM','HIGH'], SOFTWARE:['MEDIUM','LOW'], COMPLIMENT:['LOW','LOW','MEDIUM'] };
+  const vactionMap={ CRITICAL:'GROUND_VEHICLE', HIGH:'INSPECT_BEFORE_NEXT_RIDE', MEDIUM:'INSPECT_BEFORE_NEXT_RIDE', LOW:'CONTINUE_OPERATION', NONE:'CONTINUE_OPERATION' };
+  const engTeamMap={ SAFETY:['AEB_TEAM','PERCEPTION_TEAM','CONTROLS_TEAM'], COMFORT:['UX_TEAM','FLEET_OPS'], ROUTE:['LOCALIZATION_TEAM','PLANNING_TEAM'], SOFTWARE:['UX_TEAM','PLANNING_TEAM'], COMPLIMENT:['NONE'] };
+  const revDecisions = ['APPROVED','APPROVED','APPROVED','APPROVED_WITH_EDITS','APPROVED_WITH_EDITS','REVISION_NEEDED'];
+  const nhtsa_trigger = ['CRITICAL','HIGH'];
+
+  const now = Date.now();
+  const seed = [];
+
+  for (let i = 0; i < 120; i++) {
+    const cat = wPick(cats, catW);
+    const priority = pick(priOverride[cat]);
+    const sl = pick(slMap[cat]);
+    const sentiment = pick(sentMap[cat]);
+    const churn = pick(churnMap[cat]);
+    const engTeam = cat === 'COMPLIMENT' ? 'NONE' : pick(engTeamMap[cat]);
+    const reqEng = engTeam !== 'NONE';
+    const nhtsa = nhtsa_trigger.includes(sl);
+    const goodRide = cat === 'COMPLIMENT' || (sl === 'NONE' && priority === 'P4');
+    const rating = cat === 'COMPLIMENT' ? rnd(4,5) : cat === 'SAFETY' ? rnd(1,2) : rnd(2,4);
+    const qualityScore = rnd(priority === 'P1' ? 70 : 78, 98);
+    const reviewDecision = pick(revDecisions);
+    const refundAmount = priority === 'P1' ? rnd(20, 40) : priority === 'P2' ? rnd(10, 25) : priority === 'P3' ? rnd(0, 10) : 0;
+    const creditAmount = cat === 'COMPLIMENT' ? 5 : priority === 'P1' ? 25 : priority === 'P2' ? 0 : rnd(0, 10);
+    const vehicleNum = rnd(1, 2000);
+    const rideNum = rnd(1, 999999999);
+    const daysAgo = rnd(0, 29);
+    const hoursAgo = rnd(0, 23);
+    const ts = new Date(now - daysAgo * 86400000 - hoursAgo * 3600000 - rnd(0, 59) * 60000).toISOString();
+
+    seed.push({
+      ticket_id: 'TKT-' + String(now - i * 47000).slice(-14),
+      ride_id: 'RIDE-' + String(rideNum).padStart(16, '0'),
+      vehicle_id: 'WM-' + String(vehicleNum).padStart(4, '0'),
+      category: cat,
+      priority,
+      safety_level: sl,
+      nhtsa,
+      rating,
+      churn_risk: churn,
+      refund: refundAmount + creditAmount,
+      refund_amount: refundAmount,
+      credit_amount: creditAmount,
+      good_ride: goodRide,
+      sentiment,
+      quality_score: qualityScore,
+      review_decision: reviewDecision,
+      requires_engineering: reqEng,
+      engineering_team: engTeam,
+      vehicle_action: vactionMap[sl] || 'NONE',
+      action_items: reqEng ? rnd(2, 6) : rnd(0, 3),
+      band_messages: 5,
+      key_phrases: [],
+      ts,
+    });
+  }
+
+  // Sort oldest first so recent-rides table shows newest at top
+  seed.sort((a,b) => new Date(a.ts) - new Date(b.ts));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
 }
 
 // ── Dashboard rendering ────────────────────────────────────────
