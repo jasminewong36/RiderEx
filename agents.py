@@ -84,9 +84,9 @@ async def run_as_band_agent(agent_name: str, system_prompt: str, user_message: s
     Requires: band-sdk[anthropic] installed, agent_config.yaml configured.
     """
     try:
-        from thenvoi import Agent
-        from thenvoi.adapters import AnthropicAdapter
-        from thenvoi.config import load_agent_config
+        from band import Agent
+        from band.adapters import AnthropicAdapter
+        from band.config import load_agent_config
 
         agent_id, api_key = load_agent_config(agent_name)
 

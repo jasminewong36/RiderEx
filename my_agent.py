@@ -1,11 +1,12 @@
 import asyncio
 import logging
+import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
-from thenvoi import Agent
-from thenvoi.adapters import LangGraphAdapter
-from thenvoi.config import load_agent_config
+from band import Agent
+from band.adapters import LangGraphAdapter
+from band.config import load_agent_config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,7 +19,11 @@ async def main():
 
     # Create adapter with LLM and checkpointer
     adapter = LangGraphAdapter(
-        llm=ChatOpenAI(model="gpt-4o"),
+        llm=ChatOpenAI(
+            model="gpt-4o",
+            openai_api_key=os.getenv("AIML_API_KEY"),
+            openai_api_base=os.getenv("AIML_BASE_URL", "https://api.aimlapi.com/v1"),
+        ),
         checkpointer=InMemorySaver(),
     )
 
