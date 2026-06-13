@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RiderEx — AV Customer Support Pipeline</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#07080f;--surface:#0d0f1a;--surface2:#131627;--border:#1e2235;--border2:#252a3d;
+    --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+    --primary:#6366f1;--pri2:#818cf8;--pri3:#a5b4fc;
+    --green:#10b981;--amber:#f59e0b;--red:#f43f5e;--cyan:#06b6d4;--purple:#8b5cf6;
+    --mono:'JetBrains Mono',monospace;
+  }
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  header{padding:14px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:rgba(13,15,26,0.9);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+  .logo{background:var(--primary);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .brand{font-size:16px;font-weight:700}
+  .hbadge{margin-left:auto;font-size:10px;font-family:var(--mono);background:var(--surface2);border:1px solid var(--border2);padding:3px 10px;border-radius:20px;color:var(--muted2)}
+
+  .container{max-width:1000px;margin:0 auto;padding:32px 24px}
+
+  /* Hero */
+  .hero{text-align:center;padding:36px 0 28px}
+  .hero-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:20px;font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;color:#a5b4fc;margin-bottom:18px}
+  .pulse{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-1px;margin-bottom:10px}
+  .hero h1 span{color:var(--primary)}
+  .hero p{font-size:13px;color:var(--muted2);max-width:500px;margin:0 auto}
+
+  /* Pipeline */
+  .pipeline{display:flex;align-items:flex-start;gap:0;margin:24px 0 28px;justify-content:center;flex-wrap:wrap}
+  .ps{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:100px}
+  .pc{width:44px;height:44px;border-radius:50%;border:2px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;transition:all 0.3s}
+  .pc.active{border-color:var(--primary);background:rgba(99,102,241,0.12);box-shadow:0 0 14px rgba(99,102,241,0.25)}
+  .pc.done{border-color:var(--green);background:rgba(16,185,129,0.12)}
+  .pc.running{border-color:var(--amber);background:rgba(245,158,11,0.12);animation:glow 1s infinite}
+  @keyframes glow{0%,100%{box-shadow:0 0 0 rgba(245,158,11,0.3)}50%{box-shadow:0 0 14px rgba(245,158,11,0.5)}}
+  .pl{font-size:9px;color:var(--muted);text-align:center;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em;max-width:90px;line-height:1.4}
+  .pa{color:var(--border2);font-size:14px;padding:0 2px;margin-bottom:18px;flex-shrink:0}
+
+  /* Form */
+  .form-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+  .fg{display:flex;flex-direction:column;gap:6px}
+  .fg.full{grid-column:1/-1}
+  label{font-size:11px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em}
+  input,textarea,select{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:13px;transition:border-color 0.2s;width:100%}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary)}
+  textarea{resize:vertical;line-height:1.6}
+
+  /* Star rating */
+  .stars{display:flex;gap:4px}
+  .star{font-size:22px;cursor:pointer;color:var(--border2);transition:color 0.15s;line-height:1}
+  .star.active{color:var(--amber)}
+
+  /* Sample buttons */
+  .samples{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .sample-btn{padding:6px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;font-size:11px;color:var(--muted2);cursor:pointer;transition:all 0.2s;font-family:inherit}
+  .sample-btn:hover{border-color:var(--primary);color:var(--text)}
+  .sample-btn.safety{border-color:rgba(244,63,94,0.4);color:#f43f5e}
+  .sample-btn.comfort{border-color:rgba(245,158,11,0.4);color:var(--amber)}
+  .sample-btn.compliment{border-color:rgba(16,185,129,0.4);color:var(--green)}
+
+  /* Run button */
+  .run-btn{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .run-btn:hover:not(:disabled){background:#4f46e5}
+  .run-btn:disabled{opacity:0.5;cursor:not-allowed}
+  .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Loading */
+  .loading{display:none;text-align:center;padding:36px 0}
+  .loading.show{display:block}
+  .big-spin{width:38px;height:38px;border:3px solid rgba(99,102,241,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+  .ls-grid{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:380px;margin-left:auto;margin-right:auto;text-align:left}
+  .ls-item{padding:7px 12px;border-radius:6px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;transition:all 0.3s}
+  .ls-item.current{color:var(--text);background:var(--surface2)}
+  .ls-item.done{color:var(--green)}
+
+  /* Results */
+  .results{display:none}
+  .results.show{display:block}
+
+  /* Priority banner */
+  .priority-banner{border-radius:12px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+  .pb-p1{background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.3)}
+  .pb-p2{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3)}
+  .pb-p3{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.3)}
+  .pb-p4{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3)}
+  .pb-icon{font-size:28px;flex-shrink:0}
+  .pb-text h2{font-size:16px;font-weight:700;margin-bottom:3px}
+  .pb-text p{font-size:12px;color:var(--muted2)}
+  .pb-badges{margin-left:auto;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+  .chip{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:10px;font-weight:700}
+  .chip-red{background:rgba(244,63,94,0.15);color:#f43f5e;border:1px solid rgba(244,63,94,0.3)}
+  .chip-amber{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
+  .chip-green{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)}
+  .chip-blue{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3)}
+  .chip-cyan{background:rgba(6,182,212,0.15);color:#06b6d4;border:1px solid rgba(6,182,212,0.3)}
+  .chip-gray{background:var(--surface2);color:var(--muted2);border:1px solid var(--border)}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+  .stat-top{height:3px;border-radius:3px;margin-bottom:8px}
+  .stat-num{font-size:18px;font-weight:800;font-family:var(--mono)}
+  .stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+
+  /* Tabs */
+  .rtabs{display:flex;gap:3px;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:14px}
+  .rtab{flex:1;padding:7px 10px;border-radius:8px;border:none;background:none;color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:inherit}
+  .rtab.active{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+  .rtp{display:none}
+  .rtp.active{display:block}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+  .card h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+  /* Customer response */
+  .response-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap}
+
+  /* Action items */
+  .action-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px;border:1px solid var(--border)}
+  .action-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+  /* JIRA ticket */
+  .jira-card{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;color:#c9d1d9}
+  .jira-label{color:#58a6ff;font-weight:600;margin-bottom:4px;font-size:11px}
+  .jira-value{margin-bottom:12px;color:#e6edf3;line-height:1.6}
+
+  /* Band log */
+  .band-log{background:#0a0f1e;border:1px solid var(--border2);border-radius:8px;padding:12px}
+  .band-msg{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+  .band-msg:last-child{border-bottom:none}
+  .band-agent{font-family:var(--mono);color:var(--pri3);min-width:160px}
+  .band-type{color:var(--cyan);flex:1}
+  .band-time{color:var(--muted);font-size:10px}
+
+  /* Safety assessment */
+  .safety-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .safety-item{background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+  .safety-key{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px}
+  .safety-val{font-size:13px;font-weight:600}
+
+  /* Error */
+  .error{background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.3);border-radius:10px;padding:14px;color:#f43f5e;font-size:13px;margin-bottom:14px;display:none}
+  .error.show{display:block}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🚗</div>
+  <span class="brand">RiderEx</span>
+  <span class="hbadge">5 Agents · Band.ai · AV Customer Support</span>
+</header>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-pill"><span class="pulse"></span>Multi-Agent AV Customer Support Pipeline</div>
+    <h1>From passenger feedback to<br><span>engineering ticket</span>, automatically.</h1>
+    <p>5 agents collaborate through Band — classifying feedback, triaging safety, drafting responses, quality reviewing, and creating engineering tickets.</p>
+  </div>
+
+  <!-- Pipeline visualization -->
+  <div class="pipeline">
+    <div class="ps"><div class="pc" id="step-1">📥</div><div class="pl">Intake &amp; Classify</div></div>
+    <div class="pa">→</div>
+    <div class="ps"><div class="pc" id="step-2">🚨</div><div class="pl">Safety Triage</div></div>
+    <div class="pa">→</div>
+    <div class="ps"><div class="pc" id="step-3">💬</div><div class="pl">Resolution Draft</div></div>
+    <div class="pa">→</div>
+    <div class="ps"><div class="pc" id="step-4">🔍</div><div class="pl">Quality Review</div></div>
+    <div class="pa">→</div>
+    <div class="ps"><div class="pc" id="step-5">🔧</div><div class="pl">Engineering Handoff</div></div>
+  </div>
+
+  <!-- Input Form -->
+  <div class="form-card">
+    <div style="margin-bottom:12px">
+      <label style="display:block;margin-bottom:8px">Try a sample scenario:</label>
+      <div class="samples">
+        <button class="sample-btn safety" onclick="loadSample('safety')">🔴 Safety — AEB false trigger</button>
+        <button class="sample-btn comfort" onclick="loadSample('comfort')">🟡 Comfort — rough ride</button>
+        <button class="sample-btn safety" onclick="loadSample('route')">🟠 Route — wrong destination</button>
+        <button class="sample-btn compliment" onclick="loadSample('compliment')">🟢 Compliment — great ride</button>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="fg">
+        <label>Ride ID</label>
+        <input type="text" id="ride-id" placeholder="RIDE-20260510-4821" value="RIDE-20260510-4821">
+      </div>
+      <div class="fg">
+        <label>Vehicle ID</label>
+        <input type="text" id="vehicle-id" placeholder="WM-MX-0047" value="WM-MX-0047">
+      </div>
+      <div class="fg">
+        <label>Star Rating</label>
+        <div class="stars" id="stars">
+          <span class="star active" data-v="1" onclick="setRating(1)">★</span>
+          <span class="star" data-v="2" onclick="setRating(2)">★</span>
+          <span class="star" data-v="3" onclick="setRating(3)">★</span>
+          <span class="star" data-v="4" onclick="setRating(4)">★</span>
+          <span class="star" data-v="5" onclick="setRating(5)">★</span>
+        </div>
+      </div>
+      <div class="fg full">
+        <label>Customer Feedback</label>
+        <textarea id="feedback" rows="5" placeholder="Paste customer feedback here...">The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Waymo again unless this is fixed.</textarea>
+      </div>
+    </div>
+    <button class="run-btn" id="run-btn" onclick="runPipeline()">
+      <div class="spinner" id="spinner"></div>
+      <span id="run-text">🚀  Run RiderEx Pipeline</span>
+    </button>
+  </div>
+
+  <div class="error" id="error-box"></div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="big-spin"></div>
+    <p style="margin-top:14px;font-size:13px;color:var(--muted2)">5 agents collaborating through Band...</p>
+    <div class="ls-grid">
+      <div class="ls-item" id="ls-1">📥 Intake &amp; Classification</div>
+      <div class="ls-item" id="ls-2">🚨 Safety Triage</div>
+      <div class="ls-item" id="ls-3">💬 Resolution Draft</div>
+      <div class="ls-item" id="ls-4">🔍 Quality Review</div>
+      <div class="ls-item" id="ls-5">🔧 Engineering Handoff</div>
+      <div class="ls-item" id="ls-6">✅ Case Closed</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+
+    <!-- Priority banner -->
+    <div class="priority-banner" id="priority-banner">
+      <div class="pb-icon" id="pb-icon"></div>
+      <div class="pb-text">
+        <h2 id="pb-title"></h2>
+        <p id="pb-summary"></p>
+      </div>
+      <div class="pb-badges" id="pb-badges"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><div class="stat-top" style="background:var(--red)"></div><div class="stat-num" id="s-priority" style="color:var(--red)">-</div><div class="stat-lbl">Priority</div></div>
+      <div class="stat"><div class="stat-top" style="background:var(--amber)"></div><div class="stat-num" id="s-safety" style="color:var(--amber)">-</div><div class="stat-lbl">Safety</div></div>
+      <div class="stat"><div class="stat-top" style="background:var(--green)"></div><div class="stat-num" id="s-refund" style="color:var(--green)">$0</div><div class="stat-lbl">Refund</div></div>
+      <div class="stat"><div class="stat-top" style="background:var(--cyan)"></div><div class="stat-num" id="s-team" style="color:var(--cyan);font-size:12px">-</div><div class="stat-lbl">Eng Team</div></div>
+      <div class="stat"><div class="stat-top" style="background:var(--primary)"></div><div class="stat-num" id="s-band" style="color:var(--primary)">0</div><div class="stat-lbl">Band Msgs</div></div>
+    </div>
+
+    <!-- Result Tabs -->
+    <div class="rtabs">
+      <button class="rtab active" onclick="switchTab('ticket',this)">📋 Ticket</button>
+      <button class="rtab" onclick="switchTab('safety',this)">🚨 Safety</button>
+      <button class="rtab" onclick="switchTab('response',this)">💬 Response</button>
+      <button class="rtab" onclick="switchTab('jira',this)">🔧 JIRA</button>
+      <button class="rtab" onclick="switchTab('band',this)">📡 Band Log</button>
+    </div>
+
+    <!-- Ticket Tab -->
+    <div class="rtp active" id="tab-ticket">
+      <div class="card">
+        <h3>📋 Ticket Details</h3>
+        <div class="safety-grid" id="ticket-details"></div>
+      </div>
+      <div class="card">
+        <h3>🏷️ Classification</h3>
+        <div id="ticket-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+    </div>
+
+    <!-- Safety Tab -->
+    <div class="rtp" id="tab-safety">
+      <div class="card">
+        <h3>🚨 Safety Assessment</h3>
+        <div class="safety-grid" id="safety-details"></div>
+      </div>
+      <div class="card" id="nhtsa-card" style="display:none">
+        <h3>⚖️ NHTSA Reportability</h3>
+        <div id="nhtsa-details"></div>
+      </div>
+    </div>
+
+    <!-- Response Tab -->
+    <div class="rtp" id="tab-response">
+      <div class="card">
+        <h3>💬 Approved Customer Response</h3>
+        <div class="response-box" id="customer-response"></div>
+      </div>
+      <div class="card">
+        <h3>✅ Internal Action Items</h3>
+        <div id="action-items"></div>
+      </div>
+    </div>
+
+    <!-- JIRA Tab -->
+    <div class="rtp" id="tab-jira">
+      <div class="card">
+        <h3>🔧 Engineering JIRA Ticket</h3>
+        <div class="jira-card" id="jira-content"></div>
+      </div>
+    </div>
+
+    <!-- Band Log Tab -->
+    <div class="rtp" id="tab-band">
+      <div class="card">
+        <h3>📡 Band Collaboration Log</h3>
+        <div class="band-log" id="band-log"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let rating = 1;
+
+const samples = {
+  safety: {
+    feedback: "The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Waymo again unless this is fixed.",
+    rating: 1, ride: "RIDE-20260510-4821", vehicle: "WM-MX-0047"
+  },
+  comfort: {
+    feedback: "The ride was really bumpy and uncomfortable. The AC was blasting cold air even though it was 60 degrees outside and I couldn't figure out how to turn it off. Also the car smelled weird. The driving itself was fine but the experience was not great.",
+    rating: 2, ride: "RIDE-20260510-3342", vehicle: "WM-SF-0123"
+  },
+  route: {
+    feedback: "The car took me to completely the wrong address. I said 123 Main Street and it took me to 123 Main Avenue which is 3 miles away. I was late to my meeting. This is unacceptable for a self-driving car.",
+    rating: 2, ride: "RIDE-20260510-2201", vehicle: "WM-MX-0089"
+  },
+  compliment: {
+    feedback: "Honestly one of the best rides I have ever taken. Super smooth, perfectly timed, and I loved watching the car navigate the complex intersection near downtown. The future is here and I am here for it. Will definitely be using Waymo exclusively from now on.",
+    rating: 5, ride: "RIDE-20260510-1105", vehicle: "WM-SF-0204"
+  }
+};
+
+function loadSample(type) {
+  const s = samples[type];
+  document.getElementById('feedback').value = s.feedback;
+  document.getElementById('ride-id').value = s.ride;
+  document.getElementById('vehicle-id').value = s.vehicle;
+  setRating(s.rating);
+}
+
+function setRating(n) {
+  rating = n;
+  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('active', i < n));
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.rtp').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function setStep(n, state) {
+  document.getElementById('step-' + n).className = 'pc ' + state;
+}
+
+function animateSteps() {
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i > 0) {
+      document.getElementById('ls-' + i).classList.remove('current');
+      document.getElementById('ls-' + i).classList.add('done');
+      setStep(i, 'done');
+    }
+    if (i < 5) {
+      i++;
+      document.getElementById('ls-' + i).classList.add('current');
+      setStep(i, 'running');
+    } else {
+      clearInterval(interval);
+    }
+  }, 7000);
+  return interval;
+}
+
+async function runPipeline() {
+  const feedback = document.getElementById('feedback').value.trim();
+  const rideId = document.getElementById('ride-id').value.trim();
+  const vehicleId = document.getElementById('vehicle-id').value.trim();
+  if (!feedback) { showError('Please enter customer feedback.'); return; }
+
+  hideError();
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('run-text').textContent = 'Running pipeline...';
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+
+  const anim = animateSteps();
+
+  try {
+    const res = await fetch('/run-pipeline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback_text: feedback, ride_id: rideId, vehicle_id: vehicleId, rating })
+    });
+    clearInterval(anim);
+    const data = await res.json();
+    if (data.error) { showError(data.error); return; }
+    renderResults(data);
+  } catch(e) {
+    clearInterval(anim);
+    showError('Pipeline failed: ' + e.message);
+  } finally {
+    document.getElementById('run-btn').disabled = false;
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('run-text').textContent = '🚀  Run RiderEx Pipeline';
+    document.getElementById('loading').classList.remove('show');
+  }
+}
+
+function chip(text, cls) {
+  return `<span class="chip chip-${cls}">${text}</span>`;
+}
+
+function renderResults(data) {
+  const intake = data.intake || {};
+  const safety = data.safety || {};
+  const resolution = data.resolution || {};
+  const review = data.quality_review || {};
+  const handoff = data.engineering_handoff || {};
+  const caseSummary = handoff.case_summary || {};
+
+  // Priority banner
+  const priority = intake.priority || 'P3';
+  const category = intake.category || 'UNKNOWN';
+  const pbEl = document.getElementById('priority-banner');
+  const pbClass = priority === 'P1' ? 'pb-p1' : priority === 'P2' ? 'pb-p2' : priority === 'P4' ? 'pb-p4' : 'pb-p3';
+  pbEl.className = 'priority-banner ' + pbClass;
+  const icons = { SAFETY:'🚨', COMFORT:'😟', ROUTE:'🗺️', SOFTWARE:'📱', COMPLIMENT:'🌟' };
+  document.getElementById('pb-icon').textContent = icons[category] || '📋';
+  document.getElementById('pb-title').textContent = `${intake.ticket_id} — ${category} | ${priority}`;
+  document.getElementById('pb-summary').textContent = intake.summary || '';
+  document.getElementById('pb-badges').innerHTML = [
+    chip(priority, priority==='P1'?'red':priority==='P2'?'amber':priority==='P4'?'green':'blue'),
+    chip(safety.safety_level||'?', safety.safety_level==='CRITICAL'?'red':safety.safety_level==='HIGH'?'amber':safety.safety_level==='NONE'?'green':'blue'),
+    chip(intake.sentiment||'?','gray'),
+    chip(`Churn: ${intake.churn_risk||'?'}`, intake.churn_risk==='HIGH'?'red':intake.churn_risk==='LOW'?'green':'amber'),
+  ].join(' ');
+
+  // Stats
+  document.getElementById('s-priority').textContent = priority;
+  document.getElementById('s-priority').style.color = priority==='P1'?'var(--red)':priority==='P2'?'var(--amber)':'var(--primary)';
+  document.getElementById('s-safety').textContent = safety.safety_level || '?';
+  document.getElementById('s-refund').textContent = `$${(resolution.refund_amount||0)+(resolution.credit_amount||0)}`;
+  document.getElementById('s-team').textContent = handoff.engineering_team || 'NONE';
+  document.getElementById('s-band').textContent = data.band_messages || 0;
+
+  // Ticket details
+  document.getElementById('ticket-details').innerHTML = [
+    ['Ticket ID', intake.ticket_id], ['Category', category], ['Priority', priority],
+    ['Sentiment', intake.sentiment], ['Churn Risk', intake.churn_risk], ['Rating', `${data.rating || 'N/A'} ★`],
+    ['Ride ID', data.ride_id], ['Vehicle ID', data.vehicle_id],
+    ['NHTSA Flag', intake.nhtsa_flag ? '⚠️ Yes' : '✅ No'],
+    ['Requires Engineering', intake.requires_engineering ? '✅ Yes' : 'No'],
+  ].map(([k,v]) => `<div class="safety-item"><div class="safety-key">${k}</div><div class="safety-val">${v||'—'}</div></div>`).join('');
+
+  document.getElementById('ticket-chips').innerHTML = (intake.key_phrases||[]).map(p => chip(p,'gray')).join(' ');
+
+  // Safety
+  document.getElementById('safety-details').innerHTML = [
+    ['Safety Level', safety.safety_level], ['NHTSA Reportable', safety.nhtsa_reportable?'⚠️ Yes':'✅ No'],
+    ['Likely AV Failure', safety.likely_av_failure||'None'], ['Affected Subsystem', safety.affected_subsystem||'None'],
+    ['Engineering Team', safety.engineering_team||'None'], ['Vehicle Action', safety.recommended_vehicle_action||'None'],
+    ['Immediate Escalation', safety.requires_immediate_escalation?'🔴 Yes':'✅ No'], ['ISO 26262', safety.regulatory_notes||'N/A'],
+  ].map(([k,v]) => `<div class="safety-item"><div class="safety-key">${k}</div><div class="safety-val">${v||'—'}</div></div>`).join('');
+
+  if (safety.nhtsa_reportable) {
+    document.getElementById('nhtsa-card').style.display = 'block';
+    document.getElementById('nhtsa-details').innerHTML = `<p style="font-size:13px;color:var(--muted2);line-height:1.6">${safety.nhtsa_reason||''}</p>`;
+  }
+
+  // Customer response
+  document.getElementById('customer-response').textContent = review.final_customer_response || resolution.customer_response || 'No response generated.';
+  document.getElementById('action-items').innerHTML = (resolution.action_items||[]).map(a => {
+    const colors = { HIGH:'var(--red)', MEDIUM:'var(--amber)', LOW:'var(--green)' };
+    return `<div class="action-item">
+      <div class="action-dot" style="background:${colors[a.priority]||'var(--muted)'}"></div>
+      <div><div style="font-size:13px;font-weight:600">${a.action}</div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:2px">${a.team} · ${a.due}</div></div>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted);font-size:13px">No action items.</p>';
+
+  // JIRA
+  const jira = handoff.jira_ticket || {};
+  document.getElementById('jira-content').innerHTML = handoff.requires_engineering ? `
+    <div class="jira-label">TITLE</div><div class="jira-value">${jira.title||'—'}</div>
+    <div class="jira-label">PRIORITY</div><div class="jira-value">${jira.priority||'—'}</div>
+    <div class="jira-label">LABELS</div><div class="jira-value">${(jira.labels||[]).join(', ')}</div>
+    <div class="jira-label">DESCRIPTION</div><div class="jira-value" style="white-space:pre-wrap">${jira.description||'—'}</div>
+    <div class="jira-label">ACCEPTANCE CRITERIA</div><div class="jira-value">${(jira.acceptance_criteria||[]).map(c=>`• ${c}`).join('\n')}</div>
+    <div class="jira-label">DATA REQUEST</div><div class="jira-value">${jira.ride_data_request||'—'}</div>
+    <div class="jira-label">SLA</div><div class="jira-value">${handoff.sla_target||'—'}</div>
+  ` : '<p style="color:var(--muted);padding:8px">No engineering ticket required for this feedback.</p>';
+
+  // Band log
+  document.getElementById('band-log').innerHTML = (data.band_log||[]).map(m => `
+    <div class="band-msg">
+      <span class="band-agent">${m.agent}</span>
+      <span class="band-type">→ ${m.type}</span>
+      <span class="band-time">${new Date(m.timestamp).toLocaleTimeString()}</span>
+    </div>`).join('');
+
+  for(let i=1;i<=5;i++) setStep(i,'done');
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = '❌ ' + msg;
+  el.classList.add('show');
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('run-text').textContent = '🚀  Run RiderEx Pipeline';
+}
+function hideError() { document.getElementById('error-box').classList.remove('show'); }
+</script>
+</body>
+</html>

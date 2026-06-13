@@ -1,0 +1,23 @@
+# RiderEx — Band Agent Configuration
+# Get agent UUIDs and API keys from https://app.band.ai/agents
+# Create 5 Remote Agents on Band, one per role below
+
+intake_agent:
+  agent_id: "<intake-agent-uuid-from-band>"
+  api_key: "<intake-agent-api-key-from-band>"
+
+safety_agent:
+  agent_id: "<safety-agent-uuid-from-band>"
+  api_key: "<safety-agent-api-key-from-band>"
+
+resolution_agent:
+  agent_id: "<resolution-agent-uuid-from-band>"
+  api_key: "<resolution-agent-api-key-from-band>"
+
+review_agent:
+  agent_id: "<review-agent-uuid-from-band>"
+  api_key: "<review-agent-api-key-from-band>"
+
+engineering_agent:
+  agent_id: "<engineering-agent-uuid-from-band>"
+  api_key: "<engineering-agent-api-key-from-band>"
