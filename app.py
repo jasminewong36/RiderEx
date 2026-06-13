@@ -15,8 +15,8 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 class FeedbackRequest(BaseModel):
     feedback_text: str
-    ride_id: Optional[str] = "RIDE-001"
-    vehicle_id: Optional[str] = "WM-001"
+    ride_id: Optional[str] = "RIDE-0000000000000001"
+    vehicle_id: Optional[str] = "WM-0001"
     rating: Optional[int] = None
 
 @app.post("/run-pipeline")

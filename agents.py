@@ -345,8 +345,8 @@ def agent_engineering() -> dict:
 
 def run_riderex_pipeline(
     feedback_text: str,
-    ride_id: str = "RIDE-001",
-    vehicle_id: str = "WM-001",
+    ride_id: str = "RIDE-0000000000000001",
+    vehicle_id: str = "WM-0001",
     rating: int = None
 ) -> dict:
     logger.info(f"\n{'='*60}\n🚗 RiderEx | {ride_id} | {vehicle_id}\n{'='*60}")

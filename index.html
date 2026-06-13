@@ -271,12 +271,15 @@
 
     <div class="form-grid">
       <div class="fg">
-        <label>Ride ID</label>
-        <input type="text" id="ride-id" placeholder="RIDE-20260510-4821" value="RIDE-20260510-4821">
+        <label>Ride ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 9999999999999999)</span></label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="ride-id" placeholder="RIDE-000000000001">
+          <button onclick="genIds()" title="Generate new IDs" style="padding:0 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);cursor:pointer;font-size:14px;flex-shrink:0">⟳</button>
+        </div>
       </div>
       <div class="fg">
-        <label>Vehicle ID</label>
-        <input type="text" id="vehicle-id" placeholder="WM-MX-0047" value="WM-MX-0047">
+        <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 2000)</span></label>
+        <input type="text" id="vehicle-id" placeholder="WM-0001">
       </div>
       <div class="fg">
         <label>Star Rating</label>
@@ -411,7 +414,6 @@
       <h2>📊 Metrics Dashboard</h2>
       <p>Aggregated from all pipeline runs in this session</p>
     </div>
-    <button class="clear-btn" onclick="clearMetrics()">🗑 Clear Data</button>
   </div>
 
   <!-- Empty state -->
@@ -564,22 +566,37 @@
 let rating = 1;
 const STORAGE_KEY = 'riderex_metrics';
 
+function randRideId() {
+  const n = Math.floor(Math.random() * 9999999999999999) + 1;
+  return 'RIDE-' + String(n).padStart(16, '0');
+}
+
+function randVehicleId() {
+  const n = Math.floor(Math.random() * 2000) + 1;
+  return 'WM-' + String(n).padStart(4, '0');
+}
+
+function genIds() {
+  document.getElementById('ride-id').value = randRideId();
+  document.getElementById('vehicle-id').value = randVehicleId();
+}
+
 const samples = {
   safety: {
     feedback: "The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Waymo again unless this is fixed.",
-    rating: 1, ride: "RIDE-20260510-4821", vehicle: "WM-MX-0047"
+    rating: 1
   },
   comfort: {
     feedback: "The ride was really bumpy and uncomfortable. The AC was blasting cold air even though it was 60 degrees outside and I couldn't figure out how to turn it off. Also the car smelled weird. The driving itself was fine but the experience was not great.",
-    rating: 2, ride: "RIDE-20260510-3342", vehicle: "WM-SF-0123"
+    rating: 2
   },
   route: {
     feedback: "The car took me to completely the wrong address. I said 123 Main Street and it took me to 123 Main Avenue which is 3 miles away. I was late to my meeting. This is unacceptable for a self-driving car.",
-    rating: 2, ride: "RIDE-20260510-2201", vehicle: "WM-MX-0089"
+    rating: 2
   },
   compliment: {
     feedback: "Honestly one of the best rides I have ever taken. Super smooth, perfectly timed, and I loved watching the car navigate the complex intersection near downtown. The future is here and I am here for it. Will definitely be using Waymo exclusively from now on.",
-    rating: 5, ride: "RIDE-20260510-1105", vehicle: "WM-SF-0204"
+    rating: 5
   }
 };
 
@@ -596,10 +613,12 @@ function switchPage(page, btn) {
 function loadSample(type) {
   const s = samples[type];
   document.getElementById('feedback').value = s.feedback;
-  document.getElementById('ride-id').value = s.ride;
-  document.getElementById('vehicle-id').value = s.vehicle;
+  genIds();
   setRating(s.rating);
 }
+
+// Auto-generate IDs on load
+window.addEventListener('DOMContentLoaded', genIds);
 
 function setRating(n) {
   rating = n;
