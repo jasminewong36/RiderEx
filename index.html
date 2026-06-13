@@ -671,7 +671,7 @@ function switchPage(page, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('page-' + page).classList.add('active');
-  if (page === 'dashboard') renderDashboard();
+  if (page === 'dashboard') renderDashboard().catch(console.error);
 }
 
 // ── Pipeline form ──────────────────────────────────────────────
@@ -746,6 +746,8 @@ async function runPipeline() {
     if (data.error) { showError(data.error); return; }
     saveMetric(data);
     renderResults(data);
+    // Refresh dashboard metrics from Supabase in background
+    renderDashboard();
   } catch(e) {
     clearInterval(anim);
     showError('Pipeline failed: ' + e.message);
@@ -929,8 +931,33 @@ function applyFilters(metrics) {
 }
 
 // ── Dashboard rendering ────────────────────────────────────────
-function renderDashboard() {
-  const all = getMetrics();
+async function renderDashboard() {
+  // Try to fetch from Supabase backend; fall back to localStorage seed
+  let all = [];
+  try {
+    const params = new URLSearchParams();
+    if (activeFilters.category !== 'ALL') params.set('category', activeFilters.category);
+    if (activeFilters.priority !== 'ALL') params.set('priority', activeFilters.priority);
+    if (activeFilters.safety !== 'ALL')   params.set('safety_level', activeFilters.safety);
+    if (activeFilters.time !== 'ALL')     params.set('days', activeFilters.time);
+    params.set('limit', '500');
+    const res = await fetch('/metrics?' + params.toString());
+    if (res.ok) {
+      const json = await res.json();
+      if (json.rides) {
+        all = json.rides.map(r => ({
+          ...r,
+          refund: (r.refund_amount || 0) + (r.credit_amount || 0),
+          good_ride: r.good_ride,
+          ts: r.created_at,
+          band_messages: r.band_messages || 5,
+        }));
+      }
+    }
+  } catch(e) { /* backend unavailable, fall through to localStorage */ }
+
+  // Merge with localStorage seed so dashboard works even without backend
+  if (all.length === 0) all = getMetrics();
   const metrics = applyFilters(all);
   const empty = document.getElementById('dash-empty');
   const content = document.getElementById('dash-content');
