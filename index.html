@@ -162,6 +162,46 @@
   .error{background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.3);border-radius:10px;padding:14px;color:#f43f5e;font-size:13px;margin-bottom:14px;display:none}
   .error.show{display:block}
 
+  /* ── GO/NO-GO ───────────────────────────────────────────────── */
+  .gng-banner{border-radius:14px;padding:24px 28px;margin-bottom:16px;display:flex;align-items:center;gap:20px}
+  .gng-go{background:rgba(16,185,129,0.08);border:2px solid rgba(16,185,129,0.5)}
+  .gng-nogo{background:rgba(244,63,94,0.08);border:2px solid rgba(244,63,94,0.5)}
+  .gng-conditional{background:rgba(245,158,11,0.08);border:2px solid rgba(245,158,11,0.5)}
+  .gng-icon{font-size:52px;flex-shrink:0;line-height:1}
+  .gng-text{flex:1}
+  .gng-decision{font-size:28px;font-weight:800;letter-spacing:-0.5px;font-family:var(--mono)}
+  .gng-go .gng-decision{color:var(--green)}
+  .gng-nogo .gng-decision{color:var(--red)}
+  .gng-conditional .gng-decision{color:var(--amber)}
+  .gng-subtitle{font-size:13px;color:var(--muted2);margin-top:4px;line-height:1.5}
+  .gng-vehicle{text-align:right;flex-shrink:0}
+  .gng-vehicle-label{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:4px}
+  .gng-vehicle-val{font-size:14px;font-weight:700;font-family:var(--mono)}
+
+  .criteria-item{display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
+  .criteria-pass{background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.2)}
+  .criteria-fail{background:rgba(244,63,94,0.05);border-color:rgba(244,63,94,0.2)}
+  .criteria-warn{background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.2)}
+  .criteria-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+  .criteria-name{font-size:13px;font-weight:600;margin-bottom:2px}
+  .criteria-desc{font-size:12px;color:var(--muted2)}
+
+  .issue-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--surface2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--red)}
+  .issue-item.warn{border-left-color:var(--amber)}
+  .issue-item.info{border-left-color:var(--primary)}
+  .issue-num{font-size:11px;font-family:var(--mono);font-weight:700;color:var(--muted);flex-shrink:0;margin-top:2px}
+  .issue-body{flex:1}
+  .issue-title{font-size:13px;font-weight:600;margin-bottom:3px}
+  .issue-detail{font-size:12px;color:var(--muted2);line-height:1.5}
+
+  .checklist-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;background:var(--surface2);border:1px solid var(--border)}
+  .checklist-item.done{opacity:0.6}
+  .check-box{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+  .check-done{background:rgba(16,185,129,0.2);color:var(--green);border:1px solid rgba(16,185,129,0.4)}
+  .check-fail{background:rgba(244,63,94,0.2);color:var(--red);border:1px solid rgba(244,63,94,0.4)}
+  .check-warn{background:rgba(245,158,11,0.2);color:var(--amber);border:1px solid rgba(245,158,11,0.4)}
+  .check-pend{background:var(--surface);color:var(--muted);border:1px solid var(--border2)}
+
   /* ── FILTERS ────────────────────────────────────────────────── */
   .filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px}
   .filter-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -360,6 +400,7 @@
       <button class="rtab active" onclick="switchTab('ticket',this)">📋 Ticket</button>
       <button class="rtab" onclick="switchTab('safety',this)">🚨 Safety</button>
       <button class="rtab" onclick="switchTab('response',this)">💬 Response</button>
+      <button class="rtab" onclick="switchTab('release',this)">🚦 Release Report</button>
       <button class="rtab" onclick="switchTab('jira',this)">🔧 JIRA</button>
       <button class="rtab" onclick="switchTab('band',this)">📡 Band Log</button>
     </div>
@@ -397,6 +438,43 @@
       <div class="card">
         <h3>✅ Internal Action Items</h3>
         <div id="action-items"></div>
+      </div>
+    </div>
+
+    <!-- Release Report Tab -->
+    <div class="rtp" id="tab-release">
+      <!-- Go/No-Go banner -->
+      <div class="gng-banner" id="gng-banner">
+        <div class="gng-icon" id="gng-icon"></div>
+        <div class="gng-text">
+          <div class="gng-decision" id="gng-decision"></div>
+          <div class="gng-subtitle" id="gng-subtitle"></div>
+        </div>
+        <div class="gng-vehicle" id="gng-vehicle"></div>
+      </div>
+
+      <!-- Conditions that drove the decision -->
+      <div class="card">
+        <h3>⚖️ Decision Criteria</h3>
+        <div id="gng-criteria"></div>
+      </div>
+
+      <!-- Issues requiring investigation -->
+      <div class="card" id="gng-issues-card">
+        <h3>🔍 Issues Requiring Investigation</h3>
+        <div id="gng-issues"></div>
+      </div>
+
+      <!-- Full release checklist -->
+      <div class="card">
+        <h3>✅ Release Checklist</h3>
+        <div id="gng-checklist"></div>
+      </div>
+
+      <!-- Quality review summary -->
+      <div class="card">
+        <h3>🔍 Quality Review Summary</h3>
+        <div class="safety-grid" id="gng-review"></div>
       </div>
     </div>
 
@@ -1195,8 +1273,149 @@ function renderResults(data) {
     </div>`).join('');
 
   for(let i=1;i<=5;i++) setStep(i,'done');
+  renderRelease(data);
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderRelease(data) {
+  const intake  = data.intake || {};
+  const safety  = data.safety || {};
+  const review  = data.quality_review || {};
+  const handoff = data.engineering_handoff || {};
+  const resolution = data.resolution || {};
+
+  const sl       = safety.safety_level || 'NONE';
+  const priority = intake.priority || 'P3';
+  const nhtsa    = !!safety.nhtsa_reportable;
+  const vaction  = safety.recommended_vehicle_action || 'NONE';
+  const escalate = !!safety.requires_immediate_escalation;
+  const qScore   = review.quality_score || 100;
+  const revDec   = review.review_decision || 'APPROVED';
+  const engReq   = !!handoff.requires_engineering;
+  const category = intake.category || '';
+
+  // ── Decision logic ──────────────────────────────────────────
+  let decision, cls, icon, subtitle, vehicleVal, vehicleColor;
+
+  const isNogo = sl === 'CRITICAL' || (sl === 'HIGH' && nhtsa) || vaction === 'GROUND_VEHICLE' || escalate || priority === 'P1' && nhtsa;
+  const isConditional = !isNogo && (sl === 'HIGH' || sl === 'MEDIUM' || priority === 'P1' || priority === 'P2' || vaction === 'INSPECT_BEFORE_NEXT_RIDE' || qScore < 75 || revDec === 'REVISION_NEEDED');
+
+  if (isNogo) {
+    decision = '🚫 NO-GO'; cls = 'gng-nogo'; icon = '🛑';
+    subtitle = 'This vehicle software build must NOT be released. Critical issues require resolution and re-validation before any deployment.';
+    vehicleVal = vaction === 'GROUND_VEHICLE' ? 'GROUNDED' : 'HOLD'; vehicleColor = 'var(--red)';
+  } else if (isConditional) {
+    decision = '⚠️ CONDITIONAL GO'; cls = 'gng-conditional'; icon = '🟡';
+    subtitle = 'Release is permitted with conditions. All flagged issues must be investigated and resolved within the defined SLA before the next release cycle.';
+    vehicleVal = vaction === 'INSPECT_BEFORE_NEXT_RIDE' ? 'INSPECT FIRST' : 'MONITOR'; vehicleColor = 'var(--amber)';
+  } else {
+    decision = '✅ GO'; cls = 'gng-go'; icon = '🟢';
+    subtitle = 'No safety or quality blockers detected. This vehicle software build is cleared for release.';
+    vehicleVal = 'CLEARED'; vehicleColor = 'var(--green)';
+  }
+
+  const banner = document.getElementById('gng-banner');
+  banner.className = 'gng-banner ' + cls;
+  document.getElementById('gng-icon').textContent = icon;
+  document.getElementById('gng-decision').textContent = decision;
+  document.getElementById('gng-subtitle').textContent = subtitle;
+  document.getElementById('gng-vehicle').innerHTML = `
+    <div class="gng-vehicle-label">Vehicle Status</div>
+    <div class="gng-vehicle-val" style="color:${vehicleColor}">${vehicleVal}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">${data.vehicle_id || '—'}</div>`;
+
+  // ── Decision criteria ──────────────────────────────────────
+  const criteria = [
+    { name:'Safety Level', val: sl, pass: ['NONE','LOW'].includes(sl), warn: sl==='MEDIUM', desc: `Assessed by Safety Agent — ${sl}` },
+    { name:'NHTSA Reportable', val: nhtsa?'YES':'NO', pass: !nhtsa, warn: false, desc: nhtsa ? safety.nhtsa_reason || 'Incident meets NHTSA reporting threshold' : 'No federal reporting required' },
+    { name:'Priority', val: priority, pass: ['P3','P4'].includes(priority), warn: priority==='P2', desc: `Customer feedback classified as ${priority}` },
+    { name:'Vehicle Action', val: vaction, pass: vaction==='CONTINUE_OPERATION'||vaction==='NONE', warn: vaction==='INSPECT_BEFORE_NEXT_RIDE', desc: `Safety Agent recommended: ${vaction.replace(/_/g,' ')}` },
+    { name:'Immediate Escalation', val: escalate?'REQUIRED':'NONE', pass: !escalate, warn: false, desc: escalate ? safety.escalation_reason||'Escalation required' : 'No escalation triggered' },
+    { name:'Quality Score', val: qScore+'/100', pass: qScore>=80, warn: qScore>=65&&qScore<80, desc: `Review Agent scored this case ${qScore}/100` },
+    { name:'Review Decision', val: revDec, pass: revDec==='APPROVED', warn: revDec==='APPROVED_WITH_EDITS', desc: revDec==='REVISION_NEEDED'?review.revision_feedback||'Revision required':'Quality review completed' },
+    { name:'Engineering Ticket', val: engReq?'CREATED':'NOT REQUIRED', pass: true, warn: engReq, desc: engReq ? `Assigned to ${handoff.engineering_team}` : 'No engineering follow-up needed' },
+  ];
+
+  document.getElementById('gng-criteria').innerHTML = criteria.map(c => {
+    const state = !c.pass && !c.warn ? 'fail' : c.warn ? 'warn' : 'pass';
+    const ico = state==='fail'?'✗':state==='warn'?'!':'✓';
+    return `<div class="criteria-item criteria-${state}">
+      <div class="criteria-icon">${state==='fail'?'❌':state==='warn'?'⚠️':'✅'}</div>
+      <div><div class="criteria-name">${c.name} <span style="font-family:var(--mono);font-size:11px;color:var(--muted2);margin-left:6px">${c.val}</span></div>
+      <div class="criteria-desc">${c.desc}</div></div>
+    </div>`;
+  }).join('');
+
+  // ── Issues requiring investigation ────────────────────────
+  const issues = [];
+  if (['CRITICAL','HIGH','MEDIUM'].includes(sl))
+    issues.push({ sev:'critical', title:`${sl} Safety Concern — ${safety.likely_av_failure||'Unknown AV failure'}`, detail:`Affected subsystem: ${safety.affected_subsystem||'Unknown'}. ${safety.safety_notes||''}` });
+  if (nhtsa)
+    issues.push({ sev:'critical', title:'NHTSA Reportable Incident', detail:safety.nhtsa_reason||'This incident must be reported to the National Highway Traffic Safety Administration.' });
+  if (escalate)
+    issues.push({ sev:'critical', title:'Immediate Escalation Required', detail:safety.escalation_reason||'This case requires immediate attention from senior engineering.' });
+  if (vaction==='GROUND_VEHICLE')
+    issues.push({ sev:'critical', title:'Vehicle Grounded — Do Not Operate', detail:`Vehicle ${data.vehicle_id} must be removed from service and inspected before any further operation.` });
+  if (vaction==='INSPECT_BEFORE_NEXT_RIDE')
+    issues.push({ sev:'warn', title:'Vehicle Inspection Required Before Next Ride', detail:`Vehicle ${data.vehicle_id} must be physically inspected and cleared before resuming service.` });
+  if (priority==='P1'||priority==='P2')
+    issues.push({ sev: priority==='P1'?'critical':'warn', title:`${priority} Customer Impact`, detail:`Churn risk: ${intake.churn_risk||'UNKNOWN'}. Sentiment: ${intake.sentiment||'UNKNOWN'}. Immediate customer follow-up required.` });
+  if (qScore < 75)
+    issues.push({ sev:'warn', title:`Low Quality Score (${qScore}/100)`, detail:review.revision_feedback||'Response quality is below threshold. Review and revise before sending to customer.' });
+  if (revDec==='REVISION_NEEDED')
+    issues.push({ sev:'warn', title:'Response Revision Required', detail:review.revision_feedback||'The quality review agent flagged this response for revision.' });
+  if (engReq)
+    issues.push({ sev:'info', title:`Engineering Investigation — ${handoff.engineering_team}`, detail:`SLA: ${handoff.sla_target||'TBD'}. ${handoff.jira_ticket?.title||''}` });
+  (resolution.action_items||[]).forEach(a => {
+    if (a.priority==='HIGH') issues.push({ sev:'warn', title:a.action, detail:`Team: ${a.team} · Due: ${a.due}` });
+  });
+
+  const sevClass = { critical:'', warn:'warn', info:'info' };
+  document.getElementById('gng-issues-card').style.display = issues.length ? 'block' : 'none';
+  document.getElementById('gng-issues').innerHTML = issues.length
+    ? issues.map((iss,i) => `<div class="issue-item ${sevClass[iss.sev]}">
+        <div class="issue-num">#${String(i+1).padStart(2,'0')}</div>
+        <div class="issue-body"><div class="issue-title">${iss.title}</div><div class="issue-detail">${iss.detail}</div></div>
+      </div>`).join('')
+    : '<p style="color:var(--green);font-size:13px">No issues found. All checks passed.</p>';
+
+  // ── Release checklist ──────────────────────────────────────
+  const checks = [
+    { label:'No critical safety incidents', done: !['CRITICAL','HIGH'].includes(sl), required: true },
+    { label:'NHTSA reporting not required', done: !nhtsa, required: true },
+    { label:'No immediate escalation', done: !escalate, required: true },
+    { label:'Vehicle cleared for operation', done: vaction==='CONTINUE_OPERATION'||vaction==='NONE', required: true },
+    { label:'Priority P3 or below', done: ['P3','P4'].includes(priority), required: false },
+    { label:'Quality score ≥ 80', done: qScore >= 80, required: false },
+    { label:'Response approved by review agent', done: revDec==='APPROVED', required: false },
+    { label:'Engineering ticket created (if needed)', done: !engReq || !!handoff.jira_ticket?.title, required: false },
+    { label:'Customer response drafted', done: !!(review.final_customer_response||resolution.customer_response), required: false },
+    { label:'Action items assigned to teams', done: (resolution.action_items||[]).length > 0 || !engReq, required: false },
+  ];
+
+  document.getElementById('gng-checklist').innerHTML = checks.map(c => {
+    const state = c.done ? 'done' : c.required ? 'fail' : 'warn';
+    const ico = c.done ? '✓' : c.required ? '✗' : '!';
+    const cls2 = c.done ? 'check-done' : c.required ? 'check-fail' : 'check-warn';
+    return `<div class="checklist-item ${c.done?'done':''}">
+      <div class="check-box ${cls2}">${ico}</div>
+      <span style="flex:1;${c.done?'text-decoration:line-through;color:var(--muted)':''}">${c.label}</span>
+      ${c.required ? '<span style="font-size:10px;font-family:var(--mono);color:var(--muted)">REQUIRED</span>' : ''}
+    </div>`;
+  }).join('');
+
+  // ── Quality review summary grid ────────────────────────────
+  document.getElementById('gng-review').innerHTML = [
+    ['Review Decision', revDec],
+    ['Tone Score',      (review.tone_score||'—') + '/10'],
+    ['Empathy Score',   (review.empathy_score||'—') + '/10'],
+    ['Quality Score',   qScore + '/100'],
+    ['Policy Compliant', review.policy_compliance ? '✅ Yes' : '❌ No'],
+    ['Pattern Detected', review.pattern_detected ? '⚠️ Yes' : '✅ No'],
+    ['Legal Concerns',   review.legal_concerns || 'None'],
+    ['Review Notes',     review.review_notes || '—'],
+  ].map(([k,v]) => `<div class="safety-item"><div class="safety-key">${k}</div><div class="safety-val" style="font-size:12px">${v}</div></div>`).join('');
 }
 
 function showError(msg) {
