@@ -1076,8 +1076,12 @@
         <div class="vc-segs" id="vcm-segs" style="gap:3px"></div>
       </div>
       <div class="vcm-section">
-        <div class="vcm-label">Recent Safety Flags</div>
+        <div class="vcm-label">Active Flags</div>
         <div id="vcm-flags" style="font-size:12px;color:rgba(0,229,200,0.6);line-height:1.8"></div>
+      </div>
+      <div class="vcm-section">
+        <div class="vcm-label">Pipeline Run History <span style="color:rgba(0,229,200,0.3);font-size:9px;margin-left:6px">✓ RESOLVED &nbsp; ! NEW ISSUE</span></div>
+        <div id="vcm-runs"></div>
       </div>
       <div class="vcm-actions">
         <button class="vcm-btn primary" onclick="loadVehicleInPipeline()">▶ RUN PIPELINE</button>
@@ -1091,6 +1095,26 @@
 let rating = 1;
 const STORAGE_KEY = 'riderex_metrics';
 let vehicleRegistry = [];
+const VEHICLE_STATE_KEY = 'riderex_vehicle_state';
+
+function getVehicleStateMap() {
+  try { return JSON.parse(localStorage.getItem(VEHICLE_STATE_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function persistVehicleState(vehicleId, v) {
+  const map = getVehicleStateMap();
+  map[vehicleId] = {
+    status: v.status, score: v.score,
+    processedTickets: v.processedTickets || 0,
+    newTickets: v.newTickets || 0,
+    totalRides: v.totalRides,
+    avgRating: v.avgRating,
+    incidents: v.incidents,
+    pipelineRuns: v.pipelineRuns || [],
+  };
+  localStorage.setItem(VEHICLE_STATE_KEY, JSON.stringify(map));
+}
 
 async function loadVehicleRegistry() {
   try {
@@ -1271,56 +1295,79 @@ function updateFleetVehicle(data) {
   const intake  = data.intake  || {};
   const safety  = data.safety  || {};
   const vehicleId = data.vehicle_id;
-  if (!vehicleId || !fleetData.length) return;
+  if (!vehicleId) return;
 
-  const sl           = safety.safety_level || 'NONE';
-  const vehicleAction= safety.recommended_vehicle_action || 'NONE';
-  const isIncident   = ['CRITICAL','HIGH'].includes(sl);
+  const sl            = safety.safety_level || 'NONE';
+  const vehicleAction = safety.recommended_vehicle_action || 'NONE';
+  const isNewIncident = ['CRITICAL','HIGH'].includes(sl); // new problem surfaced
+  const isResolved    = !isNewIncident; // LOW/NONE/MEDIUM treated as resolved
 
   let v = fleetData.find(x => x.id === vehicleId);
-
   if (!v) {
-    // Vehicle not in registry — add a live entry so it shows in fleet
+    // Vehicle not in registry — add a live entry
     v = {
-      id: vehicleId,
-      num: parseInt(vehicleId.replace('WM-','')) || 9999,
-      status: 'ACTIVE', score: 80, totalRides: 0, incidents: 0,
+      id: vehicleId, num: parseInt(vehicleId.replace('WM-','')) || 9999,
+      status:'ACTIVE', score:80, totalRides:0, incidents:0,
       avgRating: data.rating || 4.0, lastActive: new Date(),
-      flags: ['PIPELINE_RUN'], icon: '🚗',
-      city:'', state:'', model:'Live Vehicle', zone:'', software:'', mileage:0,
+      flags:[], icon:'🚗', city:'', state:'', model:'Live Vehicle',
+      zone:'', software:'', mileage:0,
+      openTickets:0, processedTickets:0, newTickets:0, netOpenTickets:0, pipelineRuns:[],
     };
     fleetData.push(v);
     fleetData.sort((a,b) => a.num - b.num);
   }
 
-  // Derive new status (never un-ground without explicit clear)
+  // Ticket accounting: resolving an existing ticket vs surfacing a new one
+  if (isResolved) {
+    v.processedTickets = (v.processedTickets || 0) + 1;
+  } else {
+    // New incident = new open ticket added to the queue
+    v.newTickets = (v.newTickets || 0) + 1;
+    v.incidents  = (v.incidents  || 0) + 1;
+  }
+  // Recalculate net open every time
+  v.netOpenTickets = Math.max(0, (v.openTickets||0) + (v.newTickets||0) - (v.processedTickets||0));
+
+  // Status — never auto-downgrade from GROUNDED
   if (vehicleAction === 'GROUND_VEHICLE' || sl === 'CRITICAL') {
     v.status = 'GROUNDED';
   } else if (vehicleAction === 'INSPECT_BEFORE_NEXT_RIDE' || sl === 'HIGH') {
     if (v.status !== 'GROUNDED') v.status = 'MAINTENANCE';
   } else if (v.status !== 'GROUNDED') {
-    v.status = 'ACTIVE';
+    v.status = v.netOpenTickets > 0 ? 'MAINTENANCE' : 'ACTIVE';
   }
 
-  // Adjust safety score
-  const scoreDelta = { CRITICAL:-30, HIGH:-15, MEDIUM:-5, LOW:2, NONE:3 };
+  // Safety score
+  const scoreDelta = { CRITICAL:-25, HIGH:-12, MEDIUM:-4, LOW:3, NONE:5 };
   v.score = Math.max(5, Math.min(100, v.score + (scoreDelta[sl] || 0)));
 
-  if (isIncident) v.incidents++;
+  // Rating
   if (data.rating) {
     v.avgRating = parseFloat(((v.avgRating * v.totalRides + data.rating) / (v.totalRides + 1)).toFixed(1));
   }
   v.totalRides++;
   v.lastActive = new Date();
 
-  // Append flags without duplicates
-  const newFlags = ['PIPELINE_RUN'];
-  if (isIncident) newFlags.push('INCIDENT_LOGGED');
-  if (intake.category) newFlags.push(intake.category);
-  if (safety.nhtsa_reportable) newFlags.push('NHTSA_REPORTABLE');
-  newFlags.forEach(f => { if (!v.flags.includes(f)) v.flags.push(f); });
+  // Flags
+  if (!v.flags.includes('PIPELINE_RUN')) v.flags.push('PIPELINE_RUN');
+  if (isNewIncident && !v.flags.includes('INCIDENT_LOGGED')) v.flags.push('INCIDENT_LOGGED');
+  if (intake.category && !v.flags.includes(intake.category)) v.flags.push(intake.category);
+  if (safety.nhtsa_reportable && !v.flags.includes('NHTSA_REPORTABLE')) v.flags.push('NHTSA_REPORTABLE');
 
-  // Live-refresh fleet grid if that page is open
+  // Log this run
+  v.pipelineRuns = v.pipelineRuns || [];
+  v.pipelineRuns.unshift({
+    ts: new Date().toISOString(),
+    ticket: intake.ticket_id || '—',
+    category: intake.category || '—',
+    sl, resolved: isResolved,
+  });
+  if (v.pipelineRuns.length > 20) v.pipelineRuns.length = 20; // keep last 20
+
+  // Persist to localStorage
+  persistVehicleState(vehicleId, v);
+
+  // Live-refresh fleet grid if open
   if (document.getElementById('page-fleet')?.classList.contains('active')) {
     updateFleetHeader();
     applyFleetFilters();
@@ -1395,7 +1442,7 @@ function vehicleSeedRecord(v, i) {
 }
 
 function seedMetrics() {
-  const SEED_VER = 'vehicles_v1';
+  const SEED_VER = 'vehicles_v2';
   if (vehicleRegistry.length > 0) {
     if (localStorage.getItem('riderex_seed_ver') === SEED_VER) return;
     const records = vehicleRegistry.map((v, i) => vehicleSeedRecord(v, i));
@@ -1906,10 +1953,16 @@ let fleetInitialized = false;
 let activeVehicle = null;
 
 function buildFleetFromRegistry(vehicles) {
+  const savedStates = getVehicleStateMap();
   return vehicles.map(v => {
-    const status = v.status || 'ACTIVE';
-    const score = Math.round(v.safety_score || 80);
-    const incidents = v.open_support_tickets || 0;
+    const saved = savedStates[v.vehicle_id] || {};
+    const status = saved.status || v.status || 'ACTIVE';
+    const score = saved.score !== undefined ? saved.score : Math.round(v.safety_score || 80);
+    const openTickets = v.open_support_tickets || 0;
+    const processedTickets = saved.processedTickets || 0;
+    const newTickets = saved.newTickets || 0;
+    // netOpen = original open + new issues that came in - resolved ones; never goes below 0
+    const netOpenTickets = Math.max(0, openTickets + newTickets - processedTickets);
     const lastActive = v.last_service_date ? new Date(v.last_service_date) : new Date(Date.now() - 86400000);
     let icon = '🚗';
     if (v.model?.includes('Jaguar')) icon = '🏎️';
@@ -1918,15 +1971,21 @@ function buildFleetFromRegistry(vehicles) {
     const flags = [];
     if (status === 'GROUNDED') flags.push('GROUND_VEHICLE', 'NHTSA_REPORTABLE');
     if (status === 'MAINTENANCE') flags.push('INSPECT_REQUIRED');
-    if (incidents > 0) flags.push('INCIDENT_LOGGED');
+    if (netOpenTickets > 0) flags.push('INCIDENT_LOGGED');
     if (v.last_incident_type) flags.push(v.last_incident_type);
+    if (processedTickets > 0) flags.push('PIPELINE_RUN');
     return {
       id: v.vehicle_id,
       num: parseInt(v.vehicle_id?.replace('WM-', '') || '0'),
       status, score,
-      totalRides: v.total_rides || 0,
-      incidents,
-      avgRating: v.avg_passenger_rating || 4.0,
+      totalRides: saved.totalRides !== undefined ? saved.totalRides : (v.total_rides || 0),
+      incidents: saved.incidents !== undefined ? saved.incidents : (openTickets),
+      avgRating: saved.avgRating !== undefined ? saved.avgRating : (v.avg_passenger_rating || 4.0),
+      openTickets,       // original from registry (never changes)
+      processedTickets,  // how many resolved via pipeline
+      newTickets,        // new incidents surfaced via pipeline
+      netOpenTickets,    // what user sees as "open right now"
+      pipelineRuns: saved.pipelineRuns || [],
       lastActive, flags, icon,
       city: v.city || '', state: v.state || '',
       model: v.model || '',
@@ -2016,11 +2075,14 @@ function renderVehicleCard(v) {
   const statusColor = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.4)' }[v.status];
   const modelShort = v.model ? v.model.replace('Waymo ','').replace(' Platform','').substring(0,18) : v.icon;
   const location = v.city ? `${v.city}, ${v.state}` : '';
-  const hasPipelineRun = v.flags.includes('PIPELINE_RUN');
+  const netOpen   = v.netOpenTickets !== undefined ? v.netOpenTickets : (v.incidents || 0);
+  const processed = v.processedTickets || 0;
+  const hasRuns   = processed > 0 || (v.pipelineRuns||[]).length > 0;
+  const openColor = netOpen === 0 ? 'var(--fleet-green)' : netOpen >= 3 ? 'var(--fleet-red)' : 'var(--fleet-amber)';
 
   return `<div class="vcard ${statusClass}" onclick="openVehicleModal('${v.id}')">
     <div class="vc-head">
-      <span class="vc-id">${v.id}${hasPipelineRun ? ' <span style="font-size:8px;color:var(--fleet-teal);opacity:0.7">●LIVE</span>' : ''}</span>
+      <span class="vc-id">${v.id}</span>
       <div class="vc-status-dot ${dotClass}"></div>
     </div>
     <div class="vc-body">
@@ -2030,13 +2092,13 @@ function renderVehicleCard(v) {
       <div class="vc-bar-label"><span>SAFETY</span><span>${v.score}%</span></div>
       <div class="vc-bar"><div class="vc-bar-fill ${barClass}" style="width:${v.score}%"></div></div>
       <div class="vc-stats">
-        <div class="vc-stat"><b>${v.totalRides.toLocaleString()}</b>RIDES</div>
-        <div class="vc-stat"><b style="color:${v.incidents>0?'var(--fleet-red)':'var(--fleet-green)'}">${v.incidents}</b>TICKETS</div>
+        <div class="vc-stat"><b style="color:${openColor}">${netOpen}</b>OPEN</div>
+        <div class="vc-stat"><b style="color:${processed>0?'var(--fleet-teal)':'rgba(0,229,200,0.25)'}">${processed}</b>DONE</div>
       </div>
     </div>
     <div class="vc-foot">
       <span style="color:${statusColor};font-weight:700">${v.status}</span>
-      <span>★${v.avgRating.toFixed(1)}</span>
+      <span style="color:rgba(0,229,200,0.45)">★${typeof v.avgRating === 'number' ? v.avgRating.toFixed(1) : v.avgRating}</span>
     </div>
   </div>`;
 }
@@ -2057,9 +2119,12 @@ function openVehicleModal(vehicleId) {
   document.getElementById('vcm-status').style.color = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.6)' }[v.status];
   document.getElementById('vcm-score').textContent = v.score + ' / 100';
   document.getElementById('vcm-rides').textContent = v.totalRides.toLocaleString();
-  document.getElementById('vcm-incidents').textContent = v.incidents;
+  const netOpen = v.netOpenTickets !== undefined ? v.netOpenTickets : (v.incidents || 0);
+  const vcmInc = document.getElementById('vcm-incidents');
+  vcmInc.textContent = netOpen + ' open · ' + (v.processedTickets||0) + ' resolved';
+  vcmInc.style.color = netOpen === 0 ? 'var(--fleet-green)' : netOpen >= 3 ? 'var(--fleet-red)' : 'var(--fleet-amber)';
   document.getElementById('vcm-rating').textContent = '★ ' + v.avgRating;
-  document.getElementById('vcm-last').textContent = v.lastActive.toLocaleDateString();
+  document.getElementById('vcm-last').textContent = v.lastActive instanceof Date ? v.lastActive.toLocaleDateString() : new Date(v.lastActive).toLocaleDateString();
 
   const dotEl = document.getElementById('vcm-status-dot');
   dotEl.className = 'vc-status-dot ' + ({ ACTIVE:'s-active', GROUNDED:'s-grounded', MAINTENANCE:'s-maintenance', IDLE:'s-idle' }[v.status]);
@@ -2081,6 +2146,25 @@ function openVehicleModal(vehicleId) {
     ? v.flags.map(f => `<div>◈ ${f.replace(/_/g,' ')}</div>`).join('')
     : '<div style="color:rgba(0,229,200,0.3)">◈ NO FLAGS — ALL CLEAR</div>';
   document.getElementById('vcm-flags').innerHTML = flagHtml;
+
+  // Pipeline run history
+  const runs = v.pipelineRuns || [];
+  const runsHtml = runs.length
+    ? runs.slice(0,8).map(r => {
+        const ts  = new Date(r.ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        const col = r.resolved ? 'var(--fleet-green)' : 'var(--fleet-red)';
+        const ico = r.resolved ? '✓' : '!';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,229,200,0.06);font-size:11px">
+          <span style="color:${col};font-weight:700;width:12px">${ico}</span>
+          <span style="color:rgba(0,229,200,0.5);min-width:100px">${ts}</span>
+          <span style="color:rgba(0,229,200,0.7)">${r.category || '—'}</span>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:${col}">${r.sl}</span>
+        </div>`;
+      }).join('')
+    : '<div style="color:rgba(0,229,200,0.3);font-size:11px">No pipeline runs yet for this vehicle.</div>';
+
+  const runsSection = document.getElementById('vcm-runs');
+  if (runsSection) runsSection.innerHTML = runsHtml;
 
   document.getElementById('vcard-modal').classList.add('open');
 }
