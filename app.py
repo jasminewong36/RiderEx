@@ -1,5 +1,6 @@
 """RiderEx — FastAPI backend"""
 import os
+import json
 import logging
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -142,6 +143,15 @@ async def health():
         "aiml_configured": bool(os.getenv("AIML_API_KEY")),
         "supabase_configured": bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_SERVICE_KEY")),
     }
+
+
+@app.get("/vehicles")
+async def get_vehicles():
+    try:
+        with open("riderex_vehicles.json") as f:
+            return JSONResponse(content=json.load(f))
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.get("/", response_class=HTMLResponse)

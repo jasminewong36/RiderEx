@@ -485,6 +485,9 @@
   .vc-bar-fill.hb-med{background:linear-gradient(90deg,var(--fleet-amber),#cc7000)}
   .vc-bar-fill.hb-low{background:linear-gradient(90deg,var(--fleet-red),#cc0022)}
 
+  /* Live badge on fleet card */
+  .vc-live{font-size:8px;color:var(--fleet-teal);opacity:0.7;vertical-align:middle}
+
   /* Segmented bar */
   .vc-segs{display:flex;gap:2px;margin-bottom:8px}
   .vc-seg{flex:1;height:6px;border-radius:1px;background:rgba(0,229,200,0.08);border:1px solid rgba(0,229,200,0.06);transition:background 0.3s}
@@ -992,7 +995,7 @@
       <span class="fh-corner">◥◣</span>
     </div>
     <div class="fh-body">
-      <div class="fh-stat"><div class="fh-stat-val" id="fh-total">2000</div><div class="fh-stat-lbl">Total Vehicles</div></div>
+      <div class="fh-stat"><div class="fh-stat-val" id="fh-total">200</div><div class="fh-stat-lbl">Total Vehicles</div></div>
       <div class="fh-divider"></div>
       <div class="fh-stat"><div class="fh-stat-val" id="fh-active" style="color:var(--fleet-green)">—</div><div class="fh-stat-lbl">Active</div></div>
       <div class="fh-divider"></div>
@@ -1087,6 +1090,16 @@
 <script>
 let rating = 1;
 const STORAGE_KEY = 'riderex_metrics';
+let vehicleRegistry = [];
+
+async function loadVehicleRegistry() {
+  try {
+    const res = await fetch('/vehicles');
+    if (!res.ok) return;
+    const data = await res.json();
+    vehicleRegistry = data.vehicles || [];
+  } catch(e) {}
+}
 
 function randRideId() {
   const n = Math.floor(Math.random() * 9999999999999999) + 1;
@@ -1141,7 +1154,7 @@ function loadSample(type) {
 }
 
 // Auto-generate IDs on load
-window.addEventListener('DOMContentLoaded', () => { genIds(); seedMetrics(); });
+window.addEventListener('DOMContentLoaded', async () => { genIds(); await loadVehicleRegistry(); seedMetrics(); });
 
 function setRating(n) {
   rating = n;
@@ -1251,6 +1264,67 @@ function saveMetric(data) {
     ts: new Date().toISOString(),
   });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(metrics));
+  updateFleetVehicle(data);
+}
+
+function updateFleetVehicle(data) {
+  const intake  = data.intake  || {};
+  const safety  = data.safety  || {};
+  const vehicleId = data.vehicle_id;
+  if (!vehicleId || !fleetData.length) return;
+
+  const sl           = safety.safety_level || 'NONE';
+  const vehicleAction= safety.recommended_vehicle_action || 'NONE';
+  const isIncident   = ['CRITICAL','HIGH'].includes(sl);
+
+  let v = fleetData.find(x => x.id === vehicleId);
+
+  if (!v) {
+    // Vehicle not in registry — add a live entry so it shows in fleet
+    v = {
+      id: vehicleId,
+      num: parseInt(vehicleId.replace('WM-','')) || 9999,
+      status: 'ACTIVE', score: 80, totalRides: 0, incidents: 0,
+      avgRating: data.rating || 4.0, lastActive: new Date(),
+      flags: ['PIPELINE_RUN'], icon: '🚗',
+      city:'', state:'', model:'Live Vehicle', zone:'', software:'', mileage:0,
+    };
+    fleetData.push(v);
+    fleetData.sort((a,b) => a.num - b.num);
+  }
+
+  // Derive new status (never un-ground without explicit clear)
+  if (vehicleAction === 'GROUND_VEHICLE' || sl === 'CRITICAL') {
+    v.status = 'GROUNDED';
+  } else if (vehicleAction === 'INSPECT_BEFORE_NEXT_RIDE' || sl === 'HIGH') {
+    if (v.status !== 'GROUNDED') v.status = 'MAINTENANCE';
+  } else if (v.status !== 'GROUNDED') {
+    v.status = 'ACTIVE';
+  }
+
+  // Adjust safety score
+  const scoreDelta = { CRITICAL:-30, HIGH:-15, MEDIUM:-5, LOW:2, NONE:3 };
+  v.score = Math.max(5, Math.min(100, v.score + (scoreDelta[sl] || 0)));
+
+  if (isIncident) v.incidents++;
+  if (data.rating) {
+    v.avgRating = parseFloat(((v.avgRating * v.totalRides + data.rating) / (v.totalRides + 1)).toFixed(1));
+  }
+  v.totalRides++;
+  v.lastActive = new Date();
+
+  // Append flags without duplicates
+  const newFlags = ['PIPELINE_RUN'];
+  if (isIncident) newFlags.push('INCIDENT_LOGGED');
+  if (intake.category) newFlags.push(intake.category);
+  if (safety.nhtsa_reportable) newFlags.push('NHTSA_REPORTABLE');
+  newFlags.forEach(f => { if (!v.flags.includes(f)) v.flags.push(f); });
+
+  // Live-refresh fleet grid if that page is open
+  if (document.getElementById('page-fleet')?.classList.contains('active')) {
+    updateFleetHeader();
+    applyFleetFilters();
+  }
 }
 
 function getMetrics() {
@@ -1266,84 +1340,93 @@ function clearMetrics() {
 }
 
 // ── Sample data seed ──────────────────────────────────────────
+const INCIDENT_CATEGORY = {
+  GNSS_DROPOUT:'SOFTWARE', SENSOR_FAILURE:'SAFETY', AEB_FALSE_TRIGGER:'SAFETY',
+  ROUTING_ERROR:'ROUTE', COMFORT_COMPLAINT:'COMFORT', SOFTWARE_BUG:'SOFTWARE',
+  LIDAR_INTERFERENCE:'SAFETY', PASSENGER_COMPLAINT:'COMFORT', MINOR_COLLISION:'SAFETY',
+  GPS_SPOOFING:'SAFETY', COMMUNICATION_LOSS:'SOFTWARE', BRAKE_ANOMALY:'SAFETY',
+  OBSTACLE_DETECTION:'SAFETY', LANE_DEPARTURE:'SAFETY', SPEED_REGULATION:'SOFTWARE',
+  CHARGING_FAILURE:'SOFTWARE', DOOR_MALFUNCTION:'COMFORT', CLIMATE_FAILURE:'COMFORT',
+};
+const VACTION_MAP = { CRITICAL:'GROUND_VEHICLE', HIGH:'INSPECT_BEFORE_NEXT_RIDE', MEDIUM:'INSPECT_BEFORE_NEXT_RIDE', LOW:'CONTINUE_OPERATION', NONE:'CONTINUE_OPERATION' };
+const ENG_TEAM_MAP = { SAFETY:'AV_SAFETY', SOFTWARE:'SOFTWARE_TEAM', ROUTE:'LOCALIZATION_TEAM', COMFORT:'UX_TEAM', COMPLIMENT:'NONE' };
+
+function vehicleSeedRecord(v, i) {
+  const incType = v.last_incident_type;
+  const ss = v.safety_score || 90;
+  const cat = (!incType || v.avg_passenger_rating >= 4.8)
+    ? (v.avg_passenger_rating >= 4.5 ? 'COMPLIMENT' : 'COMFORT')
+    : (INCIDENT_CATEGORY[incType] || 'SOFTWARE');
+  const sl = ss < 50 ? 'CRITICAL' : ss < 70 ? 'HIGH' : ss < 85 ? 'MEDIUM' : ss < 95 ? 'LOW' : 'NONE';
+  let priority, vehicleAction;
+  if (v.status === 'GROUNDED') { priority = 'P1'; vehicleAction = 'GROUND_VEHICLE'; }
+  else if (v.status === 'MAINTENANCE' || sl === 'CRITICAL' || sl === 'HIGH') { priority = 'P2'; vehicleAction = VACTION_MAP[sl]; }
+  else if (sl === 'MEDIUM' || cat === 'SAFETY') { priority = 'P3'; vehicleAction = 'CONTINUE_OPERATION'; }
+  else { priority = cat === 'COMPLIMENT' ? 'P4' : 'P3'; vehicleAction = 'CONTINUE_OPERATION'; }
+  const nhtsa = sl === 'CRITICAL' || (sl === 'HIGH' && priority === 'P1');
+  const rating = Math.min(5, Math.max(1, Math.round(v.avg_passenger_rating || 4)));
+  const churn = rating <= 2 ? 'HIGH' : rating <= 3 ? 'MEDIUM' : 'LOW';
+  const sentiment = rating <= 2 ? 'NEGATIVE' : rating <= 3 ? 'NEUTRAL' : 'POSITIVE';
+  const qualityScore = Math.min(100, Math.round(55 + ss * 0.3 + rating * 3));
+  const reqEng = ['SAFETY','SOFTWARE'].includes(cat) && sl !== 'NONE';
+  const rideNum = Math.floor(Math.random() * 9999999999999) + 1;
+  const daysAgo = i % 90;
+  const ts = new Date(Date.now() - daysAgo * 86400000 - (i % 24) * 3600000).toISOString();
+  const refundAmount = priority === 'P1' ? 25 + (i%15) : priority === 'P2' ? 10 + (i%10) : 0;
+  const creditAmount = cat === 'COMPLIMENT' ? 5 : priority === 'P3' ? i%10 : 0;
+  return {
+    ticket_id: 'RX-' + String(i + 1).padStart(5, '0'),
+    ride_id: 'RIDE-' + String(rideNum).padStart(16, '0'),
+    vehicle_id: v.vehicle_id,
+    category: cat, priority, safety_level: sl, nhtsa, rating,
+    churn_risk: churn, sentiment,
+    refund: refundAmount + creditAmount, refund_amount: refundAmount, credit_amount: creditAmount,
+    good_ride: cat === 'COMPLIMENT',
+    quality_score: qualityScore,
+    review_decision: qualityScore >= 85 ? 'APPROVED' : qualityScore >= 72 ? 'APPROVED_WITH_EDITS' : 'REVISION_NEEDED',
+    requires_engineering: reqEng,
+    engineering_team: reqEng ? ENG_TEAM_MAP[cat] : 'NONE',
+    vehicle_action: vehicleAction,
+    action_items: v.open_support_tickets || 0,
+    band_messages: 3 + (i % 10),
+    key_phrases: incType ? [incType.replace(/_/g,' ')] : [],
+    ts,
+  };
+}
+
 function seedMetrics() {
-  if (getMetrics().length > 0) return; // only seed once
-
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-  function wPick(items, weights) {
-    const total = weights.reduce((a,b) => a+b, 0);
-    let r = Math.random() * total;
-    for (let i = 0; i < items.length; i++) { r -= weights[i]; if (r <= 0) return items[i]; }
-    return items[items.length - 1];
+  const SEED_VER = 'vehicles_v1';
+  if (vehicleRegistry.length > 0) {
+    if (localStorage.getItem('riderex_seed_ver') === SEED_VER) return;
+    const records = vehicleRegistry.map((v, i) => vehicleSeedRecord(v, i));
+    records.sort((a,b) => new Date(a.ts) - new Date(b.ts));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    localStorage.setItem('riderex_seed_ver', SEED_VER);
+  } else {
+    if (getMetrics().length > 0) return;
+    // Fallback random seed (no vehicle registry)
+    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+    function rnd(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+    const cats=['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];
+    const priO={SAFETY:['P1','P1','P2'],COMFORT:['P2','P3','P3'],ROUTE:['P2','P3'],SOFTWARE:['P2','P3'],COMPLIMENT:['P4']};
+    const slM={SAFETY:['CRITICAL','HIGH','MEDIUM'],COMFORT:['LOW','NONE'],ROUTE:['LOW','NONE'],SOFTWARE:['NONE'],COMPLIMENT:['NONE']};
+    const now=Date.now(); const seed=[];
+    for(let i=0;i<120;i++){
+      const cat=cats[i%5]; const sl=pick(slM[cat]); const priority=pick(priO[cat]);
+      const rating=cat==='COMPLIMENT'?rnd(4,5):cat==='SAFETY'?rnd(1,2):rnd(2,4);
+      const ts=new Date(now-rnd(0,29)*86400000-rnd(0,23)*3600000).toISOString();
+      seed.push({ticket_id:'TKT-'+i,ride_id:'RIDE-'+String(rnd(1,999999)).padStart(16,'0'),
+        vehicle_id:'WM-'+String(rnd(1,200)).padStart(4,'0'),category:cat,priority,safety_level:sl,
+        nhtsa:['CRITICAL','HIGH'].includes(sl),rating,churn_risk:rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW',
+        sentiment:rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE',
+        refund:0,refund_amount:0,credit_amount:0,good_ride:cat==='COMPLIMENT',
+        quality_score:rnd(70,98),review_decision:'APPROVED',requires_engineering:cat==='SAFETY',
+        engineering_team:cat==='SAFETY'?'AV_SAFETY':'NONE',vehicle_action:VACTION_MAP[sl]||'NONE',
+        action_items:rnd(0,3),band_messages:5,key_phrases:[],ts});
+    }
+    seed.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(seed));
   }
-
-  const cats    = ['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];
-  const catW    = [18, 22, 16, 12, 32];
-  const priMap  = { SAFETY:'P1', COMFORT:'P3', ROUTE:'P2', SOFTWARE:'P2', COMPLIMENT:'P4' };
-  const priOverride = { SAFETY:['P1','P1','P1','P2'], COMFORT:['P2','P3','P3','P3'], ROUTE:['P2','P2','P3'], SOFTWARE:['P2','P3'], COMPLIMENT:['P4'] };
-  const slMap   = { SAFETY:['CRITICAL','HIGH','HIGH','MEDIUM'], COMFORT:['LOW','NONE'], ROUTE:['NONE','LOW'], SOFTWARE:['NONE'], COMPLIMENT:['NONE'] };
-  const sentMap = { SAFETY:['VERY_NEGATIVE','NEGATIVE'], COMFORT:['NEGATIVE','NEGATIVE','NEUTRAL'], ROUTE:['NEGATIVE','VERY_NEGATIVE','NEUTRAL'], SOFTWARE:['NEGATIVE','NEUTRAL'], COMPLIMENT:['POSITIVE','VERY_POSITIVE'] };
-  const churnMap= { SAFETY:['HIGH','HIGH','MEDIUM'], COMFORT:['MEDIUM','HIGH','LOW'], ROUTE:['MEDIUM','HIGH'], SOFTWARE:['MEDIUM','LOW'], COMPLIMENT:['LOW','LOW','MEDIUM'] };
-  const vactionMap={ CRITICAL:'GROUND_VEHICLE', HIGH:'INSPECT_BEFORE_NEXT_RIDE', MEDIUM:'INSPECT_BEFORE_NEXT_RIDE', LOW:'CONTINUE_OPERATION', NONE:'CONTINUE_OPERATION' };
-  const engTeamMap={ SAFETY:['AEB_TEAM','PERCEPTION_TEAM','CONTROLS_TEAM'], COMFORT:['UX_TEAM','FLEET_OPS'], ROUTE:['LOCALIZATION_TEAM','PLANNING_TEAM'], SOFTWARE:['UX_TEAM','PLANNING_TEAM'], COMPLIMENT:['NONE'] };
-  const revDecisions = ['APPROVED','APPROVED','APPROVED','APPROVED_WITH_EDITS','APPROVED_WITH_EDITS','REVISION_NEEDED'];
-  const nhtsa_trigger = ['CRITICAL','HIGH'];
-
-  const now = Date.now();
-  const seed = [];
-
-  for (let i = 0; i < 120; i++) {
-    const cat = wPick(cats, catW);
-    const priority = pick(priOverride[cat]);
-    const sl = pick(slMap[cat]);
-    const sentiment = pick(sentMap[cat]);
-    const churn = pick(churnMap[cat]);
-    const engTeam = cat === 'COMPLIMENT' ? 'NONE' : pick(engTeamMap[cat]);
-    const reqEng = engTeam !== 'NONE';
-    const nhtsa = nhtsa_trigger.includes(sl);
-    const goodRide = cat === 'COMPLIMENT' || (sl === 'NONE' && priority === 'P4');
-    const rating = cat === 'COMPLIMENT' ? rnd(4,5) : cat === 'SAFETY' ? rnd(1,2) : rnd(2,4);
-    const qualityScore = rnd(priority === 'P1' ? 70 : 78, 98);
-    const reviewDecision = pick(revDecisions);
-    const refundAmount = priority === 'P1' ? rnd(20, 40) : priority === 'P2' ? rnd(10, 25) : priority === 'P3' ? rnd(0, 10) : 0;
-    const creditAmount = cat === 'COMPLIMENT' ? 5 : priority === 'P1' ? 25 : priority === 'P2' ? 0 : rnd(0, 10);
-    const vehicleNum = rnd(1, 2000);
-    const rideNum = rnd(1, 999999999);
-    const daysAgo = rnd(0, 29);
-    const hoursAgo = rnd(0, 23);
-    const ts = new Date(now - daysAgo * 86400000 - hoursAgo * 3600000 - rnd(0, 59) * 60000).toISOString();
-
-    seed.push({
-      ticket_id: 'TKT-' + String(now - i * 47000).slice(-14),
-      ride_id: 'RIDE-' + String(rideNum).padStart(16, '0'),
-      vehicle_id: 'WM-' + String(vehicleNum).padStart(4, '0'),
-      category: cat,
-      priority,
-      safety_level: sl,
-      nhtsa,
-      rating,
-      churn_risk: churn,
-      refund: refundAmount + creditAmount,
-      refund_amount: refundAmount,
-      credit_amount: creditAmount,
-      good_ride: goodRide,
-      sentiment,
-      quality_score: qualityScore,
-      review_decision: reviewDecision,
-      requires_engineering: reqEng,
-      engineering_team: engTeam,
-      vehicle_action: vactionMap[sl] || 'NONE',
-      action_items: reqEng ? rnd(2, 6) : rnd(0, 3),
-      band_messages: 5,
-      key_phrases: [],
-      ts,
-    });
-  }
-
-  // Sort oldest first so recent-rides table shows newest at top
-  seed.sort((a,b) => new Date(a.ts) - new Date(b.ts));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
 }
 
 // ── Filters ───────────────────────────────────────────────────
@@ -1816,94 +1899,47 @@ function hideError() { document.getElementById('error-box').classList.remove('sh
 let fleetData = [];
 let fleetFiltered = [];
 let fleetPage = 1;
-const FLEET_PER_PAGE = 100;
+const FLEET_PER_PAGE = 50;
 let fleetActiveFilter = 'ALL';
 let fleetSearchTerm = '';
 let fleetInitialized = false;
 let activeVehicle = null;
 
-const VEHICLE_ICONS = ['🚗','🚙','🚕','🏎️','🚓'];
-const STATUS_WEIGHTS = { ACTIVE: 65, IDLE: 20, MAINTENANCE: 10, GROUNDED: 5 };
-
-function weightedStatus() {
-  const r = Math.random() * 100;
-  if (r < 65) return 'ACTIVE';
-  if (r < 85) return 'IDLE';
-  if (r < 95) return 'MAINTENANCE';
-  return 'GROUNDED';
-}
-
-function generateFleet() {
-  // Check localStorage for real ride data to overlay onto fleet cards
-  const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  const ridesByVehicle = {};
-  stored.forEach(r => {
-    if (!r.vehicle_id) return;
-    if (!ridesByVehicle[r.vehicle_id]) ridesByVehicle[r.vehicle_id] = [];
-    ridesByVehicle[r.vehicle_id].push(r);
-  });
-
-  const fleet = [];
-  for (let i = 1; i <= 2000; i++) {
-    const id = 'WM-' + String(i).padStart(4, '0');
-    const realRides = ridesByVehicle[id] || [];
-    const hasReal = realRides.length > 0;
-
-    // Derive status from real data if available
-    let status;
-    if (hasReal) {
-      const hasCritical = realRides.some(r => r.safety_level === 'CRITICAL');
-      const hasHigh = realRides.some(r => r.safety_level === 'HIGH');
-      const grounded = realRides.some(r => r.vehicle_action === 'GROUND_VEHICLE');
-      if (grounded || hasCritical) status = 'GROUNDED';
-      else if (hasHigh) status = 'MAINTENANCE';
-      else status = 'ACTIVE';
-    } else {
-      // Seeded deterministic status for consistency
-      const seed = ((i * 6364136223846793005n + 1442695040888963407n) & 0xFFFFFFFFn);
-      const r = Number(seed % 100n);
-      status = r < 65 ? 'ACTIVE' : r < 85 ? 'IDLE' : r < 95 ? 'MAINTENANCE' : 'GROUNDED';
-    }
-
-    // Score: 60-100, lower for grounded/maintenance
-    const baseScore = status === 'GROUNDED' ? 20 + (i % 30)
-                    : status === 'MAINTENANCE' ? 45 + (i % 35)
-                    : status === 'IDLE' ? 65 + (i % 25)
-                    : 75 + (i % 25);
-
-    const totalRides = hasReal ? realRides.length * 3 + 80 + (i % 120) : 80 + (i % 350);
-    const incidents = hasReal
-      ? realRides.filter(r => ['CRITICAL','HIGH'].includes(r.safety_level)).length
-      : status === 'GROUNDED' ? 2 + (i % 4)
-      : status === 'MAINTENANCE' ? 1 + (i % 2)
-      : i % 5 === 0 ? 1 : 0;
-
-    const ratings = hasReal
-      ? realRides.filter(r => r.rating).map(r => r.rating)
-      : [];
-    const avgRating = ratings.length
-      ? (ratings.reduce((a,b) => a+b, 0) / ratings.length).toFixed(1)
-      : (3.5 + (i % 30) / 20).toFixed(1);
-
-    // Last active: staggered across past 30 days
-    const hoursAgo = status === 'GROUNDED' ? 24 + (i % 72)
-                   : status === 'IDLE' ? 2 + (i % 8)
-                   : i % 60;
-    const lastActive = new Date(Date.now() - hoursAgo * 3600000);
-
+function buildFleetFromRegistry(vehicles) {
+  return vehicles.map(v => {
+    const status = v.status || 'ACTIVE';
+    const score = Math.round(v.safety_score || 80);
+    const incidents = v.open_support_tickets || 0;
+    const lastActive = v.last_service_date ? new Date(v.last_service_date) : new Date(Date.now() - 86400000);
+    let icon = '🚗';
+    if (v.model?.includes('Jaguar')) icon = '🏎️';
+    else if (v.model?.includes('Chrysler') || v.model?.includes('Pacifica')) icon = '🚙';
+    else if (v.model?.includes('Bolt')) icon = '🚕';
     const flags = [];
-    if (status === 'GROUNDED') flags.push('NHTSA_REPORTABLE', 'GROUND_VEHICLE');
-    else if (status === 'MAINTENANCE') flags.push('INSPECT_REQUIRED');
+    if (status === 'GROUNDED') flags.push('GROUND_VEHICLE', 'NHTSA_REPORTABLE');
+    if (status === 'MAINTENANCE') flags.push('INSPECT_REQUIRED');
     if (incidents > 0) flags.push('INCIDENT_LOGGED');
-
-    fleet.push({ id, num: i, status, score: baseScore, totalRides, incidents, avgRating: parseFloat(avgRating), lastActive, flags, icon: VEHICLE_ICONS[i % VEHICLE_ICONS.length] });
-  }
-  return fleet;
+    if (v.last_incident_type) flags.push(v.last_incident_type);
+    return {
+      id: v.vehicle_id,
+      num: parseInt(v.vehicle_id?.replace('WM-', '') || '0'),
+      status, score,
+      totalRides: v.total_rides || 0,
+      incidents,
+      avgRating: v.avg_passenger_rating || 4.0,
+      lastActive, flags, icon,
+      city: v.city || '', state: v.state || '',
+      model: v.model || '',
+      zone: v.fleet_zone || '',
+      software: v.software_version || '',
+      mileage: v.total_mileage_km || 0,
+    };
+  });
 }
 
 function initFleet() {
   if (!fleetInitialized) {
-    fleetData = generateFleet();
+    fleetData = vehicleRegistry.length > 0 ? buildFleetFromRegistry(vehicleRegistry) : [];
     fleetInitialized = true;
   }
   updateFleetHeader();
@@ -1915,10 +1951,11 @@ function initFleet() {
 function updateFleetHeader() {
   const counts = { ACTIVE:0, MAINTENANCE:0, GROUNDED:0, IDLE:0 };
   let totalInc = 0;
-  fleetData.forEach(v => { counts[v.status]++; totalInc += v.incidents; });
-  document.getElementById('fh-active').textContent = counts.ACTIVE;
-  document.getElementById('fh-maintenance').textContent = counts.MAINTENANCE;
-  document.getElementById('fh-grounded').textContent = counts.GROUNDED;
+  fleetData.forEach(v => { counts[v.status] = (counts[v.status]||0) + 1; totalInc += v.incidents; });
+  document.getElementById('fh-total').textContent = fleetData.length;
+  document.getElementById('fh-active').textContent = counts.ACTIVE || 0;
+  document.getElementById('fh-maintenance').textContent = counts.MAINTENANCE || 0;
+  document.getElementById('fh-grounded').textContent = counts.GROUNDED || 0;
   document.getElementById('fh-incidents').textContent = totalInc;
 }
 
@@ -1976,28 +2013,30 @@ function renderVehicleCard(v) {
   const segClass = v.score >= 75 ? 'seg-on' : v.score >= 50 ? 'seg-warn' : 'seg-danger';
   const segs = Array.from({length: scoreSegs}, (_, i) => `<div class="vc-seg ${i < filledSegs ? segClass : ''}"></div>`).join('');
   const barClass = v.score >= 75 ? 'hb-high' : v.score >= 50 ? 'hb-med' : 'hb-low';
-  const hoursAgo = Math.round((Date.now() - v.lastActive) / 3600000);
-  const lastStr = hoursAgo < 1 ? 'JUST NOW' : hoursAgo < 24 ? `${hoursAgo}H AGO` : `${Math.floor(hoursAgo/24)}D AGO`;
-  const statusColor = { ACTIVE: 'var(--fleet-green)', GROUNDED: 'var(--fleet-red)', MAINTENANCE: 'var(--fleet-amber)', IDLE: 'rgba(0,229,200,0.4)' }[v.status];
+  const statusColor = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.4)' }[v.status];
+  const modelShort = v.model ? v.model.replace('Waymo ','').replace(' Platform','').substring(0,18) : v.icon;
+  const location = v.city ? `${v.city}, ${v.state}` : '';
+  const hasPipelineRun = v.flags.includes('PIPELINE_RUN');
 
   return `<div class="vcard ${statusClass}" onclick="openVehicleModal('${v.id}')">
     <div class="vc-head">
-      <span class="vc-id">${v.id}</span>
+      <span class="vc-id">${v.id}${hasPipelineRun ? ' <span style="font-size:8px;color:var(--fleet-teal);opacity:0.7">●LIVE</span>' : ''}</span>
       <div class="vc-status-dot ${dotClass}"></div>
     </div>
     <div class="vc-body">
-      <div class="vc-avatar">${v.icon}</div>
+      <div style="font-size:9px;color:rgba(0,229,200,0.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:1px">${modelShort}</div>
+      <div style="font-size:9px;color:rgba(0,229,200,0.35);margin-bottom:7px;letter-spacing:0.04em">${location}</div>
       <div class="vc-segs">${segs}</div>
-      <div class="vc-bar-label"><span>HP</span><span>${v.score}%</span></div>
+      <div class="vc-bar-label"><span>SAFETY</span><span>${v.score}%</span></div>
       <div class="vc-bar"><div class="vc-bar-fill ${barClass}" style="width:${v.score}%"></div></div>
       <div class="vc-stats">
-        <div class="vc-stat"><b>${v.totalRides}</b>RIDES</div>
-        <div class="vc-stat"><b style="color:${v.incidents>0?'var(--fleet-red)':'var(--fleet-green)'}">${v.incidents}</b>INCID</div>
+        <div class="vc-stat"><b>${v.totalRides.toLocaleString()}</b>RIDES</div>
+        <div class="vc-stat"><b style="color:${v.incidents>0?'var(--fleet-red)':'var(--fleet-green)'}">${v.incidents}</b>TICKETS</div>
       </div>
     </div>
     <div class="vc-foot">
       <span style="color:${statusColor};font-weight:700">${v.status}</span>
-      <span>${lastStr}</span>
+      <span>★${v.avgRating.toFixed(1)}</span>
     </div>
   </div>`;
 }
