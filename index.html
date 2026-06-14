@@ -276,26 +276,24 @@
   .legend-name{flex:1;color:var(--muted2)}
   .legend-val{font-family:var(--mono);font-weight:600}
 
-  /* ═══════════════════════════════════════════════════════════════
-     FLEET PAGE — Code Lyoko HUD aesthetic
-  ═══════════════════════════════════════════════════════════════ */
+  /* ═══════════════ FLEET PAGE ═══════════════ */
   :root{
-    --lyoko-bg:#020b14;
-    --lyoko-bg2:#041020;
-    --lyoko-teal:#00e5c8;
-    --lyoko-teal2:#00c4aa;
-    --lyoko-cyan:#00d4ff;
-    --lyoko-green:#00ff8c;
-    --lyoko-yellow:#f0d020;
-    --lyoko-red:#ff2244;
-    --lyoko-amber:#ff8800;
-    --lyoko-panel:#060f1c;
-    --lyoko-border:#0d3a52;
-    --lyoko-border2:#0a4a66;
-    --lyoko-glow:rgba(0,229,200,0.15);
+    --fleet-bg:#020b14;
+    --fleet-bg2:#041020;
+    --fleet-teal:#00e5c8;
+    --fleet-teal2:#00c4aa;
+    --fleet-cyan:#00d4ff;
+    --fleet-green:#00ff8c;
+    --fleet-yellow:#f0d020;
+    --fleet-red:#ff2244;
+    --fleet-amber:#ff8800;
+    --fleet-panel:#060f1c;
+    --fleet-border:#0d3a52;
+    --fleet-border2:#0a4a66;
+    --fleet-glow:rgba(0,229,200,0.15);
   }
 
-  #page-fleet{background:var(--lyoko-bg);min-height:100vh;font-family:var(--mono)}
+  #page-fleet{background:var(--fleet-bg);min-height:100vh;font-family:var(--mono)}
 
   /* Scanline overlay */
   #page-fleet::before{
@@ -319,31 +317,31 @@
 
   /* Fleet header */
   .fleet-header{
-    border:1px solid var(--lyoko-border);
-    background:var(--lyoko-panel);
+    border:1px solid var(--fleet-border);
+    background:var(--fleet-panel);
     border-radius:4px;
     padding:0;
     margin-bottom:24px;
     position:relative;
     overflow:hidden;
   }
-  .fleet-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lyoko-teal),transparent)}
+  .fleet-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fleet-teal),transparent)}
   .fh-title-bar{
     background:linear-gradient(90deg,rgba(0,229,200,0.12),transparent);
     padding:10px 20px;
-    border-bottom:1px solid var(--lyoko-border);
+    border-bottom:1px solid var(--fleet-border);
     display:flex;align-items:center;gap:14px;
   }
-  .fh-corner{font-size:10px;color:var(--lyoko-teal);letter-spacing:0.1em;user-select:none;opacity:0.6}
-  .fh-title{font-size:13px;font-weight:700;color:var(--lyoko-teal);text-transform:uppercase;letter-spacing:0.15em;flex:1;text-align:center}
+  .fh-corner{font-size:10px;color:var(--fleet-teal);letter-spacing:0.1em;user-select:none;opacity:0.6}
+  .fh-title{font-size:13px;font-weight:700;color:var(--fleet-teal);text-transform:uppercase;letter-spacing:0.15em;flex:1;text-align:center}
   .fh-body{padding:14px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
   .fh-stat{text-align:center}
-  .fh-stat-val{font-size:22px;font-weight:700;color:var(--lyoko-teal);letter-spacing:-0.5px;line-height:1}
+  .fh-stat-val{font-size:22px;font-weight:700;color:var(--fleet-teal);letter-spacing:-0.5px;line-height:1}
   .fh-stat-lbl{font-size:9px;color:rgba(0,229,200,0.5);text-transform:uppercase;letter-spacing:0.12em;margin-top:2px}
-  .fh-divider{width:1px;height:40px;background:var(--lyoko-border);flex-shrink:0}
-  .fh-status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--lyoko-teal)}
+  .fh-divider{width:1px;height:40px;background:var(--fleet-border);flex-shrink:0}
+  .fh-status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--fleet-teal)}
   .fh-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
-  .fh-dot.online{background:var(--lyoko-green);box-shadow:0 0 8px var(--lyoko-green)}
+  .fh-dot.online{background:var(--fleet-green);box-shadow:0 0 8px var(--fleet-green)}
   .fh-blink{animation:blink 1.2s step-end infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
@@ -355,35 +353,35 @@
     flex:1;min-width:200px;position:relative
   }
   .fleet-search{
-    width:100%;background:var(--lyoko-panel);border:1px solid var(--lyoko-border2);
-    border-radius:3px;padding:9px 14px 9px 36px;color:var(--lyoko-teal);
+    width:100%;background:var(--fleet-panel);border:1px solid var(--fleet-border2);
+    border-radius:3px;padding:9px 14px 9px 36px;color:var(--fleet-teal);
     font-family:var(--mono);font-size:12px;letter-spacing:0.05em;
     transition:border-color 0.2s,box-shadow 0.2s;
   }
   .fleet-search::placeholder{color:rgba(0,229,200,0.3)}
-  .fleet-search:focus{outline:none;border-color:var(--lyoko-teal);box-shadow:0 0 0 2px var(--lyoko-glow)}
+  .fleet-search:focus{outline:none;border-color:var(--fleet-teal);box-shadow:0 0 0 2px var(--fleet-glow)}
   .fleet-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:rgba(0,229,200,0.4);font-size:13px;pointer-events:none}
   .fleet-filter-btn{
-    padding:9px 14px;background:var(--lyoko-panel);border:1px solid var(--lyoko-border2);
+    padding:9px 14px;background:var(--fleet-panel);border:1px solid var(--fleet-border2);
     border-radius:3px;color:rgba(0,229,200,0.6);font-family:var(--mono);font-size:11px;
     cursor:pointer;transition:all 0.15s;letter-spacing:0.07em;text-transform:uppercase;white-space:nowrap
   }
-  .fleet-filter-btn:hover,.fleet-filter-btn.active{border-color:var(--lyoko-teal);color:var(--lyoko-teal);background:rgba(0,229,200,0.06)}
-  .fleet-filter-btn.f-red.active{border-color:var(--lyoko-red);color:var(--lyoko-red);background:rgba(255,34,68,0.08)}
-  .fleet-filter-btn.f-amber.active{border-color:var(--lyoko-amber);color:var(--lyoko-amber);background:rgba(255,136,0,0.08)}
-  .fleet-filter-btn.f-green.active{border-color:var(--lyoko-green);color:var(--lyoko-green);background:rgba(0,255,140,0.08)}
+  .fleet-filter-btn:hover,.fleet-filter-btn.active{border-color:var(--fleet-teal);color:var(--fleet-teal);background:rgba(0,229,200,0.06)}
+  .fleet-filter-btn.f-red.active{border-color:var(--fleet-red);color:var(--fleet-red);background:rgba(255,34,68,0.08)}
+  .fleet-filter-btn.f-amber.active{border-color:var(--fleet-amber);color:var(--fleet-amber);background:rgba(255,136,0,0.08)}
+  .fleet-filter-btn.f-green.active{border-color:var(--fleet-green);color:var(--fleet-green);background:rgba(0,255,140,0.08)}
 
-  /* Lyoko panel wrapper */
-  .lyoko-panel{
-    background:var(--lyoko-panel);
-    border:1px solid var(--lyoko-border);
+  /* HUD panel wrapper */
+  .fleet-panel{
+    background:var(--fleet-panel);
+    border:1px solid var(--fleet-border);
     border-radius:4px;
     position:relative;
     overflow:hidden;
   }
-  .lyoko-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,var(--lyoko-teal) 50%,transparent 95%);opacity:0.4}
+  .fleet-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,var(--fleet-teal) 50%,transparent 95%);opacity:0.4}
   .lp-header{
-    padding:7px 14px;border-bottom:1px solid var(--lyoko-border);
+    padding:7px 14px;border-bottom:1px solid var(--fleet-border);
     background:linear-gradient(90deg,rgba(0,229,200,0.06),transparent);
     display:flex;align-items:center;gap:8px;
   }
@@ -400,8 +398,8 @@
 
   /* Individual vehicle card */
   .vcard{
-    background:var(--lyoko-bg2);
-    border:1px solid var(--lyoko-border);
+    background:var(--fleet-bg2);
+    border:1px solid var(--fleet-border);
     border-radius:4px;
     padding:0;
     cursor:pointer;
@@ -411,38 +409,38 @@
     user-select:none;
   }
   .vcard:hover{
-    border-color:var(--lyoko-teal2);
+    border-color:var(--fleet-teal2);
     box-shadow:0 0 18px rgba(0,229,200,0.1),inset 0 0 20px rgba(0,229,200,0.03);
     transform:translateY(-1px);
   }
   .vcard.vc-grounded{border-color:rgba(255,34,68,0.35)}
-  .vcard.vc-grounded:hover{border-color:var(--lyoko-red);box-shadow:0 0 18px rgba(255,34,68,0.15)}
+  .vcard.vc-grounded:hover{border-color:var(--fleet-red);box-shadow:0 0 18px rgba(255,34,68,0.15)}
   .vcard.vc-maintenance{border-color:rgba(255,136,0,0.3)}
-  .vcard.vc-maintenance:hover{border-color:var(--lyoko-amber);box-shadow:0 0 18px rgba(255,136,0,0.12)}
+  .vcard.vc-maintenance:hover{border-color:var(--fleet-amber);box-shadow:0 0 18px rgba(255,136,0,0.12)}
   .vcard.vc-active{border-color:rgba(0,255,140,0.2)}
-  .vcard.vc-active:hover{border-color:var(--lyoko-green);box-shadow:0 0 18px rgba(0,255,140,0.1)}
+  .vcard.vc-active:hover{border-color:var(--fleet-green);box-shadow:0 0 18px rgba(0,255,140,0.1)}
 
   /* Corner deco */
   .vcard::after{
     content:'';position:absolute;bottom:0;right:0;
     width:8px;height:8px;
-    border-right:1px solid var(--lyoko-border);
-    border-bottom:1px solid var(--lyoko-border);
+    border-right:1px solid var(--fleet-border);
+    border-bottom:1px solid var(--fleet-border);
     border-radius:0 0 3px 0;
   }
 
   /* Card header */
   .vc-head{
     padding:6px 10px 5px;
-    border-bottom:1px solid var(--lyoko-border);
+    border-bottom:1px solid var(--fleet-border);
     background:linear-gradient(90deg,rgba(0,229,200,0.07),transparent);
     display:flex;align-items:center;justify-content:space-between;
   }
-  .vc-id{font-size:11px;font-weight:700;color:var(--lyoko-teal);letter-spacing:0.05em}
+  .vc-id{font-size:11px;font-weight:700;color:var(--fleet-teal);letter-spacing:0.05em}
   .vc-status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-  .vc-status-dot.s-active{background:var(--lyoko-green);box-shadow:0 0 5px var(--lyoko-green);animation:pulse 2s infinite}
-  .vc-status-dot.s-grounded{background:var(--lyoko-red);box-shadow:0 0 5px var(--lyoko-red)}
-  .vc-status-dot.s-maintenance{background:var(--lyoko-amber);animation:blink 1.5s step-end infinite}
+  .vc-status-dot.s-active{background:var(--fleet-green);box-shadow:0 0 5px var(--fleet-green);animation:pulse 2s infinite}
+  .vc-status-dot.s-grounded{background:var(--fleet-red);box-shadow:0 0 5px var(--fleet-red)}
+  .vc-status-dot.s-maintenance{background:var(--fleet-amber);animation:blink 1.5s step-end infinite}
   .vc-status-dot.s-idle{background:rgba(0,229,200,0.3)}
 
   /* Card body */
@@ -463,25 +461,25 @@
   .vc-bar-label{font-size:8px;color:rgba(0,229,200,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;display:flex;justify-content:space-between}
   .vc-bar{height:5px;background:rgba(0,229,200,0.06);border-radius:2px;overflow:hidden;margin-bottom:6px;border:1px solid rgba(0,229,200,0.08)}
   .vc-bar-fill{height:100%;border-radius:2px;transition:width 0.3s}
-  .vc-bar-fill.hb-high{background:linear-gradient(90deg,var(--lyoko-green),#00cc70)}
-  .vc-bar-fill.hb-med{background:linear-gradient(90deg,var(--lyoko-amber),#cc7000)}
-  .vc-bar-fill.hb-low{background:linear-gradient(90deg,var(--lyoko-red),#cc0022)}
+  .vc-bar-fill.hb-high{background:linear-gradient(90deg,var(--fleet-green),#00cc70)}
+  .vc-bar-fill.hb-med{background:linear-gradient(90deg,var(--fleet-amber),#cc7000)}
+  .vc-bar-fill.hb-low{background:linear-gradient(90deg,var(--fleet-red),#cc0022)}
 
-  /* Segmented bar (Code Lyoko style) */
+  /* Segmented bar */
   .vc-segs{display:flex;gap:2px;margin-bottom:8px}
   .vc-seg{flex:1;height:6px;border-radius:1px;background:rgba(0,229,200,0.08);border:1px solid rgba(0,229,200,0.06);transition:background 0.3s}
-  .vc-seg.seg-on{background:var(--lyoko-teal);box-shadow:0 0 4px rgba(0,229,200,0.4)}
-  .vc-seg.seg-warn{background:var(--lyoko-amber)}
-  .vc-seg.seg-danger{background:var(--lyoko-red)}
+  .vc-seg.seg-on{background:var(--fleet-teal);box-shadow:0 0 4px rgba(0,229,200,0.4)}
+  .vc-seg.seg-warn{background:var(--fleet-amber)}
+  .vc-seg.seg-danger{background:var(--fleet-red)}
 
   /* Card stats */
   .vc-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px}
   .vc-stat{font-size:10px;color:rgba(0,229,200,0.45);text-align:center;line-height:1.2}
-  .vc-stat b{display:block;font-size:11px;color:var(--lyoko-teal);font-weight:700}
+  .vc-stat b{display:block;font-size:11px;color:var(--fleet-teal);font-weight:700}
 
   /* Card footer */
   .vc-foot{
-    padding:5px 10px;border-top:1px solid var(--lyoko-border);
+    padding:5px 10px;border-top:1px solid var(--fleet-border);
     font-size:9px;color:rgba(0,229,200,0.35);
     display:flex;align-items:center;justify-content:space-between;letter-spacing:0.05em;
     background:rgba(0,229,200,0.02);
@@ -490,16 +488,16 @@
   /* Pagination */
   .fleet-pager{
     display:flex;align-items:center;justify-content:space-between;
-    padding:12px 16px;border-top:1px solid var(--lyoko-border);
+    padding:12px 16px;border-top:1px solid var(--fleet-border);
     font-size:11px;color:rgba(0,229,200,0.5);
   }
   .pager-btns{display:flex;gap:6px}
   .pager-btn{
-    padding:5px 14px;background:var(--lyoko-panel);border:1px solid var(--lyoko-border2);
-    border-radius:3px;color:var(--lyoko-teal);font-family:var(--mono);font-size:11px;
+    padding:5px 14px;background:var(--fleet-panel);border:1px solid var(--fleet-border2);
+    border-radius:3px;color:var(--fleet-teal);font-family:var(--mono);font-size:11px;
     cursor:pointer;transition:all 0.15s;letter-spacing:0.05em;
   }
-  .pager-btn:hover{border-color:var(--lyoko-teal);background:rgba(0,229,200,0.06)}
+  .pager-btn:hover{border-color:var(--fleet-teal);background:rgba(0,229,200,0.06)}
   .pager-btn:disabled{opacity:0.25;cursor:not-allowed}
 
   /* Fleet vehicle modal overlay (clicking a card) */
@@ -510,26 +508,26 @@
   }
   .vcard-modal.open{display:flex}
   .vcm-inner{
-    background:var(--lyoko-panel);border:1px solid var(--lyoko-border2);
+    background:var(--fleet-panel);border:1px solid var(--fleet-border2);
     border-radius:4px;width:480px;max-height:80vh;overflow-y:auto;
     position:relative;
   }
-  .vcm-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lyoko-teal),transparent)}
-  .vcm-head{padding:14px 18px;border-bottom:1px solid var(--lyoko-border);display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(0,229,200,0.08),transparent)}
-  .vcm-id{font-size:18px;font-weight:700;color:var(--lyoko-teal);letter-spacing:0.05em;flex:1}
-  .vcm-close{background:none;border:1px solid var(--lyoko-border2);color:rgba(0,229,200,0.5);width:28px;height:28px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
-  .vcm-close:hover{border-color:var(--lyoko-teal);color:var(--lyoko-teal)}
+  .vcm-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--fleet-teal),transparent)}
+  .vcm-head{padding:14px 18px;border-bottom:1px solid var(--fleet-border);display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(0,229,200,0.08),transparent)}
+  .vcm-id{font-size:18px;font-weight:700;color:var(--fleet-teal);letter-spacing:0.05em;flex:1}
+  .vcm-close{background:none;border:1px solid var(--fleet-border2);color:rgba(0,229,200,0.5);width:28px;height:28px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+  .vcm-close:hover{border-color:var(--fleet-teal);color:var(--fleet-teal)}
   .vcm-body{padding:16px 18px}
   .vcm-section{margin-bottom:14px}
   .vcm-label{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(0,229,200,0.4);margin-bottom:6px}
   .vcm-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-  .vcm-item{background:rgba(0,229,200,0.04);border:1px solid var(--lyoko-border);border-radius:3px;padding:9px 12px}
+  .vcm-item{background:rgba(0,229,200,0.04);border:1px solid var(--fleet-border);border-radius:3px;padding:9px 12px}
   .vcm-item-lbl{font-size:9px;color:rgba(0,229,200,0.35);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px}
-  .vcm-item-val{font-size:13px;font-weight:700;color:var(--lyoko-teal)}
+  .vcm-item-val{font-size:13px;font-weight:700;color:var(--fleet-teal)}
   .vcm-actions{display:flex;gap:8px;margin-top:14px}
-  .vcm-btn{flex:1;padding:10px;background:rgba(0,229,200,0.07);border:1px solid var(--lyoko-border2);border-radius:3px;color:var(--lyoko-teal);font-family:var(--mono);font-size:11px;cursor:pointer;text-align:center;letter-spacing:0.07em;transition:all 0.15s;text-transform:uppercase}
-  .vcm-btn:hover{border-color:var(--lyoko-teal);background:rgba(0,229,200,0.12)}
-  .vcm-btn.primary{background:rgba(0,229,200,0.15);border-color:var(--lyoko-teal)}
+  .vcm-btn{flex:1;padding:10px;background:rgba(0,229,200,0.07);border:1px solid var(--fleet-border2);border-radius:3px;color:var(--fleet-teal);font-family:var(--mono);font-size:11px;cursor:pointer;text-align:center;letter-spacing:0.07em;transition:all 0.15s;text-transform:uppercase}
+  .vcm-btn:hover{border-color:var(--fleet-teal);background:rgba(0,229,200,0.12)}
+  .vcm-btn.primary{background:rgba(0,229,200,0.15);border-color:var(--fleet-teal)}
 </style>
 </head>
 <body>
@@ -976,11 +974,11 @@
     <div class="fh-body">
       <div class="fh-stat"><div class="fh-stat-val" id="fh-total">2000</div><div class="fh-stat-lbl">Total Vehicles</div></div>
       <div class="fh-divider"></div>
-      <div class="fh-stat"><div class="fh-stat-val" id="fh-active" style="color:var(--lyoko-green)">—</div><div class="fh-stat-lbl">Active</div></div>
+      <div class="fh-stat"><div class="fh-stat-val" id="fh-active" style="color:var(--fleet-green)">—</div><div class="fh-stat-lbl">Active</div></div>
       <div class="fh-divider"></div>
-      <div class="fh-stat"><div class="fh-stat-val" id="fh-maintenance" style="color:var(--lyoko-amber)">—</div><div class="fh-stat-lbl">Maintenance</div></div>
+      <div class="fh-stat"><div class="fh-stat-val" id="fh-maintenance" style="color:var(--fleet-amber)">—</div><div class="fh-stat-lbl">Maintenance</div></div>
       <div class="fh-divider"></div>
-      <div class="fh-stat"><div class="fh-stat-val" id="fh-grounded" style="color:var(--lyoko-red)">—</div><div class="fh-stat-lbl">Grounded</div></div>
+      <div class="fh-stat"><div class="fh-stat-val" id="fh-grounded" style="color:var(--fleet-red)">—</div><div class="fh-stat-lbl">Grounded</div></div>
       <div class="fh-divider"></div>
       <div class="fh-stat"><div class="fh-stat-val" id="fh-incidents">—</div><div class="fh-stat-lbl">Total Incidents</div></div>
       <div class="fh-divider"></div>
@@ -1007,7 +1005,7 @@
   </div>
 
   <!-- Card grid + pagination -->
-  <div class="lyoko-panel">
+  <div class="fleet-panel">
     <div class="lp-header">
       <span class="lp-label">FLEET REGISTRY — SHOWING <span id="fleet-range">1–100</span> OF <span id="fleet-count">2000</span></span>
       <span class="lp-corner">◢◣</span>
@@ -1792,7 +1790,7 @@ function showError(msg) {
 function hideError() { document.getElementById('error-box').classList.remove('show'); }
 
 // ══════════════════════════════════════════════════════════════
-// FLEET MODULE — Code Lyoko vehicle registry
+// FLEET MODULE — vehicle registry
 // ══════════════════════════════════════════════════════════════
 
 let fleetData = [];
@@ -1960,7 +1958,7 @@ function renderVehicleCard(v) {
   const barClass = v.score >= 75 ? 'hb-high' : v.score >= 50 ? 'hb-med' : 'hb-low';
   const hoursAgo = Math.round((Date.now() - v.lastActive) / 3600000);
   const lastStr = hoursAgo < 1 ? 'JUST NOW' : hoursAgo < 24 ? `${hoursAgo}H AGO` : `${Math.floor(hoursAgo/24)}D AGO`;
-  const statusColor = { ACTIVE: 'var(--lyoko-green)', GROUNDED: 'var(--lyoko-red)', MAINTENANCE: 'var(--lyoko-amber)', IDLE: 'rgba(0,229,200,0.4)' }[v.status];
+  const statusColor = { ACTIVE: 'var(--fleet-green)', GROUNDED: 'var(--fleet-red)', MAINTENANCE: 'var(--fleet-amber)', IDLE: 'rgba(0,229,200,0.4)' }[v.status];
 
   return `<div class="vcard ${statusClass}" onclick="openVehicleModal('${v.id}')">
     <div class="vc-head">
@@ -1974,7 +1972,7 @@ function renderVehicleCard(v) {
       <div class="vc-bar"><div class="vc-bar-fill ${barClass}" style="width:${v.score}%"></div></div>
       <div class="vc-stats">
         <div class="vc-stat"><b>${v.totalRides}</b>RIDES</div>
-        <div class="vc-stat"><b style="color:${v.incidents>0?'var(--lyoko-red)':'var(--lyoko-green)'}">${v.incidents}</b>INCID</div>
+        <div class="vc-stat"><b style="color:${v.incidents>0?'var(--fleet-red)':'var(--fleet-green)'}">${v.incidents}</b>INCID</div>
       </div>
     </div>
     <div class="vc-foot">
@@ -1997,7 +1995,7 @@ function openVehicleModal(vehicleId) {
 
   document.getElementById('vcm-id').textContent = v.id;
   document.getElementById('vcm-status').textContent = v.status;
-  document.getElementById('vcm-status').style.color = { ACTIVE:'var(--lyoko-green)', GROUNDED:'var(--lyoko-red)', MAINTENANCE:'var(--lyoko-amber)', IDLE:'rgba(0,229,200,0.6)' }[v.status];
+  document.getElementById('vcm-status').style.color = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.6)' }[v.status];
   document.getElementById('vcm-score').textContent = v.score + ' / 100';
   document.getElementById('vcm-rides').textContent = v.totalRides.toLocaleString();
   document.getElementById('vcm-incidents').textContent = v.incidents;
