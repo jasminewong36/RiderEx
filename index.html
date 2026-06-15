@@ -610,7 +610,7 @@
         </div>
       </div>
       <div class="fg">
-        <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 2000)</span></label>
+        <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 200)</span></label>
         <input type="text" id="vehicle-id" placeholder="WM-0001">
       </div>
       <div class="fg">
@@ -1030,7 +1030,7 @@
   <!-- Card grid + pagination -->
   <div class="fleet-panel">
     <div class="lp-header">
-      <span class="lp-label">FLEET REGISTRY — SHOWING <span id="fleet-range">1–100</span> OF <span id="fleet-count">2000</span></span>
+      <span class="lp-label">FLEET REGISTRY — SHOWING <span id="fleet-range">1–100</span> OF <span id="fleet-count">200</span></span>
       <span class="lp-corner">◢◣</span>
     </div>
     <div class="fleet-grid" id="fleet-grid"></div>
@@ -1131,7 +1131,7 @@ function randRideId() {
 }
 
 function randVehicleId() {
-  const n = Math.floor(Math.random() * 2000) + 1;
+  const n = Math.floor(Math.random() * 200) + 1;
   return 'WM-' + String(n).padStart(4, '0');
 }
 
