@@ -1,115 +1,174 @@
----
-title: RiderEx
-emoji: 🚗
-colorFrom: indigo
-colorTo: purple
-sdk: docker
-pinned: false
-short_description: AV Customer Experience Multi-Agent Pipeline via Band.ai
----
-
 # RiderEx 🚗
 
 **AV Customer Experience Multi-Agent Pipeline — powered by Band.ai**
 
-When a Waymo passenger submits feedback, 5 agents collaborate through Band to automatically classify the issue, triage safety, draft a response, quality review it, and create an engineering ticket.
+RiderEx is a full-stack autonomous vehicle customer support platform. When a passenger submits feedback, 5 AI agents collaborate through Band to automatically classify the issue, triage safety, draft a response, quality review it, create an engineering ticket, and render a Go/No-Go software release decision.
 
-## Band SDK Integration
+Live demo: **https://riderex.vercel.app**
 
-Uses `band-sdk[anthropic]` — each agent connects to Band via `AnthropicAdapter` and `thenvoi`:
+---
 
-```python
-from thenvoi import Agent
-from thenvoi.adapters import AnthropicAdapter
-from thenvoi.config import load_agent_config
+## Features
 
-agent_id, api_key = load_agent_config("intake_agent")
-adapter = AnthropicAdapter(model="claude-sonnet-4-5-20250929", system_prompt=INTAKE_SYSTEM)
-agent = Agent.create(adapter=adapter, agent_id=agent_id, api_key=api_key,
-    ws_url=os.getenv("THENVOI_WS_URL"), rest_url=os.getenv("THENVOI_REST_URL"))
-await agent.run()
+### 🚀 Pipeline Tab
+Submit passenger feedback and run it through the 5-agent pipeline. Auto-generates Vehicle IDs (WM-0001 to WM-2000) and Ride IDs. Results shown across 6 tabs:
+- **Ticket** — intake classification, priority, sentiment, churn risk
+- **Safety** — NHTSA reportability, vehicle action, AV failure mode
+- **Response** — drafted customer response + action items
+- **🚦 Release Report** — Go / No-Go / Conditional Go decision with criteria checklist, issue investigation list, and quality review summary
+- **JIRA** — engineering ticket with acceptance criteria
+- **Band Log** — live agent collaboration thread
+
+### 📊 Dashboard Tab
+Metrics aggregated from all pipeline runs + 200-vehicle seed dataset:
+- 10 KPIs: total rides, safety incidents, NHTSA flags, avg rating, churn risk, refund totals, quality score, engineering tickets, go/no-go rate
+- 8 bar charts across categories, priorities, safety levels, sentiment, and more
+- Filter bar: category, priority, safety level, time range
+- Recent rides table
+- Backed by Supabase for persistence; falls back to localStorage
+
+### 🚗 Fleet Tab
+HUD-style registry of all 200 RiderEx vehicles (WM-001 to WM-200):
+- Each vehicle card shows model, city, safety score bar, open tickets, resolved tickets, and avg rating
+- **Smart ticket tracking**: `netOpen = original tickets + new incidents surfaced - resolved via pipeline`
+  - Pipeline run with LOW/NONE result → ticket resolved (OPEN count drops)
+  - Pipeline run with HIGH/CRITICAL result → new incident added (OPEN count rises)
+  - Vehicles are never permanently "cleared" — new issues always come in
+- Click any card to open a detail modal with pipeline run history (✓ resolved / ! new issue per run)
+- **Run Pipeline** button pre-fills the vehicle ID on the pipeline form
+- Live sync: every pipeline run instantly updates the vehicle's fleet card (status, score, tickets)
+
+---
+
+## Architecture
+
+### 5 Agents via Band.ai
+
+| Agent | Role | Band Message |
+|-------|------|-------------|
+| **Intake & Classification** | Categorize feedback, assign priority, sentiment, churn risk | `TICKET_CREATED` |
+| **Safety Triage** | NHTSA check, AV failure mode, vehicle action recommendation | `SAFETY_ASSESSMENT` |
+| **Resolution** | Draft customer response, compute refund/credit, action items | `RESOLUTION_DRAFT` |
+| **Quality Review** | Score tone/empathy/policy compliance, approve or revise | `REVIEW_COMPLETE` |
+| **Engineering Handoff** | Create JIRA ticket, assign team, set SLA | `CASE_CLOSED` |
+
+### Pipeline Flow
+
 ```
-
-## 5 Agents via Band
-
-| Agent | Band Message Posted | Reads From Band |
-|-------|-------------------|-----------------|
-| **Intake & Classification** | `TICKET_CREATED` | — |
-| **Safety Triage** | `SAFETY_ASSESSMENT` | `TICKET_CREATED` |
-| **Resolution** | `RESOLUTION_DRAFT` | `TICKET_CREATED` + `SAFETY_ASSESSMENT` |
-| **Quality Review** | `REVIEW_COMPLETE` | All 3 prior messages |
-| **Engineering Handoff** | `CASE_CLOSED` | Entire Band thread |
-
-## Band Collaboration Flow
-
-```
-Customer submits feedback
+Passenger submits feedback
         ↓
 [Band] Intake Agent → TICKET_CREATED
         ↓
-[Band] Safety Triage reads TICKET_CREATED → SAFETY_ASSESSMENT
+[Band] Safety Triage → SAFETY_ASSESSMENT
         ↓
-[Band] Resolution reads TICKET_CREATED + SAFETY_ASSESSMENT → RESOLUTION_DRAFT
+[Band] Resolution → RESOLUTION_DRAFT
         ↓
-[Band] Quality Review reads all 3 → REVIEW_COMPLETE
+[Band] Quality Review → REVIEW_COMPLETE
         ↓
-[Band] Engineering Handoff reads entire thread → CASE_CLOSED
+[Band] Engineering Handoff → CASE_CLOSED
         ↓
-Customer gets response + Engineering team gets JIRA ticket
+Customer gets response + Go/No-Go release decision + Engineering JIRA ticket
 ```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Agent Framework** | Band.ai (`band-sdk`) |
+| **AI Model** | `claude-sonnet-4-5` via AI/ML API (OpenAI-compatible) |
+| **AI Client** | `openai` Python SDK with custom `base_url` |
+| **Backend** | FastAPI + Uvicorn |
+| **Database** | Supabase (PostgreSQL) — gracefully optional |
+| **Frontend** | Vanilla HTML/CSS/JS — dark teal HUD aesthetic |
+| **Deployment** | Vercel (serverless Python) |
+| **Fleet Dataset** | 200-vehicle seed data (`riderex_vehicles.json`) |
+
+---
 
 ## Setup
 
-### 1. Install dependencies
+### 1. Clone and install
 
 ```bash
-pip install -r requirements.txt
-# or with uv:
-uv add "band-sdk[anthropic]"
+git clone https://github.com/your-username/riderex
+cd riderex
+uv venv && uv pip install -r requirements.txt
 ```
 
 ### 2. Configure environment
 
 ```bash
 cp .env.example .env
-# Add ANTHROPIC_API_KEY and BAND_API_KEY
 ```
 
-### 3. Create agents on Band
+Fill in `.env`:
 
-Go to https://app.band.ai/agents → New Agent → Remote Agent × 5:
-- `intake_agent`
-- `safety_agent`
-- `resolution_agent`
-- `review_agent`
-- `engineering_agent`
+```env
+# AI/ML API (OpenAI-compatible, runs Claude models)
+AIML_API_KEY=your_key
+AIML_BASE_URL=https://api.aimlapi.com/v1
 
-Copy each agent's UUID and API key into `agent_config.yaml`.
+# Supabase (optional — app works without it)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your_service_role_key
 
-### 4. Run
+# Band.ai
+BAND_API_KEY=your_band_api_key
+THENVOI_WS_URL=wss://app.band.ai/api/v1/socket/websocket
+THENVOI_REST_URL=https://app.band.ai/
+```
+
+> **Security**: `.env` and `agent_config.yaml` are in `.gitignore` — never commit them.
+
+### 3. Configure Band agents
+
+Go to [app.band.ai/agents](https://app.band.ai/agents) → New Agent → Remote Agent × 5:
+- `intake_agent`, `safety_agent`, `resolution_agent`, `review_agent`, `engineering_agent`
+
+Copy each UUID and API key into `agent_config.yaml` (gitignored).
+
+### 4. Set up Supabase (optional)
+
+Run `supabase_schema.sql` in the Supabase SQL Editor to create the `rides` table with all required columns and indexes.
+
+### 5. Run locally
 
 ```bash
-python app.py
+uv run python app.py
 # Open http://localhost:7860
 ```
 
-> **Note:** `agent_config.yaml` and `.env` are in `.gitignore` — never commit them.
+---
 
-## Sample Scenarios
+## Dataset
 
-- 🔴 **Safety** — AEB false trigger at highway speed → P1, NHTSA flag, full refund + $25 credit, AEB team JIRA
-- 🟡 **Comfort** — Rough ride, AC issues → P3, empathetic response, $10 credit
-- 🟠 **Route** — Wrong destination → P2, full refund, UX team action item
-- 🟢 **Compliment** — Great ride → P4, thank you + $5 appreciation credit
+`riderex_vehicles.json` / `riderex_vehicles.csv` — 200 vehicles with:
+- Vehicle ID, model, city, state, fleet zone
+- Software version, sensor config
+- Total mileage, total rides, avg passenger rating
+- Safety score, open support tickets, last incident type
+- Service dates, in-service date
 
-## Tech Stack
+The dashboard seeds 200 records from this dataset on first load (incident type → category, safety score → safety level, status → priority).
 
-- **Agent Framework**: Band.ai (`band-sdk[anthropic]`, `thenvoi`)
-- **AI Model**: Claude via Anthropic SDK
-- **Backend**: FastAPI
-- **Frontend**: Vanilla HTML/CSS/JS
-- **Deployment**: HuggingFace Spaces (Docker)
+---
 
-## Built For
+## API Endpoints
 
-Band of Agents Hackathon — Track 1: Internal Enterprise Workflows
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/run-pipeline` | Run the 5-agent pipeline on feedback |
+| `GET` | `/vehicles` | Return the 200-vehicle fleet dataset |
+| `GET` | `/metrics` | Query ride records from Supabase (filterable) |
+| `GET` | `/health` | Service status + integration flags |
+| `GET` | `/` | Serve the frontend |
+
+---
+
+## Security
+
+- API keys stored only in `.env` locally and Vercel encrypted environment variables in production
+- `.env` and `agent_config.yaml` are gitignored and never committed
+- Supabase uses service role key server-side only; frontend never touches it directly
