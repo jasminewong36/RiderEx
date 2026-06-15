@@ -1,4 +1,4 @@
-# RiderEx 🚗
+# RiderEx 
 
 **AV Customer Experience Multi-Agent Pipeline — powered by Band.ai**
 
@@ -110,7 +110,7 @@ Fill in `.env`:
 AIML_API_KEY=your_key
 AIML_BASE_URL=https://api.aimlapi.com/v1
 
-# Supabase (optional — app works without it)
+# Supabase (optional — app works without it, but you can set this up if you want your data stored)
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_KEY=your_service_role_key
 
