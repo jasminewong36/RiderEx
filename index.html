@@ -724,9 +724,15 @@
   .sw-card-hdr.open .sw-caret{transform:rotate(180deg)}
 
   /* ── Dashboard vehicle scroll reveal ── */
-  .dvb{position:fixed;inset:0;z-index:0;pointer-events:none;display:flex;align-items:center;justify-content:flex-end;padding-right:3%}
-  .dvb img{width:58%;max-height:88vh;object-fit:contain;opacity:0;transform:scale(0.84) translateX(40px);transition:opacity 0.9s cubic-bezier(.16,1,.3,1),transform 0.9s cubic-bezier(.16,1,.3,1)}
-  .dvb.dvb-on img{opacity:0.18;transform:scale(1) translateX(0)}
+  .dvb{position:fixed;inset:0;z-index:0;pointer-events:none;display:flex;align-items:center}
+  /* Pod + Shuttle enter from right, sit on right side */
+  #dvb-pod,#dvb-shuttle{justify-content:flex-end;padding-right:3%}
+  #dvb-pod img,#dvb-shuttle img{transform:scale(0.86) translateX(160px)}
+  /* SUV enters from left, sits on left side */
+  #dvb-suv{justify-content:flex-start;padding-left:3%}
+  #dvb-suv img{transform:scale(0.86) translateX(-160px)}
+  .dvb img{width:56%;max-height:86vh;object-fit:contain;opacity:0;transition:opacity 0.85s cubic-bezier(.22,1,.36,1),transform 0.85s cubic-bezier(.22,1,.36,1)}
+  .dvb.dvb-on img{opacity:0.22;transform:scale(1) translateX(0)}
 </style>
 </head>
 <body>
