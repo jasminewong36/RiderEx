@@ -346,7 +346,7 @@ def agent_engineering() -> dict:
 def run_riderex_pipeline(
     feedback_text: str,
     ride_id: str = "RIDE-0000000000000001",
-    vehicle_id: str = "WM-0001",
+    vehicle_id: str = "WM-001",
     rating: int = None
 ) -> dict:
     logger.info(f"\n{'='*60}\n🚗 RiderEx | {ride_id} | {vehicle_id}\n{'='*60}")
@@ -372,8 +372,8 @@ def run_riderex_pipeline(
 
 if __name__ == "__main__":
     run_riderex_pipeline(
-        feedback_text="The car slammed on the brakes for no reason at 65mph. Terrifying. Nothing in front of us. Never using Waymo again.",
+        feedback_text="The car slammed on the brakes for no reason at 65mph. Terrifying. Nothing in front of us. Never using Weimo again.",
         ride_id="RIDE-20260510-4821",
-        vehicle_id="WM-MX-0047",
+        vehicle_id="WM-MX-047",
         rating=1
     )
