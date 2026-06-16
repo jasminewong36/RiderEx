@@ -699,7 +699,8 @@
       </div>
       <div class="fg">
         <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 200)</span></label>
-        <input type="text" id="vehicle-id" placeholder="WM-001">
+        <input type="text" id="vehicle-id" placeholder="WM-001" oninput="updateVehicleTypeHint()">
+        <div id="vehicle-type-hint" style="font-size:10px;margin-top:4px;min-height:15px"></div>
       </div>
       <div class="fg">
         <label>Star Rating</label>
@@ -1278,6 +1279,17 @@ function randVehicleId() {
 function genIds() {
   document.getElementById('ride-id').value = randRideId();
   document.getElementById('vehicle-id').value = randVehicleId();
+  updateVehicleTypeHint();
+}
+
+function updateVehicleTypeHint() {
+  const vid = document.getElementById('vehicle-id').value.trim();
+  const hint = document.getElementById('vehicle-type-hint');
+  if (!hint) return;
+  const entry = vehicleRegistry.find(v => v.vehicle_id === vid);
+  if (!vid)         { hint.textContent = ''; return; }
+  if (entry)        { hint.textContent = '🚗 ' + entry.model; hint.style.color = 'var(--cyan)'; }
+  else              { hint.textContent = 'Not found in registry'; hint.style.color = 'var(--muted)'; }
 }
 
 const samples = {
@@ -1321,6 +1333,7 @@ function loadSample(type) {
 window.addEventListener('DOMContentLoaded', async () => {
   genIds();
   await loadVehicleRegistry();
+  updateVehicleTypeHint();
   seedMetrics();
   initSoftwareFilter();
   // Seed Supabase once per browser session (non-blocking)
@@ -1840,7 +1853,7 @@ function updateKpiHealthBar(scores, periodLabel) {
 // ── Dashboard rendering ────────────────────────────────────────
 async function renderDashboard() {
   // Always start with localStorage (has 2000 seeded records + all local pipeline runs)
-  let all = getMetrics();
+  let all = getMetrics().filter(m => m.vehicle_type && m.vehicle_type !== '—');
 
   // Supplement with any backend-only records (e.g. runs from another device)
   try {
@@ -2002,9 +2015,13 @@ async function renderDashboard() {
   const filteredTotal = sorted.length;
   const tableRows = sorted.slice(0, TABLE_RENDER_LIMIT);
   const truncated = filteredTotal > TABLE_RENDER_LIMIT;
+  const grandTotal = all.length;
+  const hasActiveFilters = Object.values(activeFilters).some(v => v !== 'ALL');
   document.getElementById('rides-count').textContent = truncated
-    ? `showing ${TABLE_RENDER_LIMIT.toLocaleString()} of ${filteredTotal.toLocaleString()} — narrow the time range to see more`
-    : `${filteredTotal.toLocaleString()} records`;
+    ? `showing ${TABLE_RENDER_LIMIT.toLocaleString()} of ${grandTotal.toLocaleString()} total`
+    : hasActiveFilters
+      ? `${filteredTotal.toLocaleString()} of ${grandTotal.toLocaleString()} total`
+      : `${grandTotal.toLocaleString()} total records`;
   const catChip  = { SAFETY:'red', COMFORT:'amber', ROUTE:'purple', SOFTWARE:'cyan', COMPLIMENT:'green', UNKNOWN:'gray' };
   const priChip  = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
   const slChip   = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
