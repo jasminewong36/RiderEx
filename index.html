@@ -558,7 +558,7 @@
   .vc-avatar{
     width:100%;height:80px;display:flex;align-items:center;justify-content:center;
     font-size:28px;margin-bottom:8px;position:relative;
-    background:radial-gradient(circle at center,rgba(0,229,200,0.04),transparent 70%);
+    background:transparent;
   }
   .vc-avatar::after{
     content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;
@@ -1190,7 +1190,7 @@
       <button class="vcm-close" onclick="closeVehicleModal()">✕</button>
     </div>
     <div class="vcm-body">
-      <div id="vcm-img-wrap" style="width:100%;height:160px;overflow:hidden;border-radius:3px;margin-bottom:14px;border:1px solid var(--fleet-border);background:var(--fleet-bg2);display:none">
+      <div id="vcm-img-wrap" style="width:100%;height:160px;overflow:hidden;border-radius:3px;margin-bottom:14px;border:1px solid var(--fleet-border);background:transparent;display:none">
         <img id="vcm-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;opacity:0.9">
       </div>
       <div class="vcm-section">
@@ -2497,7 +2497,7 @@ function renderVehicleCard(v) {
           <div class="vc-avatar">
             <img src="${v.imageUrl || ''}" alt="${modelShort}"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-                 style="width:100%;height:${v.model?.includes('Gen2')?'40px':v.model?.includes('Gen3')?'30px':'100%'};object-fit:contain;border-radius:2px;opacity:0.88;display:block">
+                 style="width:100%;height:100%;object-fit:contain;display:block">
             <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:26px">${v.icon}</div>
           </div>
           <div style="font-size:9px;color:rgba(0,229,200,0.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:1px;margin-top:5px">${modelShort}</div>
