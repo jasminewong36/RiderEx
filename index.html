@@ -254,6 +254,40 @@
   .kpi-val{font-size:28px;font-weight:800;font-family:var(--mono);line-height:1.1;margin-bottom:4px;color:var(--primary)}
   .kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:2px}
   .kpi-sub{font-size:10px;color:var(--muted2)}
+  .kpi-status-badge{
+    position:absolute;top:8px;right:8px;
+    font-size:8px;font-weight:700;letter-spacing:0.07em;
+    padding:2px 6px;border-radius:2px;text-transform:uppercase;
+    pointer-events:none;
+  }
+  .ksb-exceeding{background:rgba(0,255,140,0.12);color:var(--green);border:1px solid rgba(0,255,140,0.25)}
+  .ksb-ontarget {background:rgba(0,229,200,0.10);color:var(--primary);border:1px solid rgba(0,229,200,0.2)}
+  .ksb-below    {background:rgba(255,136,0,0.12);color:var(--amber);border:1px solid rgba(255,136,0,0.25)}
+  .ksb-critical {background:rgba(255,34,68,0.12);color:var(--red);border:1px solid rgba(255,34,68,0.25)}
+  .kpi-target{font-size:9px;color:rgba(0,229,200,0.28);margin-top:3px;letter-spacing:0.03em}
+
+  /* KPI summary health bar */
+  .kpi-health-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 16px;margin-bottom:16px;
+    background:var(--surface);border:1px solid var(--border);border-radius:4px;
+    position:relative;overflow:hidden;
+  }
+  .kpi-health-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,200,0.3),transparent)}
+  .kpi-health-left{display:flex;align-items:center;gap:12px}
+  .kpi-health-score{font-size:22px;font-weight:800;font-family:var(--mono)}
+  .kpi-health-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)}
+  .kpi-health-pips{display:flex;gap:4px;align-items:center}
+  .kpi-pip{width:14px;height:6px;border-radius:2px;background:rgba(0,229,200,0.1);border:1px solid rgba(0,229,200,0.1)}
+  .kpi-pip.pip-exc{background:var(--green);border-color:var(--green);box-shadow:0 0 4px rgba(0,255,140,0.4)}
+  .kpi-pip.pip-ok {background:var(--primary);border-color:var(--primary)}
+  .kpi-pip.pip-low{background:var(--amber);border-color:var(--amber)}
+  .kpi-pip.pip-crit{background:var(--red);border-color:var(--red)}
+  .kpi-health-verdict{font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 10px;border-radius:3px}
+  .khv-green {background:rgba(0,255,140,0.1);color:var(--green);border:1px solid rgba(0,255,140,0.2)}
+  .khv-teal  {background:rgba(0,229,200,0.1);color:var(--primary);border:1px solid rgba(0,229,200,0.2)}
+  .khv-amber {background:rgba(255,136,0,0.1);color:var(--amber);border:1px solid rgba(255,136,0,0.2)}
+  .khv-red   {background:rgba(255,34,68,0.1);color:var(--red);border:1px solid rgba(255,34,68,0.2)}
 
   .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
   .dash-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:18px;position:relative;overflow:hidden}
@@ -891,61 +925,95 @@
 
   <div id="dash-content" style="display:none">
 
+    <!-- KPI Health Summary Bar -->
+    <div class="kpi-health-bar">
+      <div class="kpi-health-left">
+        <div>
+          <div class="kpi-health-score"><span id="kh-met">—</span><span style="font-size:14px;color:var(--muted)">/9</span></div>
+          <div class="kpi-health-label">KPIs Met This Week</div>
+        </div>
+        <div class="kpi-health-pips" id="kh-pips"></div>
+      </div>
+      <div>
+        <div id="kh-verdict" class="kpi-health-verdict">—</div>
+        <div style="font-size:9px;color:var(--muted);text-align:right;margin-top:3px">vs. weekly targets</div>
+      </div>
+    </div>
+
     <!-- KPI row 1 -->
     <div class="kpi-grid">
       <div class="kpi kpi-blue">
+        <div class="kpi-status-badge" id="kpi-total-status"></div>
         <div class="kpi-val" id="kpi-total">0</div>
         <div class="kpi-label">Total Rides</div>
         <div class="kpi-sub">processed</div>
+        <div class="kpi-target">Target: 2,000 / week</div>
       </div>
       <div class="kpi kpi-amber">
+        <div class="kpi-status-badge" id="kpi-csat-status"></div>
         <div class="kpi-val" id="kpi-csat">—</div>
         <div class="kpi-label">Avg Rating</div>
         <div class="kpi-sub" id="kpi-csat-stars">customer satisfaction</div>
+        <div class="kpi-target">Target: ≥ 4.5 ★</div>
       </div>
       <div class="kpi kpi-green">
+        <div class="kpi-status-badge" id="kpi-good-status"></div>
         <div class="kpi-val" id="kpi-good">0%</div>
         <div class="kpi-label">Good Rides</div>
         <div class="kpi-sub">zero issues</div>
+        <div class="kpi-target">Target: ≥ 80%</div>
       </div>
       <div class="kpi kpi-red">
+        <div class="kpi-status-badge" id="kpi-safety-status"></div>
         <div class="kpi-val" id="kpi-safety">0%</div>
-        <div class="kpi-label">Safety Rate</div>
+        <div class="kpi-label">Safety Incident Rate</div>
         <div class="kpi-sub">of all rides</div>
+        <div class="kpi-target">Target: &lt; 10%</div>
       </div>
       <div class="kpi kpi-cyan">
+        <div class="kpi-status-badge" id="kpi-nhtsa-status"></div>
         <div class="kpi-val" id="kpi-nhtsa">0</div>
         <div class="kpi-label">NHTSA Flags</div>
         <div class="kpi-sub">reportable incidents</div>
+        <div class="kpi-target">Target: &lt; 10 flags</div>
       </div>
     </div>
 
     <!-- KPI row 2 -->
     <div class="kpi-grid" style="margin-bottom:20px">
       <div class="kpi kpi-green">
+        <div class="kpi-status-badge" id="kpi-quality-status"></div>
         <div class="kpi-val" id="kpi-quality">—</div>
         <div class="kpi-label">Avg Quality Score</div>
         <div class="kpi-sub">review agent rating</div>
+        <div class="kpi-target">Target: ≥ 85 / 100</div>
       </div>
       <div class="kpi kpi-red">
+        <div class="kpi-status-badge" id="kpi-escalation-status"></div>
         <div class="kpi-val" id="kpi-escalation">0%</div>
         <div class="kpi-label">Eng. Escalation</div>
         <div class="kpi-sub">needed engineering</div>
+        <div class="kpi-target">Target: &lt; 18%</div>
       </div>
       <div class="kpi kpi-amber">
+        <div class="kpi-status-badge" id="kpi-refund-status"></div>
         <div class="kpi-val" id="kpi-refund">$0</div>
         <div class="kpi-label">Avg Refund/Credit</div>
         <div class="kpi-sub">per case</div>
+        <div class="kpi-target">Target: &lt; $8 avg</div>
       </div>
       <div class="kpi kpi-blue">
         <div class="kpi-val" id="kpi-band">0</div>
         <div class="kpi-label">Avg Band Msgs</div>
         <div class="kpi-sub">per pipeline run</div>
+        <div class="kpi-target">Informational</div>
       </div>
       <div class="kpi kpi-cyan">
+        <div class="kpi-status-badge" id="kpi-p1-status"></div>
         <div class="kpi-val" id="kpi-p1">0</div>
         <div class="kpi-label">P1 Incidents</div>
         <div class="kpi-sub">critical priority</div>
+        <div class="kpi-target">Target: &lt; 20 / week</div>
       </div>
     </div>
 
@@ -1658,6 +1726,42 @@ function applyFilters(metrics) {
   });
 }
 
+// ── KPI status helpers ─────────────────────────────────────────
+// Returns: 2 = exceeding, 1 = on target, 0 = below, -1 = critical
+function setKpiStatus(id, value, thresholds) {
+  const el = document.getElementById('kpi-' + id + '-status');
+  if (!el) return 1;
+  let tier, cls, icon, label;
+  if (thresholds.exc(value))      { tier = 2;  cls = 'ksb-exceeding'; icon = '▲'; label = 'EXCEEDING'; }
+  else if (thresholds.ok(value))  { tier = 1;  cls = 'ksb-ontarget';  icon = '✓'; label = 'ON TARGET'; }
+  else if (thresholds.low(value)) { tier = 0;  cls = 'ksb-below';     icon = '▼'; label = 'BELOW';     }
+  else                             { tier = -1; cls = 'ksb-critical';  icon = '!'; label = 'CRITICAL';  }
+  el.className = 'kpi-status-badge ' + cls;
+  el.textContent = icon + ' ' + label;
+  return tier;
+}
+
+function updateKpiHealthBar(scores) {
+  const met  = scores.filter(s => s >= 1).length;   // on target or exceeding
+  const exc  = scores.filter(s => s === 2).length;
+  const crit = scores.filter(s => s === -1).length;
+  const total = scores.length;
+  document.getElementById('kh-met').textContent = met;
+  // Pips
+  const pipCls = s => s===2?'pip-exc':s===1?'pip-ok':s===0?'pip-low':'pip-crit';
+  document.getElementById('kh-pips').innerHTML = scores.map(s => `<div class="kpi-pip ${pipCls(s)}"></div>`).join('');
+  // Verdict
+  const vEl = document.getElementById('kh-verdict');
+  let vCls, vText;
+  if (crit > 0)        { vCls='khv-red';   vText=`${crit} KPI${crit>1?'s':''} CRITICAL`; }
+  else if (met < 5)    { vCls='khv-amber'; vText='BELOW EXPECTATIONS'; }
+  else if (exc >= 6)   { vCls='khv-green'; vText='EXCEEDING TARGETS'; }
+  else if (met === total) { vCls='khv-teal'; vText='ALL TARGETS MET'; }
+  else                 { vCls='khv-teal';  vText='MEETING TARGETS'; }
+  vEl.className = 'kpi-health-verdict ' + vCls;
+  vEl.textContent = vText;
+}
+
 // ── Dashboard rendering ────────────────────────────────────────
 async function renderDashboard() {
   // Always start with localStorage (has 2000 seeded records + all local pipeline runs)
@@ -1729,6 +1833,23 @@ async function renderDashboard() {
   document.getElementById('kpi-refund').textContent = '$' + avgRefund;
   document.getElementById('kpi-band').textContent = avgBand;
   document.getElementById('kpi-p1').textContent = p1Count;
+
+  // KPI status badges
+  const goodPct   = total ? (goodCount / total * 100) : 0;
+  const safetyPct = total ? (safetyCount / total * 100) : 0;
+  const escPct    = total ? (engCount / total * 100) : 0;
+  const kpiScores = [
+    setKpiStatus('total',      total,         { exc: v=>v>=2200, ok: v=>v>=1800, low: v=>v>=1200 }),
+    setKpiStatus('csat',       avgRating||0,  { exc: v=>v>=4.7,  ok: v=>v>=4.3,  low: v=>v>=3.8  }),
+    setKpiStatus('good',       goodPct,       { exc: v=>v>=90,   ok: v=>v>=75,   low: v=>v>=60   }),
+    setKpiStatus('safety',     safetyPct,     { exc: v=>v<=5,    ok: v=>v<=12,   low: v=>v<=20   }),
+    setKpiStatus('nhtsa',      nhtsa,         { exc: v=>v<=5,    ok: v=>v<=15,   low: v=>v<=25   }),
+    setKpiStatus('quality',    avgQuality||0, { exc: v=>v>=90,   ok: v=>v>=80,   low: v=>v>=70   }),
+    setKpiStatus('escalation', escPct,        { exc: v=>v<=10,   ok: v=>v<=20,   low: v=>v<=30   }),
+    setKpiStatus('refund',     avgRefund,     { exc: v=>v<=4,    ok: v=>v<=10,   low: v=>v<=18   }),
+    setKpiStatus('p1',         p1Count,       { exc: v=>v<=8,    ok: v=>v<=20,   low: v=>v<=35   }),
+  ];
+  updateKpiHealthBar(kpiScores);
 
   // Category chart
   const cats = ['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];
