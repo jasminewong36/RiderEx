@@ -1003,25 +1003,27 @@
 
     <!-- Recent rides table -->
     <div class="dash-card full" style="margin-bottom:0">
-      <h3>🕒 Recent Rides</h3>
-      <table class="rides-table" id="recent-rides">
-        <thead>
-          <tr>
-            <th>Ticket ID</th>
-            <th>Ride</th>
-            <th>Category</th>
-            <th>Priority</th>
-            <th>Safety</th>
-            <th>Sentiment</th>
-            <th>Rating</th>
-            <th>Quality</th>
-            <th>Refund</th>
-            <th>Eng.</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody id="rides-tbody"></tbody>
-      </table>
+      <h3>🕒 All Rides <span id="rides-count" style="font-size:11px;font-weight:400;color:var(--muted2);margin-left:8px"></span></h3>
+      <div style="overflow-x:auto;overflow-y:auto;max-height:600px;border:1px solid var(--border);border-radius:4px">
+        <table class="rides-table" id="recent-rides" style="min-width:900px">
+          <thead style="position:sticky;top:0;z-index:2;background:var(--surface)">
+            <tr>
+              <th>Ticket ID</th>
+              <th>Ride</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Safety</th>
+              <th>Sentiment</th>
+              <th>Rating</th>
+              <th>Quality</th>
+              <th>Refund</th>
+              <th>Eng.</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="rides-tbody"></tbody>
+        </table>
+      </div>
     </div>
 
   </div>
@@ -1227,7 +1229,18 @@ function loadSample(type) {
 }
 
 // Auto-generate IDs on load
-window.addEventListener('DOMContentLoaded', async () => { genIds(); await loadVehicleRegistry(); seedMetrics(); });
+window.addEventListener('DOMContentLoaded', async () => {
+  genIds();
+  await loadVehicleRegistry();
+  seedMetrics();
+  // Seed Supabase once per browser session (non-blocking)
+  if (!sessionStorage.getItem('supabase_seeded')) {
+    fetch('/seed-supabase', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { if (d.inserted) sessionStorage.setItem('supabase_seeded', '1'); })
+      .catch(() => {});
+  }
+});
 
 function setRating(n) {
   rating = n;
@@ -1647,32 +1660,29 @@ function applyFilters(metrics) {
 
 // ── Dashboard rendering ────────────────────────────────────────
 async function renderDashboard() {
-  // Try to fetch from Supabase backend; fall back to localStorage seed
-  let all = [];
+  // Always start with localStorage (has 2000 seeded records + all local pipeline runs)
+  let all = getMetrics();
+
+  // Supplement with any backend-only records (e.g. runs from another device)
   try {
-    const params = new URLSearchParams();
-    if (activeFilters.category !== 'ALL') params.set('category', activeFilters.category);
-    if (activeFilters.priority !== 'ALL') params.set('priority', activeFilters.priority);
-    if (activeFilters.safety !== 'ALL')   params.set('safety_level', activeFilters.safety);
-    if (activeFilters.time !== 'ALL')     params.set('days', activeFilters.time);
-    params.set('limit', '500');
-    const res = await fetch('/metrics?' + params.toString());
+    const res = await fetch('/metrics?limit=500');
     if (res.ok) {
       const json = await res.json();
-      if (json.rides) {
-        all = json.rides.map(r => ({
-          ...r,
-          refund: (r.refund_amount || 0) + (r.credit_amount || 0),
-          good_ride: r.good_ride,
-          ts: r.created_at,
-          band_messages: r.band_messages || 5,
-        }));
+      if (json.rides && json.rides.length > 0) {
+        const existingIds = new Set(all.map(r => r.ticket_id).filter(Boolean));
+        const backendOnly = json.rides
+          .filter(r => r.ticket_id && !existingIds.has(r.ticket_id))
+          .map(r => ({
+            ...r,
+            refund: (r.refund_amount || 0) + (r.credit_amount || 0),
+            good_ride: r.good_ride,
+            ts: r.created_at,
+            band_messages: r.band_messages || 5,
+          }));
+        if (backendOnly.length) all = [...all, ...backendOnly];
       }
     }
-  } catch(e) { /* backend unavailable, fall through to localStorage */ }
-
-  // Merge with localStorage seed so dashboard works even without backend
-  if (all.length === 0) all = getMetrics();
+  } catch(e) { /* backend unavailable, localStorage is the source of truth */ }
   const metrics = applyFilters(all);
   const empty = document.getElementById('dash-empty');
   const content = document.getElementById('dash-content');
@@ -1784,8 +1794,9 @@ async function renderDashboard() {
   const activeTeams = teams.filter(t => teamCounts[t] > 0);
   document.getElementById('chart-engteam').innerHTML = (activeTeams.length ? activeTeams : ['NONE']).map(t => barRow(t.replace('_TEAM','').replace('_',' '), teamCounts[t]||0, total, teamColors[t]||'var(--muted)')).join('');
 
-  // Recent rides table
-  const recent = [...metrics].reverse().slice(0, 20);
+  // All rides table — show all, most recent first
+  const recent = [...metrics].sort((a,b) => new Date(b.ts) - new Date(a.ts)).slice(0, 20000);
+  document.getElementById('rides-count').textContent = `${recent.length.toLocaleString()} records`;
   const catChip = { SAFETY:'red', COMFORT:'amber', ROUTE:'purple', SOFTWARE:'cyan', COMPLIMENT:'green', UNKNOWN:'gray' };
   const priChip = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
   const slChip = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };

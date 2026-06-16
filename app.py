@@ -1,7 +1,9 @@
 """RiderEx — FastAPI backend"""
 import os
 import json
+import random
 import logging
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -153,6 +155,102 @@ async def get_vehicles():
         with open("riderex_vehicles.json") as f:
             return JSONResponse(content=json.load(f))
     except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+_INCIDENT_CAT = {
+    'GNSS_DROPOUT':'SOFTWARE','SENSOR_FAILURE':'SAFETY','AEB_FALSE_TRIGGER':'SAFETY',
+    'ROUTING_ERROR':'ROUTE','COMFORT_COMPLAINT':'COMFORT','SOFTWARE_BUG':'SOFTWARE',
+    'LIDAR_INTERFERENCE':'SAFETY','PASSENGER_COMPLAINT':'COMFORT','MINOR_COLLISION':'SAFETY',
+    'GPS_SPOOFING':'SAFETY','COMMUNICATION_LOSS':'SOFTWARE','BRAKE_ANOMALY':'SAFETY',
+    'OBSTACLE_DETECTION':'SAFETY','LANE_DEPARTURE':'SAFETY','SPEED_REGULATION':'SOFTWARE',
+    'CHARGING_FAILURE':'SOFTWARE','DOOR_MALFUNCTION':'COMFORT','CLIMATE_FAILURE':'COMFORT',
+}
+_VACTION = {'CRITICAL':'GROUND_VEHICLE','HIGH':'INSPECT_BEFORE_NEXT_RIDE','MEDIUM':'INSPECT_BEFORE_NEXT_RIDE','LOW':'CONTINUE_OPERATION','NONE':'CONTINUE_OPERATION'}
+_ENG_TEAM = {'SAFETY':'AV_SAFETY','SOFTWARE':'SOFTWARE_TEAM','ROUTE':'LOCALIZATION_TEAM','COMFORT':'UX_TEAM','COMPLIMENT':'NONE'}
+_CAT_POOL = ['SAFETY']*3+['COMFORT']*4+['SOFTWARE']*3+['ROUTE']*2+['COMPLIMENT']*3
+_SL_FOR_CAT = {
+    'SAFETY':['CRITICAL','HIGH','HIGH','MEDIUM','MEDIUM','LOW'],
+    'COMFORT':['LOW','NONE','NONE','NONE'],
+    'ROUTE':['LOW','LOW','MEDIUM','NONE'],
+    'SOFTWARE':['NONE','NONE','LOW','MEDIUM'],
+    'COMPLIMENT':['NONE'],
+}
+
+def _pick_priority(cat, sl):
+    if sl == 'CRITICAL': return 'P1'
+    if sl == 'HIGH': return 'P2'
+    if cat in ('SAFETY','SOFTWARE'): return 'P3'
+    if cat == 'COMPLIMENT': return 'P4'
+    return 'P3' if random.random() < 0.4 else 'P4'
+
+def _build_seed_records(vehicles):
+    RIDES_PER_VEHICLE = 10
+    SPAN_DAYS = 180
+    now = datetime.now(timezone.utc)
+    records, idx = [], 0
+    for v in vehicles:
+        ss = v.get('safety_score', 90) or 90
+        base_r = v.get('avg_passenger_rating', 4.0) or 4.0
+        for ri in range(RIDES_PER_VEHICLE):
+            ts = (now - timedelta(days=random.randint(0,SPAN_DAYS), hours=random.randint(0,23))).isoformat()
+            if ri == 0:
+                inc = v.get('last_incident_type')
+                cat = ('COMPLIMENT' if base_r >= 4.5 else 'COMFORT') if (not inc or base_r >= 4.8) else _INCIDENT_CAT.get(inc,'SOFTWARE')
+                sl  = 'CRITICAL' if ss<50 else 'HIGH' if ss<70 else 'MEDIUM' if ss<85 else 'LOW' if ss<95 else 'NONE'
+            else:
+                cat = random.choice(_CAT_POOL)
+                sl  = random.choice(_SL_FOR_CAT[cat])
+            priority = _pick_priority(cat, sl)
+            rating   = min(5, max(1, round(base_r + (random.random()-0.5)*2)))
+            churn    = 'HIGH' if rating<=2 else 'MEDIUM' if rating<=3 else 'LOW'
+            sentiment= 'NEGATIVE' if rating<=2 else 'NEUTRAL' if rating<=3 else 'POSITIVE'
+            qs       = min(100, max(48, round(58 + ss*0.25 + rating*3 + (random.random()-0.5)*12)))
+            nhtsa    = sl=='CRITICAL' or (sl=='HIGH' and priority=='P1')
+            req_eng  = cat in ('SAFETY','SOFTWARE') and sl!='NONE'
+            refund   = random.randint(20,40) if priority=='P1' else random.randint(10,20) if priority=='P2' else 0
+            credit   = 5 if cat=='COMPLIMENT' else random.randint(0,10) if priority=='P3' else 0
+            records.append({
+                'ticket_id': f'RX-{idx+1:05d}',
+                'ride_id':   f'RIDE-{random.randint(1,9999999999999):016d}',
+                'vehicle_id': v['vehicle_id'],
+                'category': cat, 'priority': priority, 'safety_level': sl,
+                'nhtsa': nhtsa, 'rating': rating, 'churn_risk': churn,
+                'refund_amount': refund, 'credit_amount': credit,
+                'good_ride': cat=='COMPLIMENT' or (sl=='NONE' and priority=='P4'),
+                'sentiment': sentiment, 'quality_score': qs,
+                'review_decision': 'APPROVED' if qs>=85 else 'APPROVED_WITH_EDITS' if qs>=72 else 'REVISION_NEEDED',
+                'requires_engineering': req_eng,
+                'engineering_team': _ENG_TEAM.get(cat,'NONE') if req_eng else 'NONE',
+                'vehicle_action': _VACTION.get(sl,'CONTINUE_OPERATION'),
+                'action_items': v.get('open_support_tickets', 0),
+                'band_messages': random.randint(3,15),
+                'key_phrases': [v['last_incident_type'].replace('_',' ')] if v.get('last_incident_type') else [],
+                'intake_data': {}, 'safety_data': {}, 'resolution_data': {}, 'review_data': {}, 'engineering_data': {},
+                'created_at': ts,
+            })
+            idx += 1
+    return records
+
+
+@app.post("/seed-supabase")
+async def seed_supabase():
+    """Bulk-insert 2000 seed ride records into Supabase (upserts on ticket_id)."""
+    sb = get_supabase()
+    if not sb:
+        return JSONResponse(status_code=503, content={"error": "Supabase not configured"})
+    try:
+        with open("riderex_vehicles.json") as f:
+            vehicles = json.load(f)
+        records = _build_seed_records(vehicles)
+        inserted = 0
+        for i in range(0, len(records), 100):
+            sb.table("rides").upsert(records[i:i+100], on_conflict="ticket_id").execute()
+            inserted += 100 if i+100 < len(records) else len(records)-i
+        logger.info(f"[Seed] Inserted {inserted} records into Supabase")
+        return JSONResponse(content={"inserted": inserted, "total": len(records)})
+    except Exception as e:
+        logger.error(f"[Seed] Failed: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
