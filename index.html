@@ -1490,11 +1490,89 @@ function vehicleSeedRecord(v, i) {
   };
 }
 
+function generateBulkSeeds(registry) {
+  const RIDES_PER_VEHICLE = 10; // 200 × 10 = 2000 rides
+  const SPAN_DAYS = 180;
+  // Weighted category distribution: realistic fleet mix
+  const CAT_POOL = [
+    'SAFETY','SAFETY','SAFETY',
+    'COMFORT','COMFORT','COMFORT','COMFORT',
+    'SOFTWARE','SOFTWARE','SOFTWARE',
+    'ROUTE','ROUTE',
+    'COMPLIMENT','COMPLIMENT','COMPLIMENT',
+  ];
+  const SL_FOR_CAT = {
+    SAFETY:['CRITICAL','HIGH','HIGH','MEDIUM','MEDIUM','LOW'],
+    COMFORT:['LOW','NONE','NONE','NONE'],
+    ROUTE:['LOW','LOW','MEDIUM','NONE'],
+    SOFTWARE:['NONE','NONE','LOW','MEDIUM'],
+    COMPLIMENT:['NONE'],
+  };
+  function pickPriority(cat, sl) {
+    if (sl==='CRITICAL') return 'P1';
+    if (sl==='HIGH') return 'P2';
+    if (cat==='SAFETY'||cat==='SOFTWARE') return 'P3';
+    if (cat==='COMPLIMENT') return 'P4';
+    return Math.random()<0.4?'P3':'P4';
+  }
+  const records = [];
+  let idx = 0;
+  registry.forEach(v => {
+    const baseSs = v.safety_score || 90;
+    const baseRating = v.avg_passenger_rating || 4.0;
+    for (let ri = 0; ri < RIDES_PER_VEHICLE; ri++) {
+      const daysAgo = Math.floor(Math.random() * SPAN_DAYS);
+      const ts = new Date(Date.now() - daysAgo*86400000 - Math.floor(Math.random()*86400000)).toISOString();
+      let cat, sl;
+      if (ri === 0) {
+        // Anchor first ride to vehicle's actual incident data
+        const inc = v.last_incident_type;
+        cat = (!inc || baseRating >= 4.8) ? (baseRating >= 4.5 ? 'COMPLIMENT' : 'COMFORT') : (INCIDENT_CATEGORY[inc] || 'SOFTWARE');
+        sl  = baseSs < 50 ? 'CRITICAL' : baseSs < 70 ? 'HIGH' : baseSs < 85 ? 'MEDIUM' : baseSs < 95 ? 'LOW' : 'NONE';
+      } else {
+        cat = CAT_POOL[Math.floor(Math.random()*CAT_POOL.length)];
+        const pool = SL_FOR_CAT[cat];
+        sl  = pool[Math.floor(Math.random()*pool.length)];
+      }
+      const priority = pickPriority(cat, sl);
+      const ratingNoise = (Math.random()-0.5)*2;
+      const rating = Math.min(5,Math.max(1, Math.round(baseRating + ratingNoise)));
+      const churn  = rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW';
+      const sentiment = rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE';
+      const qs = Math.min(100,Math.max(48, Math.round(58 + baseSs*0.25 + rating*3 + (Math.random()-0.5)*12)));
+      const nhtsa = sl==='CRITICAL'||(sl==='HIGH'&&priority==='P1');
+      const reqEng = ['SAFETY','SOFTWARE'].includes(cat)&&sl!=='NONE';
+      const refund = priority==='P1'?20+Math.floor(Math.random()*20):priority==='P2'?10+Math.floor(Math.random()*10):0;
+      const credit = cat==='COMPLIMENT'?5:priority==='P3'?Math.floor(Math.random()*10):0;
+      records.push({
+        ticket_id:  'RX-'+String(idx+1).padStart(5,'0'),
+        ride_id:    'RIDE-'+String(Math.floor(Math.random()*9999999999999)+1).padStart(16,'0'),
+        vehicle_id: v.vehicle_id,
+        category:cat, priority, safety_level:sl, nhtsa, rating,
+        churn_risk:churn, sentiment,
+        refund:refund+credit, refund_amount:refund, credit_amount:credit,
+        good_ride: cat==='COMPLIMENT'||(sl==='NONE'&&priority==='P4'),
+        quality_score:qs,
+        review_decision: qs>=85?'APPROVED':qs>=72?'APPROVED_WITH_EDITS':'REVISION_NEEDED',
+        requires_engineering:reqEng,
+        engineering_team: reqEng?ENG_TEAM_MAP[cat]:'NONE',
+        vehicle_action: VACTION_MAP[sl]||'CONTINUE_OPERATION',
+        action_items: v.open_support_tickets||0,
+        band_messages: 3+Math.floor(Math.random()*12),
+        key_phrases: v.last_incident_type?[v.last_incident_type.replace(/_/g,' ')]:[],
+        ts,
+      });
+      idx++;
+    }
+  });
+  return records;
+}
+
 function seedMetrics() {
-  const SEED_VER = 'vehicles_v2';
+  const SEED_VER = 'vehicles_v3';
   if (vehicleRegistry.length > 0) {
     if (localStorage.getItem('riderex_seed_ver') === SEED_VER) return;
-    const records = vehicleRegistry.map((v, i) => vehicleSeedRecord(v, i));
+    const records = generateBulkSeeds(vehicleRegistry);
     records.sort((a,b) => new Date(a.ts) - new Date(b.ts));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     localStorage.setItem('riderex_seed_ver', SEED_VER);
@@ -1507,10 +1585,10 @@ function seedMetrics() {
     const priO={SAFETY:['P1','P1','P2'],COMFORT:['P2','P3','P3'],ROUTE:['P2','P3'],SOFTWARE:['P2','P3'],COMPLIMENT:['P4']};
     const slM={SAFETY:['CRITICAL','HIGH','MEDIUM'],COMFORT:['LOW','NONE'],ROUTE:['LOW','NONE'],SOFTWARE:['NONE'],COMPLIMENT:['NONE']};
     const now=Date.now(); const seed=[];
-    for(let i=0;i<120;i++){
+    for(let i=0;i<2000;i++){
       const cat=cats[i%5]; const sl=pick(slM[cat]); const priority=pick(priO[cat]);
       const rating=cat==='COMPLIMENT'?rnd(4,5):cat==='SAFETY'?rnd(1,2):rnd(2,4);
-      const ts=new Date(now-rnd(0,29)*86400000-rnd(0,23)*3600000).toISOString();
+      const ts=new Date(now-rnd(0,179)*86400000-rnd(0,23)*3600000).toISOString();
       seed.push({ticket_id:'TKT-'+i,ride_id:'RIDE-'+String(rnd(1,999999)).padStart(16,'0'),
         vehicle_id:'WM-'+String(rnd(1,200)).padStart(4,'0'),category:cat,priority,safety_level:sl,
         nhtsa:['CRITICAL','HIGH'].includes(sl),rating,churn_risk:rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW',
