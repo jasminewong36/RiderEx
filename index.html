@@ -671,7 +671,7 @@
       </div>
       <div class="fg full">
         <label>Customer Feedback</label>
-        <textarea id="feedback" rows="5" placeholder="Paste customer feedback here...">The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Waymo again unless this is fixed.</textarea>
+        <textarea id="feedback" rows="5" placeholder="Paste customer feedback here...">The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Weimo again unless this is fixed.</textarea>
       </div>
     </div>
     <button class="run-btn" id="run-btn" onclick="runPipeline()">
@@ -1191,7 +1191,7 @@ function genIds() {
 
 const samples = {
   safety: {
-    feedback: "The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Waymo again unless this is fixed.",
+    feedback: "The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use weimo again unless this is fixed.",
     rating: 1
   },
   comfort: {
@@ -1203,7 +1203,7 @@ const samples = {
     rating: 2
   },
   compliment: {
-    feedback: "Honestly one of the best rides I have ever taken. Super smooth, perfectly timed, and I loved watching the car navigate the complex intersection near downtown. The future is here and I am here for it. Will definitely be using Waymo exclusively from now on.",
+    feedback: "Honestly one of the best rides I have ever taken. Super smooth, perfectly timed, and I loved watching the car navigate the complex intersection near downtown. The future is here and I am here for it. Will definitely be using weimo exclusively from now on.",
     rating: 5
   }
 };
@@ -2132,7 +2132,7 @@ function renderVehicleCard(v) {
   const segs = Array.from({length: scoreSegs}, (_, i) => `<div class="vc-seg ${i < filledSegs ? segClass : ''}"></div>`).join('');
   const barClass = v.score >= 75 ? 'hb-high' : v.score >= 50 ? 'hb-med' : 'hb-low';
   const statusColor = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.4)' }[v.status];
-  const modelShort = v.model ? v.model.replace('Waymo ','').replace(' Platform','').substring(0,18) : v.icon;
+  const modelShort = v.model ? v.model.replace('weimo ','').replace(' Platform','').substring(0,18) : v.icon;
   const location = v.city ? `${v.city}, ${v.state}` : '';
   const netOpen   = v.netOpenTickets !== undefined ? v.netOpenTickets : (v.incidents || 0);
   const processed = v.processedTickets || 0;
