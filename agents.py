@@ -288,7 +288,7 @@ def agent_intake(feedback: str, ride_id: str, vehicle_id: str, rating: int) -> d
     user = f'Customer feedback: "{feedback}"\nRide: {ride_id} | Vehicle: {vehicle_id} | Rating: {rating or "N/A"}'
     result = call_claude(INTAKE_SYSTEM, user)
     result.update({
-        "ticket_id": f"TKT-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "ticket_id": f"RX-{datetime.now().strftime('%Y%m%d%H%M%S')}",
         "raw_feedback": feedback, "ride_id": ride_id,
         "vehicle_id": vehicle_id, "rating": rating,
         "created_at": datetime.now().isoformat()
