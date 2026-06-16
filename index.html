@@ -685,6 +685,17 @@
   #rides-tbody tr{cursor:pointer;transition:background 0.12s}
   #rides-tbody tr:hover{background:rgba(129,140,248,0.07)}
 
+  /* ── Pipeline road background ────────────────────────── */
+  #perc-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  #perc-road-bg{position:absolute;inset:0;z-index:0}
+  #perc-scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,rgba(99,255,180,0.35),transparent);z-index:15;pointer-events:none;animation:percScan 4s linear infinite}
+  @keyframes percScan{0%{top:-2px}100%{top:100%}}
+  #perc-grid-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0.035}
+  #perc-corner-tl,#perc-corner-tr,#perc-corner-bl,#perc-corner-br{position:absolute;width:32px;height:32px;z-index:25;pointer-events:none}
+  #perc-corner-tl{top:12px;left:12px;border-top:1.5px solid rgba(99,255,180,0.45);border-left:1.5px solid rgba(99,255,180,0.45)}
+  #perc-corner-tr{top:12px;right:12px;border-top:1.5px solid rgba(99,255,180,0.45);border-right:1.5px solid rgba(99,255,180,0.45)}
+  #perc-corner-bl{bottom:12px;left:12px;border-bottom:1.5px solid rgba(99,255,180,0.45);border-left:1.5px solid rgba(99,255,180,0.45)}
+  #perc-corner-br{bottom:12px;right:12px;border-bottom:1.5px solid rgba(99,255,180,0.45);border-right:1.5px solid rgba(99,255,180,0.45)}
   /* ── Software Branch tab ──────────────────────────────── */
   #page-software .container{padding-top:28px;padding-bottom:40px}
   .sw-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;overflow:hidden}
@@ -751,6 +762,16 @@
 
 <!-- ═══════════════ PIPELINE PAGE ═══════════════ -->
 <div class="page active" id="page-pipeline">
+<!-- Road animation background (pipeline tab only) -->
+<div id="perc-scene" style="opacity:0.42">
+  <canvas id="perc-road-bg"></canvas>
+  <svg id="perc-grid-overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="perc-scan-line"></div>
+  <div id="perc-corner-tl"></div>
+  <div id="perc-corner-tr"></div>
+  <div id="perc-corner-bl"></div>
+  <div id="perc-corner-br"></div>
+</div>
 <div class="container">
 
   <div class="hero">
@@ -1841,6 +1862,7 @@ function vehicleSeedRecord(v, i) {
 function generateBulkSeeds(registry) {
   const RIDES_PER_VEHICLE = 1252; // 200 × 1252 = 250,400 rides
   const SPAN_DAYS = 365;
+  // Category distribution — released branches have fewer safety/software incidents, more compliments
   const CAT_POOL = [
     'SAFETY','SAFETY','SAFETY',
     'COMFORT','COMFORT','COMFORT','COMFORT',
@@ -1848,11 +1870,27 @@ function generateBulkSeeds(registry) {
     'ROUTE','ROUTE',
     'COMPLIMENT','COMPLIMENT','COMPLIMENT',
   ];
+  const CAT_POOL_RELEASED = [
+    'SAFETY',
+    'COMFORT','COMFORT','COMFORT','COMFORT','COMFORT',
+    'SOFTWARE',
+    'ROUTE','ROUTE',
+    'COMPLIMENT','COMPLIMENT','COMPLIMENT','COMPLIMENT','COMPLIMENT','COMPLIMENT',
+  ];
+  // Safety level distributions — released branches use the clean table (no CRITICAL/HIGH)
+  // so they reflect versions that already passed signoff
   const SL_FOR_CAT = {
     SAFETY:['CRITICAL','HIGH','HIGH','MEDIUM','MEDIUM','LOW'],
     COMFORT:['LOW','NONE','NONE','NONE'],
     ROUTE:['LOW','LOW','MEDIUM','NONE'],
     SOFTWARE:['NONE','NONE','LOW','MEDIUM'],
+    COMPLIMENT:['NONE'],
+  };
+  const SL_FOR_CAT_RELEASED = {
+    SAFETY:['MEDIUM','MEDIUM','LOW','LOW','NONE','NONE'],
+    COMFORT:['LOW','NONE','NONE','NONE'],
+    ROUTE:['LOW','NONE','NONE','NONE'],
+    SOFTWARE:['NONE','NONE','NONE','LOW'],
     COMPLIMENT:['NONE'],
   };
   function pickPriority(cat, sl) {
@@ -1870,6 +1908,11 @@ function generateBulkSeeds(registry) {
     const baseRating = v.avg_passenger_rating || 4.0;
     const sw = v.software_version || 'weimo-av-4.3.0';
     const vtype = v.model || '—';
+    // Pre-4.4.0-beta versions are already released — they passed signoff
+    // so no CRITICAL/HIGH incidents and fewer safety-category rides overall
+    const isReleased = !sw.includes('beta');
+    const slTable  = isReleased ? SL_FOR_CAT_RELEASED : SL_FOR_CAT;
+    const catPool  = isReleased ? CAT_POOL_RELEASED : CAT_POOL;
     for (let ri = 0; ri < RIDES_PER_VEHICLE; ri++) {
       // Distribute evenly over SPAN_DAYS so every time window has proportional data
       const daysAgo = (ri / RIDES_PER_VEHICLE) * SPAN_DAYS + Math.random() * (SPAN_DAYS / RIDES_PER_VEHICLE);
@@ -1879,15 +1922,21 @@ function generateBulkSeeds(registry) {
         const inc = v.last_incident_type;
         cat = (!inc || baseRating >= 4.8) ? (baseRating >= 4.5 ? 'COMPLIMENT' : 'COMFORT') : (INCIDENT_CATEGORY[inc] || 'SOFTWARE');
         sl  = baseSs < 50 ? 'CRITICAL' : baseSs < 70 ? 'HIGH' : baseSs < 85 ? 'MEDIUM' : baseSs < 95 ? 'LOW' : 'NONE';
+        // Cap first-ride severity for released versions — no CRITICAL/HIGH on signed-off branches
+        if (isReleased && (sl === 'CRITICAL' || sl === 'HIGH')) sl = 'MEDIUM';
       } else {
-        cat = CAT_POOL[Math.floor(Math.random()*CAT_POOL.length)];
-        sl  = SL_FOR_CAT[cat][Math.floor(Math.random()*SL_FOR_CAT[cat].length)];
+        cat = catPool[Math.floor(Math.random()*catPool.length)];
+        sl  = slTable[cat][Math.floor(Math.random()*slTable[cat].length)];
       }
       const priority = pickPriority(cat, sl);
-      const rating   = Math.min(5,Math.max(1, Math.round(baseRating + (Math.random()-0.5)*2)));
+      // Released versions get slightly higher ratings (they're polished, signed-off builds)
+      const ratingBump = isReleased ? 0.4 : 0;
+      const rating   = Math.min(5,Math.max(1, Math.round(baseRating + ratingBump + (Math.random()-0.5)*1.6)));
       const churn    = rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW';
       const sentiment= rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE';
-      const qs = Math.min(100,Math.max(48, Math.round(58 + baseSs*0.25 + rating*3 + (Math.random()-0.5)*12)));
+      // Released versions get higher quality scores (base +8) reflecting mature, reviewed software
+      const qsBase = isReleased ? 66 : 58;
+      const qs = Math.min(100,Math.max(isReleased?72:48, Math.round(qsBase + baseSs*0.25 + rating*3 + (Math.random()-0.5)*10)));
       const nhtsa = sl==='CRITICAL'||(sl==='HIGH'&&priority==='P1');
       const reqEng = ['SAFETY','SOFTWARE'].includes(cat)&&sl!=='NONE';
       const refund = priority==='P1'?20+Math.floor(Math.random()*20):priority==='P2'?10+Math.floor(Math.random()*10):0;
@@ -1919,7 +1968,7 @@ function generateBulkSeeds(registry) {
 }
 
 function seedMetrics() {
-  const SEED_VER = 'vehicles_v4';
+  const SEED_VER = 'vehicles_v5'; // v5: released branches get clean safety data (no CRITICAL/HIGH)
   // Clear old localStorage-stored seed data on version bump
   if (localStorage.getItem('riderex_seed_ver') !== SEED_VER) {
     localStorage.removeItem(STORAGE_KEY);
@@ -3214,6 +3263,129 @@ function loadVehicleInPipeline() {
     activate('pod');
     initDashScroll();
   }
+})();
+
+/* ── Pipeline road-only animation ── */
+(function(){
+  const canvas = document.getElementById('perc-road-bg');
+  const svg    = document.getElementById('perc-grid-overlay');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let W, H, raf;
+  const ROAD_COLOR  = 'rgba(18,24,32,0.92)';
+  const LANE_COLOR  = 'rgba(99,255,180,0.18)';
+  const MARK_COLOR  = 'rgba(99,255,180,0.55)';
+  const CURB_COLOR  = 'rgba(99,255,180,0.30)';
+  const STRIPE_SPD  = 280;  // px per second for dashed centre lines
+
+  let offset = 0;
+  let last   = null;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    if (svg) buildGrid();
+  }
+
+  function buildGrid() {
+    const cols = Math.ceil(W / 60);
+    const rows = Math.ceil(H / 60);
+    let lines = '';
+    for (let c = 0; c <= cols; c++) {
+      const x = c * 60;
+      lines += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(99,255,180,0.9)" stroke-width="0.5"/>`;
+    }
+    for (let r = 0; r <= rows; r++) {
+      const y = r * 60;
+      lines += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(99,255,180,0.9)" stroke-width="0.5"/>`;
+    }
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = lines;
+  }
+
+  function drawRoad(ts) {
+    if (!last) last = ts;
+    const dt = Math.min((ts - last) / 1000, 0.05);
+    last = ts;
+    offset = (offset + STRIPE_SPD * dt) % 120;
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* ── Road surface ── */
+    const vp = { x: W / 2, y: H * 0.36 };  // vanishing point
+    const LANES = 4;
+    const roadHalfBase = W * 0.46;
+    const roadHalfTop  = W * 0.04;
+
+    // Road fill
+    ctx.beginPath();
+    ctx.moveTo(vp.x - roadHalfTop, vp.y);
+    ctx.lineTo(vp.x + roadHalfTop, vp.y);
+    ctx.lineTo(vp.x + roadHalfBase, H);
+    ctx.lineTo(vp.x - roadHalfBase, H);
+    ctx.closePath();
+    ctx.fillStyle = ROAD_COLOR;
+    ctx.fill();
+
+    // Curb lines
+    ctx.strokeStyle = CURB_COLOR;
+    ctx.lineWidth = 2.5;
+    [[vp.x - roadHalfTop, vp.y, vp.x - roadHalfBase, H],
+     [vp.x + roadHalfTop, vp.y, vp.x + roadHalfBase, H]].forEach(([x1,y1,x2,y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    });
+
+    // Lane dividers (dashed)
+    for (let i = 1; i < LANES; i++) {
+      const t = i / LANES;
+      const xTop  = vp.x - roadHalfTop  + t * roadHalfTop  * 2;
+      const xBot  = vp.x - roadHalfBase + t * roadHalfBase * 2;
+      const isCenter = (i === LANES / 2);
+
+      ctx.strokeStyle = isCenter ? MARK_COLOR : LANE_COLOR;
+      ctx.lineWidth   = isCenter ? 2 : 1;
+      ctx.setLineDash(isCenter ? [28, 28] : [14, 20]);
+      ctx.lineDashOffset = -offset * (isCenter ? 1 : 0.6);
+
+      ctx.beginPath();
+      ctx.moveTo(xTop, vp.y);
+      ctx.lineTo(xBot, H);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    /* ── Perspective horizon glow ── */
+    const grd = ctx.createRadialGradient(vp.x, vp.y, 0, vp.x, vp.y, W * 0.28);
+    grd.addColorStop(0,   'rgba(99,255,180,0.07)');
+    grd.addColorStop(1,   'rgba(99,255,180,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    raf = requestAnimationFrame(drawRoad);
+  }
+
+  function start() {
+    cancelAnimationFrame(raf);
+    last = null;
+    raf  = requestAnimationFrame(drawRoad);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Only animate while pipeline tab is active
+  const origSwitch = window.switchPage;
+  if (origSwitch) {
+    window.switchPage = function(page, btn) {
+      origSwitch(page, btn);
+      if (page === 'pipeline') { start(); }
+      else { cancelAnimationFrame(raf); }
+    };
+  }
+
+  // Start immediately since pipeline is the default active tab
+  start();
 })();
 
 </script>
