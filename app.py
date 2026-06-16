@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
 from agents import run_riderex_pipeline
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="RiderEx")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ── Supabase client (optional — gracefully disabled if not configured) ──
 def get_supabase():

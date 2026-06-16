@@ -1,6 +1,7 @@
 openai
 fastapi
 uvicorn
+aiofiles
 python-dotenv
 python-multipart
 pyyaml

@@ -1056,6 +1056,9 @@
       <button class="vcm-close" onclick="closeVehicleModal()">✕</button>
     </div>
     <div class="vcm-body">
+      <div id="vcm-img-wrap" style="width:100%;height:160px;overflow:hidden;border-radius:3px;margin-bottom:14px;border:1px solid var(--fleet-border);background:var(--fleet-bg2);display:none">
+        <img id="vcm-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.9">
+      </div>
       <div class="vcm-section">
         <div class="vcm-label">Vehicle Status</div>
         <div class="vcm-row">
@@ -1968,6 +1971,15 @@ function buildFleetFromRegistry(vehicles) {
     if (v.model?.includes('Jaguar')) icon = '🏎️';
     else if (v.model?.includes('Chrysler') || v.model?.includes('Pacifica')) icon = '🚙';
     else if (v.model?.includes('Bolt')) icon = '🚕';
+    const MODEL_IMAGES = {
+      'Gen2': '/static/vehicles/1682936740727.png',
+      'Gen3': '/static/vehicles/2151016450.jpg',
+      'Gen4': '/static/vehicles/automotive_hero_001_sp.png',
+    };
+    let imageUrl = '/static/vehicles/2151016450.jpg';
+    for (const [key, url] of Object.entries(MODEL_IMAGES)) {
+      if (v.model?.includes(key)) { imageUrl = url; break; }
+    }
     const flags = [];
     if (status === 'GROUNDED') flags.push('GROUND_VEHICLE', 'NHTSA_REPORTABLE');
     if (status === 'MAINTENANCE') flags.push('INSPECT_REQUIRED');
@@ -1985,6 +1997,7 @@ function buildFleetFromRegistry(vehicles) {
       processedTickets,  // how many resolved via pipeline
       newTickets,        // new incidents surfaced via pipeline
       netOpenTickets,    // what user sees as "open right now"
+      imageUrl,
       pipelineRuns: saved.pipelineRuns || [],
       lastActive, flags, icon,
       city: v.city || '', state: v.state || '',
@@ -2086,8 +2099,14 @@ function renderVehicleCard(v) {
       <div class="vc-status-dot ${dotClass}"></div>
     </div>
     <div class="vc-body">
-      <div style="font-size:9px;color:rgba(0,229,200,0.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:1px">${modelShort}</div>
-      <div style="font-size:9px;color:rgba(0,229,200,0.35);margin-bottom:7px;letter-spacing:0.04em">${location}</div>
+      <div class="vc-avatar">
+        <img src="${v.imageUrl || ''}" alt="${modelShort}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+             style="width:100%;height:100%;object-fit:cover;border-radius:2px;opacity:0.88;display:block">
+        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:26px">${v.icon}</div>
+      </div>
+      <div style="font-size:9px;color:rgba(0,229,200,0.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:1px;margin-top:5px">${modelShort}</div>
+      <div style="font-size:9px;color:rgba(0,229,200,0.35);margin-bottom:6px;letter-spacing:0.04em">${location}</div>
       <div class="vc-segs">${segs}</div>
       <div class="vc-bar-label"><span>SAFETY</span><span>${v.score}%</span></div>
       <div class="vc-bar"><div class="vc-bar-fill ${barClass}" style="width:${v.score}%"></div></div>
@@ -2115,6 +2134,14 @@ function openVehicleModal(vehicleId) {
   activeVehicle = v;
 
   document.getElementById('vcm-id').textContent = v.id;
+  const imgWrap = document.getElementById('vcm-img-wrap');
+  const imgEl   = document.getElementById('vcm-img');
+  if (v.imageUrl) {
+    imgEl.src = v.imageUrl; imgEl.alt = v.model || v.id;
+    imgWrap.style.display = 'block';
+  } else {
+    imgWrap.style.display = 'none';
+  }
   document.getElementById('vcm-status').textContent = v.status;
   document.getElementById('vcm-status').style.color = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.6)' }[v.status];
   document.getElementById('vcm-score').textContent = v.score + ' / 100';
