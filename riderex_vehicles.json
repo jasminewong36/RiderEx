@@ -2,7 +2,7 @@
   "vehicles": [
     {
       "vehicle_id": "WM-001",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7754,
@@ -24,7 +24,7 @@
     },
     {
       "vehicle_id": "WM-002",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5664,
@@ -46,7 +46,7 @@
     },
     {
       "vehicle_id": "WM-003",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0068,
@@ -68,7 +68,7 @@
     },
     {
       "vehicle_id": "WM-004",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8186,
@@ -90,7 +90,7 @@
     },
     {
       "vehicle_id": "WM-005",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4385,
@@ -112,7 +112,7 @@
     },
     {
       "vehicle_id": "WM-006",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.092,
@@ -134,7 +134,7 @@
     },
     {
       "vehicle_id": "WM-007",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4513,
@@ -156,7 +156,7 @@
     },
     {
       "vehicle_id": "WM-008",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.812,
@@ -178,7 +178,7 @@
     },
     {
       "vehicle_id": "WM-009",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6441,
@@ -200,7 +200,7 @@
     },
     {
       "vehicle_id": "WM-010",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4149,
@@ -222,7 +222,7 @@
     },
     {
       "vehicle_id": "WM-011",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2236,
@@ -244,7 +244,7 @@
     },
     {
       "vehicle_id": "WM-012",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4198,
@@ -266,7 +266,7 @@
     },
     {
       "vehicle_id": "WM-013",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6235,
@@ -288,7 +288,7 @@
     },
     {
       "vehicle_id": "WM-014",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8123,
@@ -310,7 +310,7 @@
     },
     {
       "vehicle_id": "WM-015",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8151,
@@ -332,7 +332,7 @@
     },
     {
       "vehicle_id": "WM-016",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2233,
@@ -354,7 +354,7 @@
     },
     {
       "vehicle_id": "WM-017",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5808,
@@ -376,7 +376,7 @@
     },
     {
       "vehicle_id": "WM-018",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7706,
@@ -398,7 +398,7 @@
     },
     {
       "vehicle_id": "WM-019",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7534,
@@ -420,7 +420,7 @@
     },
     {
       "vehicle_id": "WM-020",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0294,
@@ -442,7 +442,7 @@
     },
     {
       "vehicle_id": "WM-021",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4755,
@@ -464,7 +464,7 @@
     },
     {
       "vehicle_id": "WM-022",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4292,
@@ -486,7 +486,7 @@
     },
     {
       "vehicle_id": "WM-023",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0903,
@@ -508,7 +508,7 @@
     },
     {
       "vehicle_id": "WM-024",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2522,
@@ -530,7 +530,7 @@
     },
     {
       "vehicle_id": "WM-025",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4315,
@@ -552,7 +552,7 @@
     },
     {
       "vehicle_id": "WM-026",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4174,
@@ -574,7 +574,7 @@
     },
     {
       "vehicle_id": "WM-027",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7756,
@@ -596,7 +596,7 @@
     },
     {
       "vehicle_id": "WM-028",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2476,
@@ -618,7 +618,7 @@
     },
     {
       "vehicle_id": "WM-029",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5897,
@@ -640,7 +640,7 @@
     },
     {
       "vehicle_id": "WM-030",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0516,
@@ -662,7 +662,7 @@
     },
     {
       "vehicle_id": "WM-031",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7705,
@@ -684,7 +684,7 @@
     },
     {
       "vehicle_id": "WM-032",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6402,
@@ -706,7 +706,7 @@
     },
     {
       "vehicle_id": "WM-033",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2555,
@@ -728,7 +728,7 @@
     },
     {
       "vehicle_id": "WM-034",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7629,
@@ -750,7 +750,7 @@
     },
     {
       "vehicle_id": "WM-035",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0746,
@@ -772,7 +772,7 @@
     },
     {
       "vehicle_id": "WM-036",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6017,
@@ -794,7 +794,7 @@
     },
     {
       "vehicle_id": "WM-037",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0062,
@@ -816,7 +816,7 @@
     },
     {
       "vehicle_id": "WM-038",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.459,
@@ -838,7 +838,7 @@
     },
     {
       "vehicle_id": "WM-039",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4086,
@@ -860,7 +860,7 @@
     },
     {
       "vehicle_id": "WM-040",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6384,
@@ -882,7 +882,7 @@
     },
     {
       "vehicle_id": "WM-041",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3003,
@@ -904,7 +904,7 @@
     },
     {
       "vehicle_id": "WM-042",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4264,
@@ -926,7 +926,7 @@
     },
     {
       "vehicle_id": "WM-043",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5655,
@@ -948,7 +948,7 @@
     },
     {
       "vehicle_id": "WM-044",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4215,
@@ -970,7 +970,7 @@
     },
     {
       "vehicle_id": "WM-045",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7545,
@@ -992,7 +992,7 @@
     },
     {
       "vehicle_id": "WM-046",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7533,
@@ -1014,7 +1014,7 @@
     },
     {
       "vehicle_id": "WM-047",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4102,
@@ -1036,7 +1036,7 @@
     },
     {
       "vehicle_id": "WM-048",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5661,
@@ -1058,7 +1058,7 @@
     },
     {
       "vehicle_id": "WM-049",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4272,
@@ -1080,7 +1080,7 @@
     },
     {
       "vehicle_id": "WM-050",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7844,
@@ -1102,7 +1102,7 @@
     },
     {
       "vehicle_id": "WM-051",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2776,
@@ -1124,7 +1124,7 @@
     },
     {
       "vehicle_id": "WM-052",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6559,
@@ -1146,7 +1146,7 @@
     },
     {
       "vehicle_id": "WM-053",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8063,
@@ -1168,7 +1168,7 @@
     },
     {
       "vehicle_id": "WM-054",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7767,
@@ -1190,7 +1190,7 @@
     },
     {
       "vehicle_id": "WM-055",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2781,
@@ -1212,7 +1212,7 @@
     },
     {
       "vehicle_id": "WM-056",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0531,
@@ -1234,7 +1234,7 @@
     },
     {
       "vehicle_id": "WM-057",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2439,
@@ -1256,7 +1256,7 @@
     },
     {
       "vehicle_id": "WM-058",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6432,
@@ -1278,7 +1278,7 @@
     },
     {
       "vehicle_id": "WM-059",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5688,
@@ -1300,7 +1300,7 @@
     },
     {
       "vehicle_id": "WM-060",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7899,
@@ -1322,7 +1322,7 @@
     },
     {
       "vehicle_id": "WM-061",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.654,
@@ -1344,7 +1344,7 @@
     },
     {
       "vehicle_id": "WM-062",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7661,
@@ -1366,7 +1366,7 @@
     },
     {
       "vehicle_id": "WM-063",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4883,
@@ -1388,7 +1388,7 @@
     },
     {
       "vehicle_id": "WM-064",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6415,
@@ -1410,7 +1410,7 @@
     },
     {
       "vehicle_id": "WM-065",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6338,
@@ -1432,7 +1432,7 @@
     },
     {
       "vehicle_id": "WM-066",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4564,
@@ -1454,7 +1454,7 @@
     },
     {
       "vehicle_id": "WM-067",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0989,
@@ -1476,7 +1476,7 @@
     },
     {
       "vehicle_id": "WM-068",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7704,
@@ -1498,7 +1498,7 @@
     },
     {
       "vehicle_id": "WM-069",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.067,
@@ -1520,7 +1520,7 @@
     },
     {
       "vehicle_id": "WM-070",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0411,
@@ -1542,7 +1542,7 @@
     },
     {
       "vehicle_id": "WM-071",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5779,
@@ -1564,7 +1564,7 @@
     },
     {
       "vehicle_id": "WM-072",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0993,
@@ -1586,7 +1586,7 @@
     },
     {
       "vehicle_id": "WM-073",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4972,
@@ -1608,7 +1608,7 @@
     },
     {
       "vehicle_id": "WM-074",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7775,
@@ -1630,7 +1630,7 @@
     },
     {
       "vehicle_id": "WM-075",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2233,
@@ -1652,7 +1652,7 @@
     },
     {
       "vehicle_id": "WM-076",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2703,
@@ -1674,7 +1674,7 @@
     },
     {
       "vehicle_id": "WM-077",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2485,
@@ -1696,7 +1696,7 @@
     },
     {
       "vehicle_id": "WM-078",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0979,
@@ -1718,7 +1718,7 @@
     },
     {
       "vehicle_id": "WM-079",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7473,
@@ -1740,7 +1740,7 @@
     },
     {
       "vehicle_id": "WM-080",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0725,
@@ -1762,7 +1762,7 @@
     },
     {
       "vehicle_id": "WM-081",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0363,
@@ -1784,7 +1784,7 @@
     },
     {
       "vehicle_id": "WM-082",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5976,
@@ -1806,7 +1806,7 @@
     },
     {
       "vehicle_id": "WM-083",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8194,
@@ -1828,7 +1828,7 @@
     },
     {
       "vehicle_id": "WM-084",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0458,
@@ -1850,7 +1850,7 @@
     },
     {
       "vehicle_id": "WM-085",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.011,
@@ -1872,7 +1872,7 @@
     },
     {
       "vehicle_id": "WM-086",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2703,
@@ -1894,7 +1894,7 @@
     },
     {
       "vehicle_id": "WM-087",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0486,
@@ -1916,7 +1916,7 @@
     },
     {
       "vehicle_id": "WM-088",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2228,
@@ -1938,7 +1938,7 @@
     },
     {
       "vehicle_id": "WM-089",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3126,
@@ -1960,7 +1960,7 @@
     },
     {
       "vehicle_id": "WM-090",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2677,
@@ -1982,7 +1982,7 @@
     },
     {
       "vehicle_id": "WM-091",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2238,
@@ -2004,7 +2004,7 @@
     },
     {
       "vehicle_id": "WM-092",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2482,
@@ -2026,7 +2026,7 @@
     },
     {
       "vehicle_id": "WM-093",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4932,
@@ -2048,7 +2048,7 @@
     },
     {
       "vehicle_id": "WM-094",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4146,
@@ -2070,7 +2070,7 @@
     },
     {
       "vehicle_id": "WM-095",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4293,
@@ -2092,7 +2092,7 @@
     },
     {
       "vehicle_id": "WM-096",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4122,
@@ -2114,7 +2114,7 @@
     },
     {
       "vehicle_id": "WM-097",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3118,
@@ -2136,7 +2136,7 @@
     },
     {
       "vehicle_id": "WM-098",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0813,
@@ -2158,7 +2158,7 @@
     },
     {
       "vehicle_id": "WM-099",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.27,
@@ -2180,7 +2180,7 @@
     },
     {
       "vehicle_id": "WM-100",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4616,
@@ -2202,7 +2202,7 @@
     },
     {
       "vehicle_id": "WM-101",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0066,
@@ -2224,7 +2224,7 @@
     },
     {
       "vehicle_id": "WM-102",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0361,
@@ -2246,7 +2246,7 @@
     },
     {
       "vehicle_id": "WM-103",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3058,
@@ -2268,7 +2268,7 @@
     },
     {
       "vehicle_id": "WM-104",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5999,
@@ -2290,7 +2290,7 @@
     },
     {
       "vehicle_id": "WM-105",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2717,
@@ -2312,7 +2312,7 @@
     },
     {
       "vehicle_id": "WM-106",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0637,
@@ -2334,7 +2334,7 @@
     },
     {
       "vehicle_id": "WM-107",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7485,
@@ -2356,7 +2356,7 @@
     },
     {
       "vehicle_id": "WM-108",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2486,
@@ -2378,7 +2378,7 @@
     },
     {
       "vehicle_id": "WM-109",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7449,
@@ -2400,7 +2400,7 @@
     },
     {
       "vehicle_id": "WM-110",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2966,
@@ -2422,7 +2422,7 @@
     },
     {
       "vehicle_id": "WM-111",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.405,
@@ -2444,7 +2444,7 @@
     },
     {
       "vehicle_id": "WM-112",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6202,
@@ -2466,7 +2466,7 @@
     },
     {
       "vehicle_id": "WM-113",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2446,
@@ -2488,7 +2488,7 @@
     },
     {
       "vehicle_id": "WM-114",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5603,
@@ -2510,7 +2510,7 @@
     },
     {
       "vehicle_id": "WM-115",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7732,
@@ -2532,7 +2532,7 @@
     },
     {
       "vehicle_id": "WM-116",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2906,
@@ -2554,7 +2554,7 @@
     },
     {
       "vehicle_id": "WM-117",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4848,
@@ -2576,7 +2576,7 @@
     },
     {
       "vehicle_id": "WM-118",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0527,
@@ -2598,7 +2598,7 @@
     },
     {
       "vehicle_id": "WM-119",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5696,
@@ -2620,7 +2620,7 @@
     },
     {
       "vehicle_id": "WM-120",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2997,
@@ -2642,7 +2642,7 @@
     },
     {
       "vehicle_id": "WM-121",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7288,
@@ -2664,7 +2664,7 @@
     },
     {
       "vehicle_id": "WM-122",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6094,
@@ -2686,7 +2686,7 @@
     },
     {
       "vehicle_id": "WM-123",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2652,
@@ -2708,7 +2708,7 @@
     },
     {
       "vehicle_id": "WM-124",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2582,
@@ -2730,7 +2730,7 @@
     },
     {
       "vehicle_id": "WM-125",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8161,
@@ -2752,7 +2752,7 @@
     },
     {
       "vehicle_id": "WM-126",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0582,
@@ -2774,7 +2774,7 @@
     },
     {
       "vehicle_id": "WM-127",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0678,
@@ -2796,7 +2796,7 @@
     },
     {
       "vehicle_id": "WM-128",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4084,
@@ -2818,7 +2818,7 @@
     },
     {
       "vehicle_id": "WM-129",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.757,
@@ -2840,7 +2840,7 @@
     },
     {
       "vehicle_id": "WM-130",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6439,
@@ -2862,7 +2862,7 @@
     },
     {
       "vehicle_id": "WM-131",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5724,
@@ -2884,7 +2884,7 @@
     },
     {
       "vehicle_id": "WM-132",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4312,
@@ -2906,7 +2906,7 @@
     },
     {
       "vehicle_id": "WM-133",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.3995,
@@ -2928,7 +2928,7 @@
     },
     {
       "vehicle_id": "WM-134",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4203,
@@ -2950,7 +2950,7 @@
     },
     {
       "vehicle_id": "WM-135",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2876,
@@ -2972,7 +2972,7 @@
     },
     {
       "vehicle_id": "WM-136",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.734,
@@ -2994,7 +2994,7 @@
     },
     {
       "vehicle_id": "WM-137",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2245,
@@ -3016,7 +3016,7 @@
     },
     {
       "vehicle_id": "WM-138",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7698,
@@ -3038,7 +3038,7 @@
     },
     {
       "vehicle_id": "WM-139",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3007,
@@ -3060,7 +3060,7 @@
     },
     {
       "vehicle_id": "WM-140",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2204,
@@ -3082,7 +3082,7 @@
     },
     {
       "vehicle_id": "WM-141",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7466,
@@ -3104,7 +3104,7 @@
     },
     {
       "vehicle_id": "WM-142",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4045,
@@ -3126,7 +3126,7 @@
     },
     {
       "vehicle_id": "WM-143",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2926,
@@ -3148,7 +3148,7 @@
     },
     {
       "vehicle_id": "WM-144",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0352,
@@ -3170,7 +3170,7 @@
     },
     {
       "vehicle_id": "WM-145",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0325,
@@ -3192,7 +3192,7 @@
     },
     {
       "vehicle_id": "WM-146",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.445,
@@ -3214,7 +3214,7 @@
     },
     {
       "vehicle_id": "WM-147",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0068,
@@ -3236,7 +3236,7 @@
     },
     {
       "vehicle_id": "WM-148",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7506,
@@ -3258,7 +3258,7 @@
     },
     {
       "vehicle_id": "WM-149",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3117,
@@ -3280,7 +3280,7 @@
     },
     {
       "vehicle_id": "WM-150",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2179,
@@ -3302,7 +3302,7 @@
     },
     {
       "vehicle_id": "WM-151",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7775,
@@ -3324,7 +3324,7 @@
     },
     {
       "vehicle_id": "WM-152",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2549,
@@ -3346,7 +3346,7 @@
     },
     {
       "vehicle_id": "WM-153",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7725,
@@ -3368,7 +3368,7 @@
     },
     {
       "vehicle_id": "WM-154",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0184,
@@ -3390,7 +3390,7 @@
     },
     {
       "vehicle_id": "WM-155",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6167,
@@ -3412,7 +3412,7 @@
     },
     {
       "vehicle_id": "WM-156",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2467,
@@ -3434,7 +3434,7 @@
     },
     {
       "vehicle_id": "WM-157",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7382,
@@ -3456,7 +3456,7 @@
     },
     {
       "vehicle_id": "WM-158",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.595,
@@ -3478,7 +3478,7 @@
     },
     {
       "vehicle_id": "WM-159",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4284,
@@ -3500,7 +3500,7 @@
     },
     {
       "vehicle_id": "WM-160",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0402,
@@ -3522,7 +3522,7 @@
     },
     {
       "vehicle_id": "WM-161",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0757,
@@ -3544,7 +3544,7 @@
     },
     {
       "vehicle_id": "WM-162",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4927,
@@ -3566,7 +3566,7 @@
     },
     {
       "vehicle_id": "WM-163",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7728,
@@ -3588,7 +3588,7 @@
     },
     {
       "vehicle_id": "WM-164",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3139,
@@ -3610,7 +3610,7 @@
     },
     {
       "vehicle_id": "WM-165",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7939,
@@ -3632,7 +3632,7 @@
     },
     {
       "vehicle_id": "WM-166",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2655,
@@ -3654,7 +3654,7 @@
     },
     {
       "vehicle_id": "WM-167",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2332,
@@ -3676,7 +3676,7 @@
     },
     {
       "vehicle_id": "WM-168",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4373,
@@ -3698,7 +3698,7 @@
     },
     {
       "vehicle_id": "WM-169",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0335,
@@ -3720,7 +3720,7 @@
     },
     {
       "vehicle_id": "WM-170",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5867,
@@ -3742,7 +3742,7 @@
     },
     {
       "vehicle_id": "WM-171",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4273,
@@ -3764,7 +3764,7 @@
     },
     {
       "vehicle_id": "WM-172",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6051,
@@ -3786,7 +3786,7 @@
     },
     {
       "vehicle_id": "WM-173",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4759,
@@ -3808,7 +3808,7 @@
     },
     {
       "vehicle_id": "WM-174",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6012,
@@ -3830,7 +3830,7 @@
     },
     {
       "vehicle_id": "WM-175",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2742,
@@ -3852,7 +3852,7 @@
     },
     {
       "vehicle_id": "WM-176",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6263,
@@ -3874,7 +3874,7 @@
     },
     {
       "vehicle_id": "WM-177",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0425,
@@ -3896,7 +3896,7 @@
     },
     {
       "vehicle_id": "WM-178",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0847,
@@ -3918,7 +3918,7 @@
     },
     {
       "vehicle_id": "WM-179",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0038,
@@ -3940,7 +3940,7 @@
     },
     {
       "vehicle_id": "WM-180",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2837,
@@ -3962,7 +3962,7 @@
     },
     {
       "vehicle_id": "WM-181",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2691,
@@ -3984,7 +3984,7 @@
     },
     {
       "vehicle_id": "WM-182",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0405,
@@ -4006,7 +4006,7 @@
     },
     {
       "vehicle_id": "WM-183",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4844,
@@ -4028,7 +4028,7 @@
     },
     {
       "vehicle_id": "WM-184",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4584,
@@ -4050,7 +4050,7 @@
     },
     {
       "vehicle_id": "WM-185",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.749,
@@ -4072,7 +4072,7 @@
     },
     {
       "vehicle_id": "WM-186",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5579,
@@ -4094,7 +4094,7 @@
     },
     {
       "vehicle_id": "WM-187",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.46,
@@ -4116,7 +4116,7 @@
     },
     {
       "vehicle_id": "WM-188",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8174,
@@ -4138,7 +4138,7 @@
     },
     {
       "vehicle_id": "WM-189",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6312,
@@ -4160,7 +4160,7 @@
     },
     {
       "vehicle_id": "WM-190",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7416,
@@ -4182,7 +4182,7 @@
     },
     {
       "vehicle_id": "WM-191",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5741,
@@ -4204,7 +4204,7 @@
     },
     {
       "vehicle_id": "WM-192",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6464,
@@ -4226,7 +4226,7 @@
     },
     {
       "vehicle_id": "WM-193",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7989,
@@ -4248,7 +4248,7 @@
     },
     {
       "vehicle_id": "WM-194",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6321,
@@ -4270,7 +4270,7 @@
     },
     {
       "vehicle_id": "WM-195",
-      "model": "Jaguar I-Pace Gen4",
+      "model": "Weimo SUV Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7662,
@@ -4292,7 +4292,7 @@
     },
     {
       "vehicle_id": "WM-196",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8175,
@@ -4314,7 +4314,7 @@
     },
     {
       "vehicle_id": "WM-197",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0143,
@@ -4336,7 +4336,7 @@
     },
     {
       "vehicle_id": "WM-198",
-      "model": "Jaguar I-PACE Gen3",
+      "model": "Weimo Shuttle Gen3",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.232,
@@ -4358,7 +4358,7 @@
     },
     {
       "vehicle_id": "WM-199",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2976,
@@ -4380,7 +4380,7 @@
     },
     {
       "vehicle_id": "WM-200",
-      "model": "Jaguar I-PACE Gen2",
+      "model": "Weimo Pod Gen2",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7447,

@@ -1700,7 +1700,7 @@ function seedMetrics() {
     const priO={SAFETY:['P1','P1','P2'],COMFORT:['P2','P3','P3'],ROUTE:['P2','P3'],SOFTWARE:['P2','P3'],COMPLIMENT:['P4']};
     const slM={SAFETY:['CRITICAL','HIGH','MEDIUM'],COMFORT:['LOW','NONE'],ROUTE:['LOW','NONE'],SOFTWARE:['NONE'],COMPLIMENT:['NONE']};
     const SW_VERS=['weimo-av-4.2.1','weimo-av-4.3.0','weimo-av-4.3.1','weimo-av-4.4.0-beta'];
-    const VT_VERS=['Jaguar I-PACE Gen2','Jaguar I-PACE Gen3','Jaguar I-Pace Gen4'];
+    const VT_VERS=['Weimo Pod Gen2','Weimo Shuttle Gen3','Weimo SUV Gen4'];
     const fallback=[];
     for(let i=0;i<250000;i++){
       const cat=cats[i%5]; const sl=pick(slM[cat]); const priority=pick(priO[cat]);
@@ -2011,7 +2011,7 @@ async function renderDashboard() {
   const sentChip = { VERY_NEGATIVE:'red', NEGATIVE:'amber', NEUTRAL:'gray', POSITIVE:'green', VERY_POSITIVE:'green' };
   const swColors = { 'weimo-av-4.2.1':'var(--muted2)', 'weimo-av-4.3.0':'var(--cyan)', 'weimo-av-4.3.1':'var(--primary)', 'weimo-av-4.4.0-beta':'var(--amber)' };
   document.getElementById('rides-tbody').innerHTML = tableRows.map(m => {
-    const vtShort = (m.vehicle_type||'—').replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','');
+    const vtShort = (m.vehicle_type||'—').replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','').replace('Weimo ','');
     const swColor = swColors[m.software_version] || 'var(--muted2)';
     const dateStr = m.ts ? new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—';
     return `<tr>
@@ -2318,15 +2318,15 @@ function buildFleetFromRegistry(vehicles) {
     const netOpenTickets = Math.max(0, openTickets + newTickets - processedTickets);
     const lastActive = v.last_service_date ? new Date(v.last_service_date) : new Date(Date.now() - 86400000);
     let icon = '🚗';
-    if (v.model?.includes('Jaguar')) icon = '🏎️';
-    else if (v.model?.includes('Chrysler') || v.model?.includes('Pacifica')) icon = '🚙';
-    else if (v.model?.includes('Bolt')) icon = '🚕';
+    if (v.model?.includes('Pod'))     icon = '🤖';
+    else if (v.model?.includes('Shuttle')) icon = '🚌';
+    else if (v.model?.includes('SUV'))     icon = '🚙';
     const MODEL_IMAGES = {
-      'Gen2': '/static/vehicles/1682936740727.png',
-      'Gen3': '/static/vehicles/2151016450.jpg',
-      'Gen4': '/static/vehicles/automotive_hero_001_sp.png',
+      'Gen2': '/static/vehicles/gen2_robot.png',    // 6-wheeled delivery pod
+      'Gen3': '/static/vehicles/gen3_shuttle.png',  // autonomous minibus shuttle
+      'Gen4': '/static/vehicles/gen4_suv.png',      // autonomous SUV sedan
     };
-    let imageUrl = '/static/vehicles/2151016450.jpg';
+    let imageUrl = '/static/vehicles/gen3_shuttle.png';
     for (const [key, url] of Object.entries(MODEL_IMAGES)) {
       if (v.model?.includes(key)) { imageUrl = url; break; }
     }
