@@ -185,7 +185,7 @@ def _pick_priority(cat, sl):
     return 'P3' if random.random() < 0.4 else 'P4'
 
 def _build_seed_records(vehicles):
-    RIDES_PER_VEHICLE = 250  # 200 × 250 = 50,000 rides
+    RIDES_PER_VEHICLE = 1252  # 200 × 1252 = 250,400 rides
     SPAN_DAYS = 365
     now = datetime.now(timezone.utc)
     records, idx = [], 0
@@ -215,6 +215,7 @@ def _build_seed_records(vehicles):
                 'ticket_id': f'RX-{idx+1:06d}',
                 'ride_id':   f'RIDE-{random.randint(1,9999999999999):016d}',
                 'vehicle_id': v['vehicle_id'],
+                'vehicle_type': v.get('model', '—'),
                 'software_version': v.get('software_version', 'weimo-av-4.3.0'),
                 'category': cat, 'priority': priority, 'safety_level': sl,
                 'nhtsa': nhtsa, 'rating': rating, 'churn_risk': churn,

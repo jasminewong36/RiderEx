@@ -1090,11 +1090,13 @@
     <div class="dash-card full" style="margin-bottom:0">
       <h3>🕒 All Rides <span id="rides-count" style="font-size:11px;font-weight:400;color:var(--muted2);margin-left:8px"></span></h3>
       <div style="overflow-x:auto;overflow-y:auto;max-height:600px;border:1px solid var(--border);border-radius:4px">
-        <table class="rides-table" id="recent-rides" style="min-width:900px">
+        <table class="rides-table" id="recent-rides" style="min-width:1200px">
           <thead style="position:sticky;top:0;z-index:2;background:var(--surface)">
             <tr>
               <th>Ticket ID</th>
-              <th>Ride</th>
+              <th>Vehicle ID</th>
+              <th>Vehicle Type</th>
+              <th>Software Branch</th>
               <th>Category</th>
               <th>Priority</th>
               <th>Safety</th>
@@ -1103,7 +1105,7 @@
               <th>Quality</th>
               <th>Refund</th>
               <th>Eng.</th>
-              <th>Time</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody id="rides-tbody"></tbody>
@@ -1411,11 +1413,17 @@ function saveMetric(data) {
   const resolution = data.resolution || {};
   const review = data.quality_review || {};
   const handoff = data.engineering_handoff || {};
-  const metrics = getMetrics();
-  metrics.push({
+  // Look up vehicle metadata for new columns
+  const vEntry = vehicleRegistry.find(v => v.vehicle_id === data.vehicle_id) || {};
+  // Only store REAL pipeline runs in localStorage — seededRecords live in memory
+  let realRuns = [];
+  try { realRuns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch {}
+  realRuns.push({
     ticket_id: intake.ticket_id || '—',
     ride_id: data.ride_id,
     vehicle_id: data.vehicle_id,
+    vehicle_type: vEntry.model || '—',
+    software_version: vEntry.software_version || '—',
     category: intake.category || 'UNKNOWN',
     priority: intake.priority || 'P3',
     safety_level: safety.safety_level || 'NONE',
@@ -1437,7 +1445,7 @@ function saveMetric(data) {
     key_phrases: intake.key_phrases || [],
     ts: new Date().toISOString(),
   });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(metrics));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(realRuns));
   updateFleetVehicle(data);
 }
 
@@ -1595,7 +1603,7 @@ function vehicleSeedRecord(v, i) {
 }
 
 function generateBulkSeeds(registry) {
-  const RIDES_PER_VEHICLE = 250; // 200 × 250 = 50,000 rides
+  const RIDES_PER_VEHICLE = 1252; // 200 × 1252 = 250,400 rides
   const SPAN_DAYS = 365;
   const CAT_POOL = [
     'SAFETY','SAFETY','SAFETY',
@@ -1625,6 +1633,7 @@ function generateBulkSeeds(registry) {
     const baseSs = v.safety_score || 90;
     const baseRating = v.avg_passenger_rating || 4.0;
     const sw = v.software_version || 'weimo-av-4.3.0';
+    const vtype = v.model || '—';
     for (let ri = 0; ri < RIDES_PER_VEHICLE; ri++) {
       // Distribute evenly over SPAN_DAYS so every time window has proportional data
       const daysAgo = (ri / RIDES_PER_VEHICLE) * SPAN_DAYS + Math.random() * (SPAN_DAYS / RIDES_PER_VEHICLE);
@@ -1651,6 +1660,7 @@ function generateBulkSeeds(registry) {
         ticket_id:  'RX-'+String(idx+1).padStart(6,'0'),
         ride_id:    'RIDE-'+String(Math.floor(Math.random()*9999999999999)+1).padStart(16,'0'),
         vehicle_id: v.vehicle_id,
+        vehicle_type: vtype,
         software_version: sw,
         category:cat, priority, safety_level:sl, nhtsa, rating,
         churn_risk:churn, sentiment,
@@ -1690,16 +1700,18 @@ function seedMetrics() {
     const priO={SAFETY:['P1','P1','P2'],COMFORT:['P2','P3','P3'],ROUTE:['P2','P3'],SOFTWARE:['P2','P3'],COMPLIMENT:['P4']};
     const slM={SAFETY:['CRITICAL','HIGH','MEDIUM'],COMFORT:['LOW','NONE'],ROUTE:['LOW','NONE'],SOFTWARE:['NONE'],COMPLIMENT:['NONE']};
     const SW_VERS=['weimo-av-4.2.1','weimo-av-4.3.0','weimo-av-4.3.1','weimo-av-4.4.0-beta'];
+    const VT_VERS=['Jaguar I-PACE Gen2','Jaguar I-PACE Gen3','Jaguar I-Pace Gen4'];
     const fallback=[];
-    for(let i=0;i<50000;i++){
+    for(let i=0;i<250000;i++){
       const cat=cats[i%5]; const sl=pick(slM[cat]); const priority=pick(priO[cat]);
       const rating=cat==='COMPLIMENT'?rnd(4,5):cat==='SAFETY'?rnd(1,2):rnd(2,4);
-      const daysAgo = (i/50000)*365 + Math.random()*(365/50000);
+      const daysAgo = (i/250000)*365 + Math.random()*(365/250000);
       const ts=new Date(now-daysAgo*86400000-rnd(0,86400)*1000).toISOString();
       const qs=rnd(60,98);
       fallback.push({ticket_id:'RX-'+String(i+1).padStart(6,'0'),
         ride_id:'RIDE-'+String(rnd(1,9999999)).padStart(16,'0'),
         vehicle_id:'WM-'+String(rnd(1,200)).padStart(3,'0'),
+        vehicle_type:pick(VT_VERS),
         software_version:pick(SW_VERS),
         category:cat,priority,safety_level:sl,
         nhtsa:['CRITICAL','HIGH'].includes(sl),rating,
@@ -1984,27 +1996,40 @@ async function renderDashboard() {
   const activeTeams = teams.filter(t => teamCounts[t] > 0);
   document.getElementById('chart-engteam').innerHTML = (activeTeams.length ? activeTeams : ['NONE']).map(t => barRow(t.replace('_TEAM','').replace('_',' '), teamCounts[t]||0, total, teamColors[t]||'var(--muted)')).join('');
 
-  // All rides table — show all, most recent first
-  const recent = [...metrics].sort((a,b) => new Date(b.ts) - new Date(a.ts)).slice(0, 20000);
-  document.getElementById('rides-count').textContent = `${recent.length.toLocaleString()} records`;
-  const catChip = { SAFETY:'red', COMFORT:'amber', ROUTE:'purple', SOFTWARE:'cyan', COMPLIMENT:'green', UNKNOWN:'gray' };
-  const priChip = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
-  const slChip = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
+  // All rides table — sorted by most recent, capped at 10k DOM rows for performance
+  const TABLE_RENDER_LIMIT = 10000;
+  const sorted = metrics.slice().sort((a,b) => new Date(b.ts) - new Date(a.ts));
+  const filteredTotal = sorted.length;
+  const tableRows = sorted.slice(0, TABLE_RENDER_LIMIT);
+  const truncated = filteredTotal > TABLE_RENDER_LIMIT;
+  document.getElementById('rides-count').textContent = truncated
+    ? `showing ${TABLE_RENDER_LIMIT.toLocaleString()} of ${filteredTotal.toLocaleString()} — narrow the time range to see more`
+    : `${filteredTotal.toLocaleString()} records`;
+  const catChip  = { SAFETY:'red', COMFORT:'amber', ROUTE:'purple', SOFTWARE:'cyan', COMPLIMENT:'green', UNKNOWN:'gray' };
+  const priChip  = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
+  const slChip   = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
   const sentChip = { VERY_NEGATIVE:'red', NEGATIVE:'amber', NEUTRAL:'gray', POSITIVE:'green', VERY_POSITIVE:'green' };
-  document.getElementById('rides-tbody').innerHTML = recent.map(m => `
-    <tr>
-      <td><span style="font-family:var(--mono);font-size:11px;color:var(--muted2)">${m.ticket_id}</span></td>
-      <td style="font-family:var(--mono);font-size:11px">${m.ride_id||'—'}</td>
+  const swColors = { 'weimo-av-4.2.1':'var(--muted2)', 'weimo-av-4.3.0':'var(--cyan)', 'weimo-av-4.3.1':'var(--primary)', 'weimo-av-4.4.0-beta':'var(--amber)' };
+  document.getElementById('rides-tbody').innerHTML = tableRows.map(m => {
+    const vtShort = (m.vehicle_type||'—').replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','');
+    const swColor = swColors[m.software_version] || 'var(--muted2)';
+    const dateStr = m.ts ? new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—';
+    return `<tr>
+      <td><span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${m.ticket_id}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${m.vehicle_id||'—'}</td>
+      <td style="font-size:10px;color:var(--text)">${vtShort}</td>
+      <td style="font-family:var(--mono);font-size:9px;color:${swColor}">${m.software_version||'—'}</td>
       <td><span class="chip chip-${catChip[m.category]||'gray'}">${m.category}</span></td>
       <td><span class="chip chip-${priChip[m.priority]||'gray'}">${m.priority}</span></td>
       <td><span class="chip chip-${slChip[m.safety_level]||'gray'}">${m.safety_level}</span></td>
       <td><span class="chip chip-${sentChip[m.sentiment]||'gray'}" style="font-size:9px">${(m.sentiment||'').replace('_',' ')}</span></td>
-      <td><span class="rating-stars">${m.rating ? '★'.repeat(m.rating) + '☆'.repeat(5-m.rating) : '—'}</span></td>
-      <td style="font-family:var(--mono);font-size:11px;color:${m.quality_score>=90?'var(--green)':m.quality_score>=70?'var(--amber)':'var(--red)'}">${m.quality_score ? m.quality_score+'/100' : '—'}</td>
-      <td style="color:var(--green);font-family:var(--mono)">$${m.refund||0}</td>
-      <td>${m.requires_engineering ? '<span class="chip chip-red">YES</span>' : '<span class="chip chip-gray">NO</span>'}</td>
-      <td style="color:var(--muted);font-size:11px">${new Date(m.ts).toLocaleTimeString()}</td>
-    </tr>`).join('');
+      <td><span class="rating-stars" style="font-size:10px">${m.rating ? '★'.repeat(m.rating)+'☆'.repeat(5-m.rating) : '—'}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:${m.quality_score>=90?'var(--green)':m.quality_score>=70?'var(--amber)':'var(--red)'}">${m.quality_score ? m.quality_score+'/100' : '—'}</td>
+      <td style="color:var(--green);font-family:var(--mono);font-size:10px">$${m.refund||0}</td>
+      <td>${m.requires_engineering ? '<span class="chip chip-red" style="font-size:9px">YES</span>' : '<span class="chip chip-gray" style="font-size:9px">NO</span>'}</td>
+      <td style="color:var(--muted);font-size:10px;white-space:nowrap">${dateStr}</td>
+    </tr>`;
+  }).join('');
 }
 
 function barRow(label, count, total, color) {
