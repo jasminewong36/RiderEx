@@ -1929,9 +1929,7 @@ function generateBulkSeeds(registry) {
         sl  = slTable[cat][Math.floor(Math.random()*slTable[cat].length)];
       }
       const priority = pickPriority(cat, sl);
-      // Released versions get slightly higher ratings (they're polished, signed-off builds)
-      const ratingBump = isReleased ? 0.4 : 0;
-      const rating   = Math.min(5,Math.max(1, Math.round(baseRating + ratingBump + (Math.random()-0.5)*1.6)));
+      const rating   = Math.min(5,Math.max(1, Math.round(baseRating + (Math.random()-0.5)*1.6)));
       const churn    = rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW';
       const sentiment= rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE';
       // Released versions get higher quality scores (base +8) reflecting mature, reviewed software
@@ -1968,7 +1966,7 @@ function generateBulkSeeds(registry) {
 }
 
 function seedMetrics() {
-  const SEED_VER = 'vehicles_v5'; // v5: released branches get clean safety data (no CRITICAL/HIGH)
+  const SEED_VER = 'vehicles_v6'; // v6: fix rating consistency (no bump), fleet rides from seeded count
   // Clear old localStorage-stored seed data on version bump
   if (localStorage.getItem('riderex_seed_ver') !== SEED_VER) {
     localStorage.removeItem(STORAGE_KEY);
@@ -2937,6 +2935,9 @@ let activeVehicle = null;
 
 function buildFleetFromRegistry(vehicles) {
   const savedStates = getVehicleStateMap();
+  // Build ride count per vehicle from seededRecords so Fleet matches Dashboard/Software totals
+  const seededRideCount = {};
+  seededRecords.forEach(r => { seededRideCount[r.vehicle_id] = (seededRideCount[r.vehicle_id] || 0) + 1; });
   return vehicles.map(v => {
     const saved = savedStates[v.vehicle_id] || {};
     const status = saved.status || v.status || 'ACTIVE';
@@ -2970,7 +2971,7 @@ function buildFleetFromRegistry(vehicles) {
       id: v.vehicle_id,
       num: parseInt(v.vehicle_id?.replace('WM-', '') || '0'),
       status, score,
-      totalRides: saved.totalRides !== undefined ? saved.totalRides : (v.total_rides || 0),
+      totalRides: saved.totalRides !== undefined ? saved.totalRides : (seededRideCount[v.vehicle_id] || v.total_rides || 0),
       incidents: saved.incidents !== undefined ? saved.incidents : (openTickets),
       avgRating: saved.avgRating !== undefined ? saved.avgRating : (v.avg_passenger_rating || 4.0),
       openTickets,       // original from registry (never changes)
