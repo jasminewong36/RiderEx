@@ -19,6 +19,42 @@
   }
   body::before{display:none}
   .page{position:relative;z-index:1}
+  header{z-index:100}
+
+  /* ── ENTRANCE ANIMATIONS ──────────────────────────────────────── */
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes slideInLeft{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes cardPop{from{opacity:0;transform:translateY(14px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes kpiCount{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 0 rgba(255,255,255,0)}50%{box-shadow:0 0 18px rgba(255,255,255,0.06)}}
+
+  .page.active{animation:fadeIn 0.35s ease both}
+  .hero{animation:fadeInUp 0.7s 0.05s ease both}
+  .pipeline{animation:fadeInUp 0.7s 0.12s ease both}
+  .form-card{animation:fadeInUp 0.7s 0.18s ease both}
+  .results.show .card{animation:fadeInUp 0.45s ease both}
+  .results.show .stats{animation:fadeInUp 0.45s 0.08s ease both}
+  .results.show .priority-banner{animation:fadeInUp 0.45s ease both}
+
+  /* fleet cards stagger — set via inline style animation-delay */
+  .vcard{animation:cardPop 0.4s ease both}
+
+  /* KPI cards animate in when dashboard renders */
+  .kpi{animation:kpiCount 0.5s ease both}
+  .kpi:nth-child(1){animation-delay:0s}
+  .kpi:nth-child(2){animation-delay:0.05s}
+  .kpi:nth-child(3){animation-delay:0.10s}
+  .kpi:nth-child(4){animation-delay:0.15s}
+  .kpi:nth-child(5){animation-delay:0.20s}
+
+  /* hover glow on interactive cards */
+  .vcard:hover{box-shadow:0 0 24px rgba(255,255,255,0.07);transition:box-shadow 0.3s,border-color 0.15s}
+  .kpi:hover{box-shadow:0 0 20px rgba(255,255,255,0.05);transition:box-shadow 0.3s}
+  .dash-card:hover{box-shadow:0 0 20px rgba(255,255,255,0.04);transition:box-shadow 0.3s}
+
+  /* run button pulse when idle */
+  .run-btn:not(:disabled){animation:glowPulse 3s ease-in-out infinite}
 
   header{
     padding:12px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;
@@ -627,8 +663,9 @@
 </style>
 </head>
 <body>
+<canvas id="particles-bg" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
 
-<header>
+<header style="position:relative;z-index:100">
   <div class="logo">🚗</div>
   <span class="brand">RiderEx</span>
   <span class="hbadge">5 Agents · Band.ai · AV Customer Support</span>
@@ -2444,12 +2481,13 @@ function renderFleetGrid() {
   document.getElementById('pager-next').disabled = fleetPage >= totalPages;
 
   const grid = document.getElementById('fleet-grid');
-  grid.innerHTML = slice.map(v => renderVehicleCard(v)).join('');
+  grid.innerHTML = slice.map((v,i) => renderVehicleCard(v,i)).join('');
 }
 
-function renderVehicleCard(v) {
+function renderVehicleCard(v, idx=0) {
   const statusClass = { ACTIVE:'vc-active', GROUNDED:'vc-grounded', MAINTENANCE:'vc-maintenance', IDLE:'' }[v.status] || '';
   const dotClass = { ACTIVE:'s-active', GROUNDED:'s-grounded', MAINTENANCE:'s-maintenance', IDLE:'s-idle' }[v.status];
+  const staggerDelay = Math.min(idx * 28, 600);
   const scoreSegs = 10;
   const filledSegs = Math.round((v.score / 100) * scoreSegs);
   const segClass = v.score >= 75 ? 'seg-on' : v.score >= 50 ? 'seg-warn' : 'seg-danger';
@@ -2470,7 +2508,7 @@ function renderVehicleCard(v) {
   const daysSince = v.lastActive ? Math.floor((Date.now() - new Date(v.lastActive)) / 86400000) + 'd ago' : '—';
   const runCount  = (v.pipelineRuns || []).length;
 
-  return `<div class="vcard ${statusClass}" onclick="flipCard(this)">
+  return `<div class="vcard ${statusClass}" onclick="flipCard(this)" style="animation-delay:${staggerDelay}ms">
     <div class="vcard-inner">
       <!-- FRONT -->
       <div class="vcard-front">
@@ -2617,6 +2655,87 @@ function loadVehicleInPipeline() {
   document.getElementById('vehicle-id').value = activeVehicle.id; // keep vehicle, refresh ride
   document.getElementById('feedback').focus();
 }
+
+// ── PARTICLE CONSTELLATION BACKGROUND ─────────────────────────
+(function(){
+  const canvas = document.getElementById('particles-bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, mouse = {x:-999, y:-999};
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+  const COUNT = 88, MAX_D = 140, SPEED = 0.28;
+  const pts = Array.from({length: COUNT}, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * SPEED,
+    vy: (Math.random() - 0.5) * SPEED,
+    r: Math.random() * 1.2 + 0.4,
+    o: Math.random() * 0.35 + 0.08,
+    pulse: Math.random() * Math.PI * 2,
+  }));
+
+  // A handful of brighter "star" particles
+  for (let i = 0; i < 8; i++) {
+    pts[i].r = Math.random() * 2 + 1.2;
+    pts[i].o = Math.random() * 0.5 + 0.3;
+  }
+
+  function frame(t){
+    ctx.clearRect(0, 0, W, H);
+
+    for (let i = 0; i < pts.length; i++){
+      const p = pts[i];
+
+      // Gentle pulse on opacity
+      p.pulse += 0.012;
+      const ao = p.o + Math.sin(p.pulse) * 0.06;
+
+      // Mouse repulsion
+      const mx = p.x - mouse.x, my = p.y - mouse.y;
+      const md = Math.sqrt(mx*mx + my*my);
+      if (md < 100 && md > 0){ p.vx += (mx/md)*0.04; p.vy += (my/md)*0.04; }
+
+      // Speed cap
+      const sp = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+      if (sp > 0.9){ p.vx *= 0.9/sp; p.vy *= 0.9/sp; }
+
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+      // Draw dot
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(200,206,240,${ao})`;
+      ctx.fill();
+
+      // Draw lines to nearby particles
+      for (let j = i+1; j < pts.length; j++){
+        const q = pts[j];
+        const dx = p.x-q.x, dy = p.y-q.y;
+        const d = Math.sqrt(dx*dx+dy*dy);
+        if (d < MAX_D){
+          const alpha = (1 - d/MAX_D) * 0.10;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(200,206,240,${alpha})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
