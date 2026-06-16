@@ -1966,10 +1966,11 @@ function generateBulkSeeds(registry) {
 }
 
 function seedMetrics() {
-  const SEED_VER = 'vehicles_v6'; // v6: fix rating consistency (no bump), fleet rides from seeded count
-  // Clear old localStorage-stored seed data on version bump
+  const SEED_VER = 'vehicles_v7'; // v7: fleet totalRides from getMetrics(), clear vehicle state on bump
+  // Clear stale seed + vehicle state on version bump so counts reset cleanly
   if (localStorage.getItem('riderex_seed_ver') !== SEED_VER) {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(VEHICLE_STATE_KEY);
     localStorage.setItem('riderex_seed_ver', SEED_VER);
   }
   if (vehicleRegistry.length > 0) {
@@ -2935,9 +2936,10 @@ let activeVehicle = null;
 
 function buildFleetFromRegistry(vehicles) {
   const savedStates = getVehicleStateMap();
-  // Build ride count per vehicle from seededRecords so Fleet matches Dashboard/Software totals
-  const seededRideCount = {};
-  seededRecords.forEach(r => { seededRideCount[r.vehicle_id] = (seededRideCount[r.vehicle_id] || 0) + 1; });
+  // Count rides per vehicle from the same source Dashboard and Software tabs use —
+  // getMetrics() = seededRecords + any real localStorage runs — so all three tabs agree
+  const allRideCount = {};
+  getMetrics().forEach(r => { allRideCount[r.vehicle_id] = (allRideCount[r.vehicle_id] || 0) + 1; });
   return vehicles.map(v => {
     const saved = savedStates[v.vehicle_id] || {};
     const status = saved.status || v.status || 'ACTIVE';
@@ -2971,7 +2973,7 @@ function buildFleetFromRegistry(vehicles) {
       id: v.vehicle_id,
       num: parseInt(v.vehicle_id?.replace('WM-', '') || '0'),
       status, score,
-      totalRides: saved.totalRides !== undefined ? saved.totalRides : (seededRideCount[v.vehicle_id] || v.total_rides || 0),
+      totalRides: allRideCount[v.vehicle_id] || 0,
       incidents: saved.incidents !== undefined ? saved.incidents : (openTickets),
       avgRating: saved.avgRating !== undefined ? saved.avgRating : (v.avg_passenger_rating || 4.0),
       openTickets,       // original from registry (never changes)
