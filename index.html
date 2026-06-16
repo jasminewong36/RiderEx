@@ -255,11 +255,19 @@
   .kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:2px}
   .kpi-sub{font-size:10px;color:var(--muted2)}
   .kpi-status-badge{
-    position:absolute;top:8px;right:8px;
+    position:absolute;bottom:8px;right:8px;
     font-size:8px;font-weight:700;letter-spacing:0.07em;
     padding:2px 6px;border-radius:2px;text-transform:uppercase;
     pointer-events:none;
   }
+  .sw-filter-sel{
+    background:var(--surface2);border:1px solid var(--border2);
+    color:var(--text);font-family:var(--mono);font-size:11px;
+    padding:4px 10px;border-radius:2px;cursor:pointer;
+    transition:border-color 0.15s;
+  }
+  .sw-filter-sel:focus{border-color:var(--primary);outline:none;box-shadow:0 0 6px rgba(0,229,200,0.15)}
+  .sw-filter-sel option{background:var(--surface)}
   .ksb-exceeding{background:rgba(0,255,140,0.12);color:var(--green);border:1px solid rgba(0,255,140,0.25)}
   .ksb-ontarget {background:rgba(0,229,200,0.10);color:var(--primary);border:1px solid rgba(0,229,200,0.2)}
   .ksb-below    {background:rgba(255,136,0,0.12);color:var(--amber);border:1px solid rgba(255,136,0,0.25)}
@@ -893,10 +901,19 @@
       <span class="filter-label">Time Range</span>
       <div class="filter-pills" id="filter-time">
         <button class="fpill active" data-val="ALL" onclick="setFilter('time','ALL',this)">All Time</button>
-        <button class="fpill" data-val="7" onclick="setFilter('time','7',this)">Last 7 Days</button>
-        <button class="fpill" data-val="30" onclick="setFilter('time','30',this)">Last 30 Days</button>
+        <button class="fpill" data-val="365" onclick="setFilter('time','365',this)">1 Year</button>
+        <button class="fpill" data-val="180" onclick="setFilter('time','180',this)">6 Months</button>
+        <button class="fpill" data-val="90" onclick="setFilter('time','90',this)">90 Days</button>
+        <button class="fpill" data-val="30" onclick="setFilter('time','30',this)">30 Days</button>
+        <button class="fpill" data-val="7" onclick="setFilter('time','7',this)">7 Days</button>
         <button class="fpill" data-val="1" onclick="setFilter('time','1',this)">Today</button>
       </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Software Branch</span>
+      <select id="filter-software-sel" class="sw-filter-sel" onchange="setSoftwareFilter(this.value)">
+        <option value="ALL">All Versions</option>
+      </select>
     </div>
     <div class="filter-group">
       <span class="filter-label">Safety Level</span>
@@ -947,7 +964,7 @@
         <div class="kpi-val" id="kpi-total">0</div>
         <div class="kpi-label">Total Rides</div>
         <div class="kpi-sub">processed</div>
-        <div class="kpi-target">Target: 2,000 / week</div>
+        <div class="kpi-target" id="kpi-total-target">Target: 2,000 / week</div>
       </div>
       <div class="kpi kpi-amber">
         <div class="kpi-status-badge" id="kpi-csat-status"></div>
@@ -975,7 +992,7 @@
         <div class="kpi-val" id="kpi-nhtsa">0</div>
         <div class="kpi-label">NHTSA Flags</div>
         <div class="kpi-sub">reportable incidents</div>
-        <div class="kpi-target">Target: &lt; 10 flags</div>
+        <div class="kpi-target" id="kpi-nhtsa-target">Target: &lt; 10 flags / week</div>
       </div>
     </div>
 
@@ -1013,7 +1030,7 @@
         <div class="kpi-val" id="kpi-p1">0</div>
         <div class="kpi-label">P1 Incidents</div>
         <div class="kpi-sub">critical priority</div>
-        <div class="kpi-target">Target: &lt; 20 / week</div>
+        <div class="kpi-target" id="kpi-p1-target">Target: &lt; 20 P1s / week</div>
       </div>
     </div>
 
@@ -1212,8 +1229,10 @@
 
 <script>
 let rating = 1;
-const STORAGE_KEY = 'riderex_metrics';
+const STORAGE_KEY = 'riderex_metrics';   // real pipeline runs only (post v4)
+const PIPELINE_RUNS_KEY = 'riderex_pipeline_runs';
 let vehicleRegistry = [];
+let seededRecords = [];  // 50k in-memory seed; never stored in localStorage
 const VEHICLE_STATE_KEY = 'riderex_vehicle_state';
 
 function getVehicleStateMap() {
@@ -1301,6 +1320,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   genIds();
   await loadVehicleRegistry();
   seedMetrics();
+  initSoftwareFilter();
   // Seed Supabase once per browser session (non-blocking)
   if (!sessionStorage.getItem('supabase_seeded')) {
     fetch('/seed-supabase', { method: 'POST' })
@@ -1505,8 +1525,11 @@ function updateFleetVehicle(data) {
 }
 
 function getMetrics() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
+  try {
+    const runs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    return [...seededRecords, ...(Array.isArray(runs) ? runs : [])];
+  }
+  catch { return [...seededRecords]; }
 }
 
 function clearMetrics() {
@@ -1572,9 +1595,8 @@ function vehicleSeedRecord(v, i) {
 }
 
 function generateBulkSeeds(registry) {
-  const RIDES_PER_VEHICLE = 10; // 200 × 10 = 2000 rides
-  const SPAN_DAYS = 180;
-  // Weighted category distribution: realistic fleet mix
+  const RIDES_PER_VEHICLE = 250; // 200 × 250 = 50,000 rides
+  const SPAN_DAYS = 365;
   const CAT_POOL = [
     'SAFETY','SAFETY','SAFETY',
     'COMFORT','COMFORT','COMFORT','COMFORT',
@@ -1596,39 +1618,40 @@ function generateBulkSeeds(registry) {
     if (cat==='COMPLIMENT') return 'P4';
     return Math.random()<0.4?'P3':'P4';
   }
+  const now = Date.now();
   const records = [];
   let idx = 0;
   registry.forEach(v => {
     const baseSs = v.safety_score || 90;
     const baseRating = v.avg_passenger_rating || 4.0;
+    const sw = v.software_version || 'weimo-av-4.3.0';
     for (let ri = 0; ri < RIDES_PER_VEHICLE; ri++) {
-      const daysAgo = Math.floor(Math.random() * SPAN_DAYS);
-      const ts = new Date(Date.now() - daysAgo*86400000 - Math.floor(Math.random()*86400000)).toISOString();
+      // Distribute evenly over SPAN_DAYS so every time window has proportional data
+      const daysAgo = (ri / RIDES_PER_VEHICLE) * SPAN_DAYS + Math.random() * (SPAN_DAYS / RIDES_PER_VEHICLE);
+      const ts = new Date(now - daysAgo*86400000 - Math.floor(Math.random()*86400000)).toISOString();
       let cat, sl;
       if (ri === 0) {
-        // Anchor first ride to vehicle's actual incident data
         const inc = v.last_incident_type;
         cat = (!inc || baseRating >= 4.8) ? (baseRating >= 4.5 ? 'COMPLIMENT' : 'COMFORT') : (INCIDENT_CATEGORY[inc] || 'SOFTWARE');
         sl  = baseSs < 50 ? 'CRITICAL' : baseSs < 70 ? 'HIGH' : baseSs < 85 ? 'MEDIUM' : baseSs < 95 ? 'LOW' : 'NONE';
       } else {
         cat = CAT_POOL[Math.floor(Math.random()*CAT_POOL.length)];
-        const pool = SL_FOR_CAT[cat];
-        sl  = pool[Math.floor(Math.random()*pool.length)];
+        sl  = SL_FOR_CAT[cat][Math.floor(Math.random()*SL_FOR_CAT[cat].length)];
       }
       const priority = pickPriority(cat, sl);
-      const ratingNoise = (Math.random()-0.5)*2;
-      const rating = Math.min(5,Math.max(1, Math.round(baseRating + ratingNoise)));
-      const churn  = rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW';
-      const sentiment = rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE';
+      const rating   = Math.min(5,Math.max(1, Math.round(baseRating + (Math.random()-0.5)*2)));
+      const churn    = rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW';
+      const sentiment= rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE';
       const qs = Math.min(100,Math.max(48, Math.round(58 + baseSs*0.25 + rating*3 + (Math.random()-0.5)*12)));
       const nhtsa = sl==='CRITICAL'||(sl==='HIGH'&&priority==='P1');
       const reqEng = ['SAFETY','SOFTWARE'].includes(cat)&&sl!=='NONE';
       const refund = priority==='P1'?20+Math.floor(Math.random()*20):priority==='P2'?10+Math.floor(Math.random()*10):0;
       const credit = cat==='COMPLIMENT'?5:priority==='P3'?Math.floor(Math.random()*10):0;
       records.push({
-        ticket_id:  'RX-'+String(idx+1).padStart(5,'0'),
+        ticket_id:  'RX-'+String(idx+1).padStart(6,'0'),
         ride_id:    'RIDE-'+String(Math.floor(Math.random()*9999999999999)+1).padStart(16,'0'),
         vehicle_id: v.vehicle_id,
+        software_version: sw,
         category:cat, priority, safety_level:sl, nhtsa, rating,
         churn_risk:churn, sentiment,
         refund:refund+credit, refund_amount:refund, credit_amount:credit,
@@ -1650,42 +1673,50 @@ function generateBulkSeeds(registry) {
 }
 
 function seedMetrics() {
-  const SEED_VER = 'vehicles_v3';
-  if (vehicleRegistry.length > 0) {
-    if (localStorage.getItem('riderex_seed_ver') === SEED_VER) return;
-    const records = generateBulkSeeds(vehicleRegistry);
-    records.sort((a,b) => new Date(a.ts) - new Date(b.ts));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  const SEED_VER = 'vehicles_v4';
+  // Clear old localStorage-stored seed data on version bump
+  if (localStorage.getItem('riderex_seed_ver') !== SEED_VER) {
+    localStorage.removeItem(STORAGE_KEY);
     localStorage.setItem('riderex_seed_ver', SEED_VER);
+  }
+  if (vehicleRegistry.length > 0) {
+    seededRecords = generateBulkSeeds(vehicleRegistry);
   } else {
-    if (getMetrics().length > 0) return;
-    // Fallback random seed (no vehicle registry)
+    // Fallback: 50k records across 200 generic vehicles, 365-day span
+    const now = Date.now();
     function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
     function rnd(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
     const cats=['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];
     const priO={SAFETY:['P1','P1','P2'],COMFORT:['P2','P3','P3'],ROUTE:['P2','P3'],SOFTWARE:['P2','P3'],COMPLIMENT:['P4']};
     const slM={SAFETY:['CRITICAL','HIGH','MEDIUM'],COMFORT:['LOW','NONE'],ROUTE:['LOW','NONE'],SOFTWARE:['NONE'],COMPLIMENT:['NONE']};
-    const now=Date.now(); const seed=[];
-    for(let i=0;i<2000;i++){
+    const SW_VERS=['weimo-av-4.2.1','weimo-av-4.3.0','weimo-av-4.3.1','weimo-av-4.4.0-beta'];
+    const fallback=[];
+    for(let i=0;i<50000;i++){
       const cat=cats[i%5]; const sl=pick(slM[cat]); const priority=pick(priO[cat]);
       const rating=cat==='COMPLIMENT'?rnd(4,5):cat==='SAFETY'?rnd(1,2):rnd(2,4);
-      const ts=new Date(now-rnd(0,179)*86400000-rnd(0,23)*3600000).toISOString();
-      seed.push({ticket_id:'TKT-'+i,ride_id:'RIDE-'+String(rnd(1,999999)).padStart(16,'0'),
-        vehicle_id:'WM-'+String(rnd(1,200)).padStart(4,'0'),category:cat,priority,safety_level:sl,
-        nhtsa:['CRITICAL','HIGH'].includes(sl),rating,churn_risk:rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW',
+      const daysAgo = (i/50000)*365 + Math.random()*(365/50000);
+      const ts=new Date(now-daysAgo*86400000-rnd(0,86400)*1000).toISOString();
+      const qs=rnd(60,98);
+      fallback.push({ticket_id:'RX-'+String(i+1).padStart(6,'0'),
+        ride_id:'RIDE-'+String(rnd(1,9999999)).padStart(16,'0'),
+        vehicle_id:'WM-'+String(rnd(1,200)).padStart(3,'0'),
+        software_version:pick(SW_VERS),
+        category:cat,priority,safety_level:sl,
+        nhtsa:['CRITICAL','HIGH'].includes(sl),rating,
+        churn_risk:rating<=2?'HIGH':rating<=3?'MEDIUM':'LOW',
         sentiment:rating<=2?'NEGATIVE':rating<=3?'NEUTRAL':'POSITIVE',
         refund:0,refund_amount:0,credit_amount:0,good_ride:cat==='COMPLIMENT',
-        quality_score:rnd(70,98),review_decision:'APPROVED',requires_engineering:cat==='SAFETY',
+        quality_score:qs,review_decision:qs>=85?'APPROVED':qs>=72?'APPROVED_WITH_EDITS':'REVISION_NEEDED',
+        requires_engineering:cat==='SAFETY',
         engineering_team:cat==='SAFETY'?'AV_SAFETY':'NONE',vehicle_action:VACTION_MAP[sl]||'NONE',
         action_items:rnd(0,3),band_messages:5,key_phrases:[],ts});
     }
-    seed.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(seed));
+    seededRecords = fallback;
   }
 }
 
 // ── Filters ───────────────────────────────────────────────────
-const activeFilters = { category:'ALL', priority:'ALL', time:'ALL', safety:'ALL' };
+const activeFilters = { category:'ALL', priority:'ALL', time:'ALL', safety:'ALL', software:'ALL' };
 
 function setFilter(type, val, btn) {
   activeFilters[type] = val;
@@ -1695,11 +1726,31 @@ function setFilter(type, val, btn) {
   renderDashboard();
 }
 
+function setSoftwareFilter(val) {
+  activeFilters.software = val;
+  updateFilterSummary();
+  renderDashboard();
+}
+
+function initSoftwareFilter() {
+  if (!vehicleRegistry.length) return;
+  const versions = [...new Set(vehicleRegistry.map(v => v.software_version).filter(Boolean))].sort();
+  const sel = document.getElementById('filter-software-sel');
+  if (!sel) return;
+  versions.forEach(ver => {
+    const opt = document.createElement('option');
+    opt.value = ver; opt.textContent = ver;
+    sel.appendChild(opt);
+  });
+}
+
 function resetFilters() {
   Object.keys(activeFilters).forEach(k => activeFilters[k] = 'ALL');
   document.querySelectorAll('.fpill').forEach(b => {
     b.classList.toggle('active', b.dataset.val === 'ALL');
   });
+  const sel = document.getElementById('filter-software-sel');
+  if (sel) sel.value = 'ALL';
   updateFilterSummary();
   renderDashboard();
 }
@@ -1714,17 +1765,27 @@ function updateFilterSummary() {
 }
 
 function applyFilters(metrics) {
+  const cutoff = activeFilters.time !== 'ALL' ? Date.now() - parseInt(activeFilters.time)*86400000 : 0;
   return metrics.filter(m => {
     if (activeFilters.category !== 'ALL' && m.category !== activeFilters.category) return false;
     if (activeFilters.priority !== 'ALL' && m.priority !== activeFilters.priority) return false;
-    if (activeFilters.safety !== 'ALL' && m.safety_level !== activeFilters.safety) return false;
-    if (activeFilters.time !== 'ALL') {
-      const days = parseInt(activeFilters.time);
-      if (new Date(m.ts) < new Date(Date.now() - days * 86400000)) return false;
-    }
+    if (activeFilters.safety   !== 'ALL' && m.safety_level !== activeFilters.safety) return false;
+    if (activeFilters.software !== 'ALL' && m.software_version !== activeFilters.software) return false;
+    if (cutoff && new Date(m.ts).getTime() < cutoff) return false;
     return true;
   });
 }
+
+// ── KPI period targets ────────────────────────────────────────
+const KPI_PERIOD = {
+  '1':   { rides:500,    nhtsa:2,   p1:3,   label:'Today' },
+  '7':   { rides:2000,   nhtsa:10,  p1:20,  label:'This Week' },
+  '30':  { rides:10000,  nhtsa:40,  p1:80,  label:'This Month' },
+  '90':  { rides:30000,  nhtsa:120, p1:240, label:'90 Days' },
+  '180': { rides:60000,  nhtsa:240, p1:480, label:'6 Months' },
+  '365': { rides:100000, nhtsa:480, p1:960, label:'This Year' },
+  'ALL': { rides:100000, nhtsa:480, p1:960, label:'All Time' },
+};
 
 // ── KPI status helpers ─────────────────────────────────────────
 // Returns: 2 = exceeding, 1 = on target, 0 = below, -1 = critical
@@ -1741,7 +1802,7 @@ function setKpiStatus(id, value, thresholds) {
   return tier;
 }
 
-function updateKpiHealthBar(scores) {
+function updateKpiHealthBar(scores, periodLabel) {
   const met  = scores.filter(s => s >= 1).length;   // on target or exceeding
   const exc  = scores.filter(s => s === 2).length;
   const crit = scores.filter(s => s === -1).length;
@@ -1760,6 +1821,8 @@ function updateKpiHealthBar(scores) {
   else                 { vCls='khv-teal';  vText='MEETING TARGETS'; }
   vEl.className = 'kpi-health-verdict ' + vCls;
   vEl.textContent = vText;
+  const sub = document.querySelector('.kpi-health-bar [style*="vs. weekly"]');
+  if (sub) sub.textContent = `vs. ${periodLabel || 'All Time'} targets`;
 }
 
 // ── Dashboard rendering ────────────────────────────────────────
@@ -1834,22 +1897,28 @@ async function renderDashboard() {
   document.getElementById('kpi-band').textContent = avgBand;
   document.getElementById('kpi-p1').textContent = p1Count;
 
-  // KPI status badges
+  // KPI status badges — use per-period targets for rides/nhtsa/p1
+  const period   = KPI_PERIOD[activeFilters.time] || KPI_PERIOD['ALL'];
+  const rT = period.rides, nT = period.nhtsa, pT = period.p1;
   const goodPct   = total ? (goodCount / total * 100) : 0;
   const safetyPct = total ? (safetyCount / total * 100) : 0;
   const escPct    = total ? (engCount / total * 100) : 0;
+  // Update dynamic target labels
+  document.getElementById('kpi-total-target').textContent  = `Target: ${rT.toLocaleString()} / ${period.label}`;
+  document.getElementById('kpi-nhtsa-target').textContent  = `Target: < ${nT} flags / ${period.label}`;
+  document.getElementById('kpi-p1-target').textContent     = `Target: < ${pT} P1s / ${period.label}`;
   const kpiScores = [
-    setKpiStatus('total',      total,         { exc: v=>v>=2200, ok: v=>v>=1800, low: v=>v>=1200 }),
-    setKpiStatus('csat',       avgRating||0,  { exc: v=>v>=4.7,  ok: v=>v>=4.3,  low: v=>v>=3.8  }),
-    setKpiStatus('good',       goodPct,       { exc: v=>v>=90,   ok: v=>v>=75,   low: v=>v>=60   }),
-    setKpiStatus('safety',     safetyPct,     { exc: v=>v<=5,    ok: v=>v<=12,   low: v=>v<=20   }),
-    setKpiStatus('nhtsa',      nhtsa,         { exc: v=>v<=5,    ok: v=>v<=15,   low: v=>v<=25   }),
-    setKpiStatus('quality',    avgQuality||0, { exc: v=>v>=90,   ok: v=>v>=80,   low: v=>v>=70   }),
-    setKpiStatus('escalation', escPct,        { exc: v=>v<=10,   ok: v=>v<=20,   low: v=>v<=30   }),
-    setKpiStatus('refund',     avgRefund,     { exc: v=>v<=4,    ok: v=>v<=10,   low: v=>v<=18   }),
-    setKpiStatus('p1',         p1Count,       { exc: v=>v<=8,    ok: v=>v<=20,   low: v=>v<=35   }),
+    setKpiStatus('total',      total,         { exc: v=>v>=rT*1.1, ok: v=>v>=rT*0.9, low: v=>v>=rT*0.7 }),
+    setKpiStatus('csat',       avgRating||0,  { exc: v=>v>=4.7,    ok: v=>v>=4.3,    low: v=>v>=3.8     }),
+    setKpiStatus('good',       goodPct,       { exc: v=>v>=90,     ok: v=>v>=75,     low: v=>v>=60      }),
+    setKpiStatus('safety',     safetyPct,     { exc: v=>v<=5,      ok: v=>v<=12,     low: v=>v<=20      }),
+    setKpiStatus('nhtsa',      nhtsa,         { exc: v=>v<=nT*0.5, ok: v=>v<=nT,     low: v=>v<=nT*1.5  }),
+    setKpiStatus('quality',    avgQuality||0, { exc: v=>v>=90,     ok: v=>v>=80,     low: v=>v>=70      }),
+    setKpiStatus('escalation', escPct,        { exc: v=>v<=10,     ok: v=>v<=20,     low: v=>v<=30      }),
+    setKpiStatus('refund',     avgRefund,     { exc: v=>v<=4,      ok: v=>v<=10,     low: v=>v<=18      }),
+    setKpiStatus('p1',         p1Count,       { exc: v=>v<=pT*0.4, ok: v=>v<=pT,     low: v=>v<=pT*1.5  }),
   ];
-  updateKpiHealthBar(kpiScores);
+  updateKpiHealthBar(kpiScores, period.label);
 
   // Category chart
   const cats = ['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];

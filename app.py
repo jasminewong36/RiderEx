@@ -185,15 +185,16 @@ def _pick_priority(cat, sl):
     return 'P3' if random.random() < 0.4 else 'P4'
 
 def _build_seed_records(vehicles):
-    RIDES_PER_VEHICLE = 10
-    SPAN_DAYS = 180
+    RIDES_PER_VEHICLE = 250  # 200 × 250 = 50,000 rides
+    SPAN_DAYS = 365
     now = datetime.now(timezone.utc)
     records, idx = [], 0
     for v in vehicles:
         ss = v.get('safety_score', 90) or 90
         base_r = v.get('avg_passenger_rating', 4.0) or 4.0
         for ri in range(RIDES_PER_VEHICLE):
-            ts = (now - timedelta(days=random.randint(0,SPAN_DAYS), hours=random.randint(0,23))).isoformat()
+            days_ago = (ri / RIDES_PER_VEHICLE) * SPAN_DAYS + random.random() * (SPAN_DAYS / RIDES_PER_VEHICLE)
+            ts = (now - timedelta(days=days_ago, hours=random.randint(0,23))).isoformat()
             if ri == 0:
                 inc = v.get('last_incident_type')
                 cat = ('COMPLIMENT' if base_r >= 4.5 else 'COMFORT') if (not inc or base_r >= 4.8) else _INCIDENT_CAT.get(inc,'SOFTWARE')
@@ -211,9 +212,10 @@ def _build_seed_records(vehicles):
             refund   = random.randint(20,40) if priority=='P1' else random.randint(10,20) if priority=='P2' else 0
             credit   = 5 if cat=='COMPLIMENT' else random.randint(0,10) if priority=='P3' else 0
             records.append({
-                'ticket_id': f'RX-{idx+1:05d}',
+                'ticket_id': f'RX-{idx+1:06d}',
                 'ride_id':   f'RIDE-{random.randint(1,9999999999999):016d}',
                 'vehicle_id': v['vehicle_id'],
+                'software_version': v.get('software_version', 'weimo-av-4.3.0'),
                 'category': cat, 'priority': priority, 'safety_level': sl,
                 'nhtsa': nhtsa, 'rating': rating, 'churn_risk': churn,
                 'refund_amount': refund, 'credit_amount': credit,
@@ -244,9 +246,9 @@ async def seed_supabase():
             vehicles = json.load(f)
         records = _build_seed_records(vehicles)
         inserted = 0
-        for i in range(0, len(records), 100):
-            sb.table("rides").upsert(records[i:i+100], on_conflict="ticket_id").execute()
-            inserted += 100 if i+100 < len(records) else len(records)-i
+        for i in range(0, len(records), 500):
+            sb.table("rides").upsert(records[i:i+500], on_conflict="ticket_id").execute()
+            inserted += min(500, len(records)-i)
         logger.info(f"[Seed] Inserted {inserted} records into Supabase")
         return JSONResponse(content={"inserted": inserted, "total": len(records)})
     except Exception as e:
