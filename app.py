@@ -83,7 +83,7 @@ def save_to_supabase(result: dict):
 class FeedbackRequest(BaseModel):
     feedback_text: str
     ride_id: Optional[str] = "RIDE-0000000000000001"
-    vehicle_id: Optional[str] = "WM-0001"
+    vehicle_id: Optional[str] = "WM-001"
     rating: Optional[int] = None
 
 
