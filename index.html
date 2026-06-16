@@ -2692,7 +2692,6 @@ const META = [
 
 const VANISH_Y = 0.40;
 const VANISH_X = 0.5;
-const NUM_LANES = 4;
 
 const scene = document.getElementById('perc-scene');
 const canvas = document.getElementById('perc-road-bg');
@@ -2709,8 +2708,7 @@ function laneX(laneIdx, t) {
   const W = canvas.width;
   const vx = W * VANISH_X;
   const offsets = [-0.32, -0.14, 0.14, 0.32];
-  const laneOff = offsets[laneIdx] * W;
-  return vx + laneOff * t;
+  return vx + offsets[laneIdx] * W * t;
 }
 
 function drawRoad(){
@@ -2724,45 +2722,42 @@ function drawRoad(){
 
   ctx.fillStyle = '#0a0f18';
   for(let i=0;i<12;i++){
-    const bx = (i/12)*W - 20;
-    const bh = 30 + Math.sin(i*2.3)*25 + Math.cos(i*1.7)*15;
-    ctx.fillRect(bx, vy - bh, W/12+4, bh);
+    const bx=(i/12)*W-20, bh=30+Math.sin(i*2.3)*25+Math.cos(i*1.7)*15;
+    ctx.fillRect(bx,vy-bh,W/12+4,bh);
   }
 
   ctx.beginPath();
-  ctx.moveTo(vx - 8, vy); ctx.lineTo(vx + 8, vy);
-  ctx.lineTo(W, H+10); ctx.lineTo(0, H+10);
+  ctx.moveTo(vx-8,vy); ctx.lineTo(vx+8,vy);
+  ctx.lineTo(W,H+10); ctx.lineTo(0,H+10);
   ctx.closePath();
-  const rg = ctx.createLinearGradient(0, vy, 0, H);
+  const rg=ctx.createLinearGradient(0,vy,0,H);
   rg.addColorStop(0,'#141c14'); rg.addColorStop(0.5,'#192419'); rg.addColorStop(1,'#1d2a1d');
-  ctx.fillStyle = rg; ctx.fill();
+  ctx.fillStyle=rg; ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255,240,150,0.25)'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(255,240,150,0.25)'; ctx.lineWidth=1.5; ctx.setLineDash([]);
   ctx.beginPath(); ctx.moveTo(vx-8,vy); ctx.lineTo(0,H+10); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(vx+8,vy); ctx.lineTo(W,H+10); ctx.stroke();
 
-  for(let off of [-3, 3]){
-    ctx.strokeStyle = 'rgba(255,220,0,0.4)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(vx+off*0.1, vy+4); ctx.lineTo(vx+off, H+10); ctx.stroke();
+  for(let off of [-3,3]){
+    ctx.strokeStyle='rgba(255,220,0,0.4)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(vx+off*0.1,vy+4); ctx.lineTo(vx+off,H+10); ctx.stroke();
   }
 
-  ctx.strokeStyle = 'rgba(255,255,180,0.22)'; ctx.lineWidth = 1; ctx.setLineDash([18,18]);
-  for(let lane of [1, 5]) {
-    const xB = laneX(lane < 3 ? 0 : 3, 1);
-    ctx.beginPath(); ctx.moveTo(laneX(lane<3?0:3,0.01), vy+2); ctx.lineTo(xB, H+10); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,180,0.22)'; ctx.lineWidth=1; ctx.setLineDash([18,18]);
+  for(let lane of [1,5]){
+    ctx.beginPath(); ctx.moveTo(laneX(lane<3?0:3,0.01),vy+2); ctx.lineTo(laneX(lane<3?0:3,1),H+10); ctx.stroke();
   }
   ctx.setLineDash([]);
 
-  ctx.fillStyle = 'rgba(180,190,180,0.12)';
-  ctx.fillRect(0, vy, W*0.05, H-vy);
-  ctx.fillRect(W*0.95, vy, W*0.05, H-vy);
+  ctx.fillStyle='rgba(180,190,180,0.12)';
+  ctx.fillRect(0,vy,W*0.05,H-vy); ctx.fillRect(W*0.95,vy,W*0.05,H-vy);
 
-  const hg = ctx.createLinearGradient(0,vy-15,0,vy+40);
+  const hg=ctx.createLinearGradient(0,vy-15,0,vy+40);
   hg.addColorStop(0,'transparent'); hg.addColorStop(0.5,'rgba(99,255,180,0.04)'); hg.addColorStop(1,'transparent');
-  ctx.fillStyle = hg; ctx.fillRect(0,vy-15,W,55);
+  ctx.fillStyle=hg; ctx.fillRect(0,vy-15,W,55);
 
-  [[0.04, 0.6],[0.96, 0.6],[0.04, 0.82],[0.96, 0.82]].forEach(([fx,fy])=>{
-    const sx=W*fx, sy=H*fy;
+  [[0.04,0.6],[0.96,0.6],[0.04,0.82],[0.96,0.82]].forEach(([fx,fy])=>{
+    const sx=W*fx,sy=H*fy;
     ctx.strokeStyle='rgba(255,200,80,0.2)'; ctx.lineWidth=1; ctx.setLineDash([]);
     ctx.beginPath(); ctx.moveTo(sx,sy-50); ctx.lineTo(sx,sy+50); ctx.stroke();
     ctx.fillStyle='rgba(255,220,80,0.35)';
@@ -2783,7 +2778,9 @@ function buildGrid(){
   svg.innerHTML=l;
 }
 
-const loadedImgs = IMGS.map(src => { const i=new Image(); i.src=src; return i; });
+const loadedImgs = IMGS.map(src=>{ const i=new Image(); i.src=src; return i; });
+
+const SPEED_POOL=[28,33,38,42,47,51,56,61,44,36];
 
 class Vehicle {
   constructor(idx, laneIdx) {
@@ -2792,104 +2789,177 @@ class Vehicle {
     this.meta = META[idx];
     this.laneIdx = laneIdx;
     this.goingAway = laneIdx >= 2;
-    this.speed = 16 + Math.random() * 20;
+    this.speed = 16 + Math.random()*20;
     this.progress = this.goingAway ? 0.95 : -0.05;
     this.boxAlpha = 0;
     this.age = 0;
     this.blacklist = Math.random() < 0.04;
 
+    // Vehicle data for info card
+    const vnum = Math.floor(Math.random()*200)+1;
+    this.vdata = {
+      vid: 'WM-'+String(vnum).padStart(3,'0'),
+      mph: SPEED_POOL[Math.floor(Math.random()*SPEED_POOL.length)],
+      dir: laneIdx < 2 ? 'INBOUND' : 'OUTBOUND',
+      status: this.blacklist ? 'FLAGGED' : 'ACTIVE',
+      statusCol: this.blacklist ? '#ef4444' : '#63ffb4',
+      lat: (37.300+Math.random()*0.080).toFixed(4),
+      lon: (122.000+Math.random()*0.080).toFixed(4),
+    };
+
+    // Main image element
     this.el = document.createElement('div');
-    this.el.style.cssText = 'position:absolute;pointer-events:none';
+    this.el.style.cssText='position:absolute;pointer-events:none';
     this.img = document.createElement('img');
     this.img.src = IMGS[idx];
-    this.img.style.cssText = 'display:block;pointer-events:none;user-select:none';
-    if(this.goingAway) this.img.style.transform = 'scaleX(-1)';
+    this.img.style.cssText='display:block;pointer-events:none;user-select:none';
+    if(this.goingAway) this.img.style.transform='scaleX(-1)';
     this.el.appendChild(this.img);
     scene.appendChild(this.el);
 
+    // Bounding box
     this.bbox = document.createElement('div');
-    this.bbox.style.cssText = 'position:absolute;pointer-events:none;z-index:5';
+    this.bbox.style.cssText='position:absolute;pointer-events:none;z-index:5';
     scene.appendChild(this.bbox);
+
+    // Info card
+    const col = this.blacklist ? '#ef4444' : this.meta.boxCol;
+    this.card = document.createElement('div');
+    this.card.style.cssText = [
+      'position:absolute','pointer-events:none','z-index:50',
+      'font-family:\'Courier New\',monospace','font-size:9.5px','line-height:1.9',
+      'letter-spacing:0.04em','background:rgba(4,5,13,0.88)',
+      'border:1px solid '+col,'border-radius:4px','padding:8px 11px',
+      'white-space:nowrap','opacity:0','transition:opacity 0.4s ease',
+      'box-shadow:0 0 12px rgba(0,0,0,0.6),inset 0 0 0 1px rgba(255,255,255,0.04)'
+    ].join(';');
+    this.card.innerHTML =
+      '<div style="color:'+col+';font-size:10.5px;font-weight:700;letter-spacing:0.1em;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:4px">'+
+        this.vdata.vid+'&nbsp;&middot;&nbsp;'+this.meta.name+
+      '</div>'+
+      '<div><span style="color:rgba(255,255,255,0.38);display:inline-block;width:62px">SPEED</span><span style="color:#dce0f5">'+this.vdata.mph+' MPH</span></div>'+
+      '<div><span style="color:rgba(255,255,255,0.38);display:inline-block;width:62px">DIRECTION</span><span style="color:#dce0f5">'+this.vdata.dir+'</span></div>'+
+      '<div><span style="color:rgba(255,255,255,0.38);display:inline-block;width:62px">STATUS</span><span style="color:'+this.vdata.statusCol+'">'+this.vdata.status+'</span></div>'+
+      '<div style="margin-top:4px;color:rgba(255,255,255,0.28);font-size:8px">'+this.vdata.lat+'°N&nbsp;'+this.vdata.lon+'°W</div>';
+    scene.appendChild(this.card);
+
+    // Connector line (SVG)
+    this.line = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    this.line.style.cssText='position:absolute;pointer-events:none;z-index:49;overflow:visible;opacity:0';
+    this.linePath = document.createElementNS('http://www.w3.org/2000/svg','line');
+    this.linePath.setAttribute('stroke', col);
+    this.linePath.setAttribute('stroke-width','0.8');
+    this.linePath.setAttribute('stroke-dasharray','3 3');
+    this.line.appendChild(this.linePath);
+    scene.appendChild(this.line);
   }
 
   getPos() {
-    const W = window.innerWidth, H = window.innerHeight;
-    const vy = H * VANISH_Y;
-    const t = Math.max(0.01, Math.min(0.99, this.progress));
-    const scale = 0.08 + t * 0.92;
-    const y = vy + (H - vy) * t;
-    const x = laneX(this.laneIdx, t);
-    return {x, y, scale, t, W, H, vy};
+    const W=window.innerWidth, H=window.innerHeight;
+    const vy=H*VANISH_Y;
+    const t=Math.max(0.01,Math.min(0.99,this.progress));
+    const scale=0.08+t*0.92;
+    const y=vy+(H-vy)*t;
+    const x=laneX(this.laneIdx,t);
+    return {x,y,scale,t,W,H,vy};
   }
 
   update(dt) {
-    this.age += dt;
-    const spd = this.speed / 220;
-    if(this.goingAway) this.progress -= dt * spd * 0.6;
-    else this.progress += dt * spd;
-    if(this.age > 0.3) this.boxAlpha = Math.min(1, this.boxAlpha + dt * 3);
+    this.age+=dt;
+    const spd=this.speed/220;
+    if(this.goingAway) this.progress-=dt*spd*0.6;
+    else this.progress+=dt*spd;
+    if(this.age>0.3) this.boxAlpha=Math.min(1,this.boxAlpha+dt*3);
   }
 
   render() {
-    const {x, y, scale, t} = this.getPos();
-    const iw = this.meta.baseW * scale;
-    const ih = iw * this.meta.aspect;
-    const ex = x - iw/2, ey = y - ih;
-    const z = Math.floor(t * 100) + 2;
+    const {x,y,scale,t}=this.getPos();
+    const iw=this.meta.baseW*scale;
+    const ih=iw*this.meta.aspect;
+    const ex=x-iw/2, ey=y-ih;
+    const z=Math.floor(t*100)+2;
 
-    this.el.style.cssText = `position:absolute;left:${ex}px;top:${ey}px;z-index:${z};opacity:${Math.min(1, this.boxAlpha + 0.1)}`;
-    this.img.style.width = iw + 'px';
-    this.img.style.height = ih + 'px';
-    this.img.style.filter = `drop-shadow(0 ${4*scale}px ${10*scale}px rgba(0,0,0,0.85))`;
+    this.el.style.cssText=`position:absolute;left:${ex}px;top:${ey}px;z-index:${z};opacity:${Math.min(1,this.boxAlpha+0.1)}`;
+    this.img.style.width=iw+'px';
+    this.img.style.height=ih+'px';
+    this.img.style.filter=`drop-shadow(0 ${4*scale}px ${10*scale}px rgba(0,0,0,0.85))`;
 
-    const pad = 4 * scale;
-    const bx = ex-pad, by = ey-pad, bw = iw+pad*2, bh = ih+pad*2;
-    const col = this.blacklist ? '#f44' : this.meta.boxCol;
-    const lw = Math.max(0.8, 1.2*scale);
-    this.bbox.style.cssText = `position:absolute;left:${bx}px;top:${by}px;width:${bw}px;height:${bh}px;z-index:${z+1};opacity:${this.boxAlpha}`;
-    this.bbox.innerHTML = `
+    // Bounding box
+    const pad=4*scale;
+    const bx=ex-pad,by=ey-pad,bw=iw+pad*2,bh=ih+pad*2;
+    const col=this.blacklist?'#ef4444':this.meta.boxCol;
+    const lw=Math.max(0.8,1.2*scale);
+    this.bbox.style.cssText=`position:absolute;left:${bx}px;top:${by}px;width:${bw}px;height:${bh}px;z-index:${z+1};opacity:${this.boxAlpha}`;
+    this.bbox.innerHTML=`
       <div style="position:absolute;inset:0;border:${lw}px dashed ${col};border-radius:2px"></div>
       <div style="position:absolute;top:0;left:0;width:8px;height:8px;border-top:${lw+0.5}px solid ${col};border-left:${lw+0.5}px solid ${col}"></div>
       <div style="position:absolute;top:0;right:0;width:8px;height:8px;border-top:${lw+0.5}px solid ${col};border-right:${lw+0.5}px solid ${col}"></div>
       <div style="position:absolute;bottom:0;left:0;width:8px;height:8px;border-bottom:${lw+0.5}px solid ${col};border-left:${lw+0.5}px solid ${col}"></div>
-      <div style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-bottom:${lw+0.5}px solid ${col};border-right:${lw+0.5}px solid ${col}"></div>`;
+      <div style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-bottom:${lw+0.5}px solid ${col};border-right:${lw+0.5}px solid ${col}"></div>
+      <div style="position:absolute;bottom:-18px;left:0;font-family:'Courier New',monospace;font-size:8px;color:${col};letter-spacing:0.08em;background:rgba(4,5,13,0.7);padding:1px 4px;border-radius:2px">${this.meta.name}</div>`;
+
+    // Info card — fade in after box is visible
+    const cardAlpha = Math.max(0, this.boxAlpha - 0.55) * 2.2;
+    const W = window.innerWidth;
+    const CARD_W = 190;
+    // Position: to the left for right-side vehicles, to the right for left-side
+    let cx = this.laneIdx >= 2 ? bx - CARD_W - 14 : bx + bw + 14;
+    cx = Math.max(6, Math.min(W - CARD_W - 6, cx));
+    const cy = Math.max(6, by - 20);
+    this.card.style.left = cx+'px';
+    this.card.style.top = cy+'px';
+    this.card.style.opacity = cardAlpha;
+    this.card.style.zIndex = z+10;
+
+    // Connector line from card corner to bbox corner
+    const lineAlpha = cardAlpha * 0.7;
+    if(lineAlpha > 0.01) {
+      const lx1 = this.laneIdx >= 2 ? cx+CARD_W : cx;
+      const ly1 = cy+30;
+      const lx2 = this.laneIdx >= 2 ? bx+bw : bx;
+      const ly2 = by;
+      this.line.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${window.innerHeight}px;pointer-events:none;z-index:${z+9};overflow:visible;opacity:${lineAlpha}`;
+      this.linePath.setAttribute('x1',lx1); this.linePath.setAttribute('y1',ly1);
+      this.linePath.setAttribute('x2',lx2); this.linePath.setAttribute('y2',ly2);
+    } else {
+      this.line.style.opacity='0';
+    }
   }
 
   done() {
-    if(this.goingAway) return this.progress < 0.0;
-    return this.progress > 1.05;
+    if(this.goingAway) return this.progress<0.0;
+    return this.progress>1.05;
   }
 
-  destroy() { this.el.remove(); this.bbox.remove(); }
+  destroy() { this.el.remove(); this.bbox.remove(); this.card.remove(); this.line.remove(); }
 }
 
-let vehicles = [], spawnTimer = 0, qIdx = 0;
+let vehicles=[], spawnTimer=0, qIdx=0;
 
 function spawnNext() {
-  const idx = qIdx % 3; qIdx++;
-  const laneIdx = Math.floor(Math.random() * 4);
-  vehicles.push(new Vehicle(idx, laneIdx));
+  const idx=qIdx%3; qIdx++;
+  vehicles.push(new Vehicle(idx, Math.floor(Math.random()*4)));
 }
 
 spawnNext();
-setTimeout(spawnNext, 1600);
-setTimeout(spawnNext, 3200);
+setTimeout(spawnNext,1600);
+setTimeout(spawnNext,3200);
 
 function loop(ts) {
   requestAnimationFrame(loop);
-  if(!lastTs) lastTs = ts;
-  const dt = Math.min((ts-lastTs)/1000, 0.05); lastTs = ts;
-  totalTime += dt;
+  if(!lastTs) lastTs=ts;
+  const dt=Math.min((ts-lastTs)/1000,0.05); lastTs=ts;
+  totalTime+=dt;
 
-  spawnTimer += dt;
-  if(spawnTimer > 2.5 + Math.random()*2 && vehicles.length < 5) {
-    spawnNext(); spawnTimer = 0;
+  spawnTimer+=dt;
+  if(spawnTimer>2.5+Math.random()*2 && vehicles.length<5){
+    spawnNext(); spawnTimer=0;
   }
 
-  vehicles.forEach(v => v.update(dt));
-  vehicles.sort((a,b) => a.progress - b.progress);
-  vehicles.forEach(v => v.render());
-  vehicles = vehicles.filter(v => { if(v.done()){v.destroy();return false;} return true; });
+  vehicles.forEach(v=>v.update(dt));
+  vehicles.sort((a,b)=>a.progress-b.progress);
+  vehicles.forEach(v=>v.render());
+  vehicles=vehicles.filter(v=>{if(v.done()){v.destroy();return false;}return true;});
 }
 
 resizeCanvas(); buildGrid();
