@@ -416,22 +416,20 @@
     padding:16px;
   }
 
-  /* Individual vehicle card */
+  /* Individual vehicle card — flip wrapper */
   .vcard{
-    background:var(--fleet-bg2);
     border:1px solid var(--fleet-border);
     border-radius:4px;
-    padding:0;
     cursor:pointer;
-    transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;
+    transition:border-color 0.15s,box-shadow 0.15s;
     position:relative;
-    overflow:hidden;
     user-select:none;
+    /* perspective stays on the wrapper so it doesn't conflict with transform */
+    perspective:800px;
   }
   .vcard:hover{
     border-color:var(--fleet-teal2);
     box-shadow:0 0 18px rgba(0,229,200,0.1),inset 0 0 20px rgba(0,229,200,0.03);
-    transform:translateY(-1px);
   }
   .vcard.vc-grounded{border-color:rgba(255,34,68,0.35)}
   .vcard.vc-grounded:hover{border-color:var(--fleet-red);box-shadow:0 0 18px rgba(255,34,68,0.15)}
@@ -440,14 +438,62 @@
   .vcard.vc-active{border-color:rgba(0,255,140,0.2)}
   .vcard.vc-active:hover{border-color:var(--fleet-green);box-shadow:0 0 18px rgba(0,255,140,0.1)}
 
-  /* Corner deco */
+  /* Corner deco on wrapper */
   .vcard::after{
-    content:'';position:absolute;bottom:0;right:0;
+    content:'';position:absolute;bottom:0;right:0;z-index:10;
     width:8px;height:8px;
     border-right:1px solid var(--fleet-border);
     border-bottom:1px solid var(--fleet-border);
     border-radius:0 0 3px 0;
+    pointer-events:none;
   }
+
+  /* Flip mechanics */
+  .vcard-inner{
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform 0.55s cubic-bezier(0.4,0,0.2,1);
+    border-radius:3px;
+  }
+  .vcard.flipped .vcard-inner{transform:rotateY(180deg)}
+  .vcard-front,.vcard-back{
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .vcard-front{
+    background:var(--fleet-bg2);
+  }
+  .vcard-back{
+    position:absolute;inset:0;
+    transform:rotateY(180deg);
+    background:var(--fleet-bg2);
+    display:flex;flex-direction:column;
+    padding:10px 10px 8px;
+    gap:0;
+  }
+
+  /* Back face content */
+  .vcb-head{
+    font-size:11px;font-weight:700;color:var(--fleet-teal);letter-spacing:0.05em;
+    padding-bottom:6px;border-bottom:1px solid var(--fleet-border);margin-bottom:8px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .vcb-flip-hint{font-size:8px;color:rgba(0,229,200,0.35);font-weight:400;letter-spacing:0.03em}
+  .vcb-rows{display:flex;flex-direction:column;gap:4px;flex:1}
+  .vcb-row{display:flex;justify-content:space-between;align-items:baseline;font-size:9px}
+  .vcb-label{color:rgba(0,229,200,0.35);text-transform:uppercase;letter-spacing:0.08em}
+  .vcb-val{color:var(--fleet-teal);font-weight:600;text-align:right;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vcb-btn{
+    margin-top:auto;padding-top:8px;border-top:1px solid var(--fleet-border);
+    background:rgba(0,229,200,0.06);border-radius:2px;
+    color:var(--fleet-teal);font-size:10px;font-weight:700;letter-spacing:0.1em;
+    text-align:center;padding:6px;cursor:pointer;
+    transition:background 0.15s,box-shadow 0.15s;
+    border:1px solid rgba(0,229,200,0.2);
+  }
+  .vcb-btn:hover{background:rgba(0,229,200,0.14);box-shadow:0 0 10px rgba(0,229,200,0.15)}
 
   /* Card header */
   .vc-head{
@@ -2093,33 +2139,66 @@ function renderVehicleCard(v) {
   const hasRuns   = processed > 0 || (v.pipelineRuns||[]).length > 0;
   const openColor = netOpen === 0 ? 'var(--fleet-green)' : netOpen >= 3 ? 'var(--fleet-red)' : 'var(--fleet-amber)';
 
-  return `<div class="vcard ${statusClass}" onclick="openVehicleModal('${v.id}')">
-    <div class="vc-head">
-      <span class="vc-id">${v.id}</span>
-      <div class="vc-status-dot ${dotClass}"></div>
-    </div>
-    <div class="vc-body">
-      <div class="vc-avatar">
-        <img src="${v.imageUrl || ''}" alt="${modelShort}"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-             style="width:100%;height:100%;object-fit:cover;border-radius:2px;opacity:0.88;display:block">
-        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:26px">${v.icon}</div>
+  const mileage = v.mileage ? Number(v.mileage).toLocaleString() + ' km' : '—';
+  const zone    = v.zone || '—';
+  const sw      = v.software || '—';
+  const lastInc = v.flags && v.flags.length ? v.flags[0] : '—';
+  const daysSince = v.lastActive ? Math.floor((Date.now() - new Date(v.lastActive)) / 86400000) + 'd ago' : '—';
+  const runCount  = (v.pipelineRuns || []).length;
+
+  return `<div class="vcard ${statusClass}" onclick="flipCard(this)">
+    <div class="vcard-inner">
+      <!-- FRONT -->
+      <div class="vcard-front">
+        <div class="vc-head">
+          <span class="vc-id">${v.id}</span>
+          <div class="vc-status-dot ${dotClass}"></div>
+        </div>
+        <div class="vc-body">
+          <div class="vc-avatar">
+            <img src="${v.imageUrl || ''}" alt="${modelShort}"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                 style="width:100%;height:100%;object-fit:cover;border-radius:2px;opacity:0.88;display:block">
+            <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:26px">${v.icon}</div>
+          </div>
+          <div style="font-size:9px;color:rgba(0,229,200,0.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:1px;margin-top:5px">${modelShort}</div>
+          <div style="font-size:9px;color:rgba(0,229,200,0.35);margin-bottom:6px;letter-spacing:0.04em">${location}</div>
+          <div class="vc-segs">${segs}</div>
+          <div class="vc-bar-label"><span>SAFETY</span><span>${v.score}%</span></div>
+          <div class="vc-bar"><div class="vc-bar-fill ${barClass}" style="width:${v.score}%"></div></div>
+          <div class="vc-stats">
+            <div class="vc-stat"><b style="color:${openColor}">${netOpen}</b>OPEN</div>
+            <div class="vc-stat"><b style="color:${processed>0?'var(--fleet-teal)':'rgba(0,229,200,0.25)'}">${processed}</b>DONE</div>
+          </div>
+        </div>
+        <div class="vc-foot">
+          <span style="color:${statusColor};font-weight:700">${v.status}</span>
+          <span style="color:rgba(0,229,200,0.45)">★${typeof v.avgRating === 'number' ? v.avgRating.toFixed(1) : v.avgRating}</span>
+        </div>
       </div>
-      <div style="font-size:9px;color:rgba(0,229,200,0.7);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:1px;margin-top:5px">${modelShort}</div>
-      <div style="font-size:9px;color:rgba(0,229,200,0.35);margin-bottom:6px;letter-spacing:0.04em">${location}</div>
-      <div class="vc-segs">${segs}</div>
-      <div class="vc-bar-label"><span>SAFETY</span><span>${v.score}%</span></div>
-      <div class="vc-bar"><div class="vc-bar-fill ${barClass}" style="width:${v.score}%"></div></div>
-      <div class="vc-stats">
-        <div class="vc-stat"><b style="color:${openColor}">${netOpen}</b>OPEN</div>
-        <div class="vc-stat"><b style="color:${processed>0?'var(--fleet-teal)':'rgba(0,229,200,0.25)'}">${processed}</b>DONE</div>
+      <!-- BACK -->
+      <div class="vcard-back">
+        <div class="vcb-head">
+          <span>${v.id}</span>
+          <span class="vcb-flip-hint">tap to flip ↩</span>
+        </div>
+        <div class="vcb-rows">
+          <div class="vcb-row"><span class="vcb-label">Zone</span><span class="vcb-val">${zone}</span></div>
+          <div class="vcb-row"><span class="vcb-label">Software</span><span class="vcb-val">${sw}</span></div>
+          <div class="vcb-row"><span class="vcb-label">Mileage</span><span class="vcb-val">${mileage}</span></div>
+          <div class="vcb-row"><span class="vcb-label">Rides</span><span class="vcb-val">${v.totalRides ? v.totalRides.toLocaleString() : '—'}</span></div>
+          <div class="vcb-row"><span class="vcb-label">Last Incident</span><span class="vcb-val" style="color:${lastInc!=='—'?'var(--fleet-amber)':'rgba(0,229,200,0.35)'}">${lastInc}</span></div>
+          <div class="vcb-row"><span class="vcb-label">Pipeline Runs</span><span class="vcb-val">${runCount}</span></div>
+          <div class="vcb-row"><span class="vcb-label">Open Tickets</span><span class="vcb-val" style="color:${openColor}">${netOpen}</span></div>
+        </div>
+        <div class="vcb-btn" onclick="event.stopPropagation();openVehicleModal('${v.id}')">VIEW DETAILS →</div>
       </div>
-    </div>
-    <div class="vc-foot">
-      <span style="color:${statusColor};font-weight:700">${v.status}</span>
-      <span style="color:rgba(0,229,200,0.45)">★${typeof v.avgRating === 'number' ? v.avgRating.toFixed(1) : v.avgRating}</span>
     </div>
   </div>`;
+}
+
+function flipCard(el) {
+  el.classList.toggle('flipped');
 }
 
 function fleetChangePage(dir) {
