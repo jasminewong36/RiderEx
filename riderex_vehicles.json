@@ -2,7 +2,7 @@
   "vehicles": [
     {
       "vehicle_id": "WM-001",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7754,
@@ -90,7 +90,7 @@
     },
     {
       "vehicle_id": "WM-005",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4385,
@@ -112,7 +112,7 @@
     },
     {
       "vehicle_id": "WM-006",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.092,
@@ -156,7 +156,7 @@
     },
     {
       "vehicle_id": "WM-008",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.812,
@@ -222,7 +222,7 @@
     },
     {
       "vehicle_id": "WM-011",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2236,
@@ -288,7 +288,7 @@
     },
     {
       "vehicle_id": "WM-014",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8123,
@@ -310,7 +310,7 @@
     },
     {
       "vehicle_id": "WM-015",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.8151,
@@ -354,7 +354,7 @@
     },
     {
       "vehicle_id": "WM-017",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5808,
@@ -376,7 +376,7 @@
     },
     {
       "vehicle_id": "WM-018",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7706,
@@ -398,7 +398,7 @@
     },
     {
       "vehicle_id": "WM-019",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7534,
@@ -420,7 +420,7 @@
     },
     {
       "vehicle_id": "WM-020",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0294,
@@ -442,7 +442,7 @@
     },
     {
       "vehicle_id": "WM-021",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4755,
@@ -486,7 +486,7 @@
     },
     {
       "vehicle_id": "WM-023",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0903,
@@ -508,7 +508,7 @@
     },
     {
       "vehicle_id": "WM-024",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2522,
@@ -530,7 +530,7 @@
     },
     {
       "vehicle_id": "WM-025",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4315,
@@ -574,7 +574,7 @@
     },
     {
       "vehicle_id": "WM-027",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7756,
@@ -684,7 +684,7 @@
     },
     {
       "vehicle_id": "WM-032",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6402,
@@ -926,7 +926,7 @@
     },
     {
       "vehicle_id": "WM-043",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5655,
@@ -948,7 +948,7 @@
     },
     {
       "vehicle_id": "WM-044",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4215,
@@ -970,7 +970,7 @@
     },
     {
       "vehicle_id": "WM-045",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7545,
@@ -992,7 +992,7 @@
     },
     {
       "vehicle_id": "WM-046",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7533,
@@ -1036,7 +1036,7 @@
     },
     {
       "vehicle_id": "WM-048",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5661,
@@ -1058,7 +1058,7 @@
     },
     {
       "vehicle_id": "WM-049",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4272,
@@ -1256,7 +1256,7 @@
     },
     {
       "vehicle_id": "WM-058",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6432,
@@ -1410,7 +1410,7 @@
     },
     {
       "vehicle_id": "WM-065",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6338,
@@ -1454,7 +1454,7 @@
     },
     {
       "vehicle_id": "WM-067",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0989,
@@ -1542,7 +1542,7 @@
     },
     {
       "vehicle_id": "WM-071",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5779,
@@ -1564,7 +1564,7 @@
     },
     {
       "vehicle_id": "WM-072",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0993,
@@ -1586,7 +1586,7 @@
     },
     {
       "vehicle_id": "WM-073",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4972,
@@ -1674,7 +1674,7 @@
     },
     {
       "vehicle_id": "WM-077",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2485,
@@ -1696,7 +1696,7 @@
     },
     {
       "vehicle_id": "WM-078",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0979,
@@ -1894,7 +1894,7 @@
     },
     {
       "vehicle_id": "WM-087",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0486,
@@ -1916,7 +1916,7 @@
     },
     {
       "vehicle_id": "WM-088",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2228,
@@ -1960,7 +1960,7 @@
     },
     {
       "vehicle_id": "WM-090",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2677,
@@ -1982,7 +1982,7 @@
     },
     {
       "vehicle_id": "WM-091",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2238,
@@ -2026,7 +2026,7 @@
     },
     {
       "vehicle_id": "WM-093",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4932,
@@ -2092,7 +2092,7 @@
     },
     {
       "vehicle_id": "WM-096",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4122,
@@ -2268,7 +2268,7 @@
     },
     {
       "vehicle_id": "WM-104",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5999,
@@ -2334,7 +2334,7 @@
     },
     {
       "vehicle_id": "WM-107",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7485,
@@ -2400,7 +2400,7 @@
     },
     {
       "vehicle_id": "WM-110",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2966,
@@ -2488,7 +2488,7 @@
     },
     {
       "vehicle_id": "WM-114",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5603,
@@ -2510,7 +2510,7 @@
     },
     {
       "vehicle_id": "WM-115",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7732,
@@ -2576,7 +2576,7 @@
     },
     {
       "vehicle_id": "WM-118",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0527,
@@ -2708,7 +2708,7 @@
     },
     {
       "vehicle_id": "WM-124",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2582,
@@ -2774,7 +2774,7 @@
     },
     {
       "vehicle_id": "WM-127",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0678,
@@ -2796,7 +2796,7 @@
     },
     {
       "vehicle_id": "WM-128",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4084,
@@ -2840,7 +2840,7 @@
     },
     {
       "vehicle_id": "WM-130",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6439,
@@ -2884,7 +2884,7 @@
     },
     {
       "vehicle_id": "WM-132",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4312,
@@ -2928,7 +2928,7 @@
     },
     {
       "vehicle_id": "WM-134",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4203,
@@ -2950,7 +2950,7 @@
     },
     {
       "vehicle_id": "WM-135",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2876,
@@ -2972,7 +2972,7 @@
     },
     {
       "vehicle_id": "WM-136",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.734,
@@ -2994,7 +2994,7 @@
     },
     {
       "vehicle_id": "WM-137",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2245,
@@ -3038,7 +3038,7 @@
     },
     {
       "vehicle_id": "WM-139",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.3007,
@@ -3060,7 +3060,7 @@
     },
     {
       "vehicle_id": "WM-140",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2204,
@@ -3148,7 +3148,7 @@
     },
     {
       "vehicle_id": "WM-144",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0352,
@@ -3170,7 +3170,7 @@
     },
     {
       "vehicle_id": "WM-145",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0325,
@@ -3214,7 +3214,7 @@
     },
     {
       "vehicle_id": "WM-147",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0068,
@@ -3236,7 +3236,7 @@
     },
     {
       "vehicle_id": "WM-148",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7506,
@@ -3280,7 +3280,7 @@
     },
     {
       "vehicle_id": "WM-150",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Austin",
       "state": "TX",
       "latitude": 30.2179,
@@ -3302,7 +3302,7 @@
     },
     {
       "vehicle_id": "WM-151",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7775,
@@ -3368,7 +3368,7 @@
     },
     {
       "vehicle_id": "WM-154",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0184,
@@ -3456,7 +3456,7 @@
     },
     {
       "vehicle_id": "WM-158",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.595,
@@ -3478,7 +3478,7 @@
     },
     {
       "vehicle_id": "WM-159",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4284,
@@ -3500,7 +3500,7 @@
     },
     {
       "vehicle_id": "WM-160",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0402,
@@ -3522,7 +3522,7 @@
     },
     {
       "vehicle_id": "WM-161",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0757,
@@ -3698,7 +3698,7 @@
     },
     {
       "vehicle_id": "WM-169",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0335,
@@ -3918,7 +3918,7 @@
     },
     {
       "vehicle_id": "WM-179",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Los Angeles",
       "state": "CA",
       "latitude": 34.0038,
@@ -4006,7 +4006,7 @@
     },
     {
       "vehicle_id": "WM-183",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Phoenix",
       "state": "AZ",
       "latitude": 33.4844,
@@ -4050,7 +4050,7 @@
     },
     {
       "vehicle_id": "WM-185",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.749,
@@ -4182,7 +4182,7 @@
     },
     {
       "vehicle_id": "WM-191",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.5741,
@@ -4204,7 +4204,7 @@
     },
     {
       "vehicle_id": "WM-192",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "Seattle",
       "state": "WA",
       "latitude": 47.6464,
@@ -4270,7 +4270,7 @@
     },
     {
       "vehicle_id": "WM-195",
-      "model": "Waymo One EV Platform",
+      "model": "Jaguar I-Pace Gen4",
       "city": "San Francisco",
       "state": "CA",
       "latitude": 37.7662,
