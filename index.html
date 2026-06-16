@@ -1323,6 +1323,21 @@ const PIPELINE_RUNS_KEY = 'riderex_pipeline_runs';
 let vehicleRegistry = [];
 let seededRecords = [];  // 50k in-memory seed; never stored in localStorage
 const VEHICLE_STATE_KEY = 'riderex_vehicle_state';
+const FEEDBACK_MAP_KEY  = 'riderex_feedback_map';  // ticket_id → raw feedback text
+
+function saveFeedbackText(ticketId, text) {
+  try {
+    const map = JSON.parse(localStorage.getItem(FEEDBACK_MAP_KEY) || '{}');
+    map[ticketId] = text;
+    localStorage.setItem(FEEDBACK_MAP_KEY, JSON.stringify(map));
+  } catch(e) {}
+}
+
+function getFeedbackText(ticketId) {
+  try {
+    return JSON.parse(localStorage.getItem(FEEDBACK_MAP_KEY) || '{}')[ticketId] || '';
+  } catch(e) { return ''; }
+}
 
 function getVehicleStateMap() {
   try { return JSON.parse(localStorage.getItem(VEHICLE_STATE_KEY)) || {}; }
@@ -1523,6 +1538,8 @@ async function runPipeline() {
   const ticketId = document.getElementById('ticket-id').value.trim();
   const vehicleId = document.getElementById('vehicle-id').value.trim();
   if (!feedback) { showError('Please enter customer feedback.'); return; }
+  // Persist feedback immediately (before API call) so it's never lost
+  saveFeedbackText(ticketId, feedback);
 
   hideError();
   document.getElementById('run-btn').disabled = true;
@@ -1595,7 +1612,7 @@ function saveMetric(data, feedbackText) {
     action_items: (resolution.action_items || []).length,
     band_messages: data.band_messages || 0,
     key_phrases: intake.key_phrases || [],
-    raw_feedback: feedbackText || intake.raw_feedback || '',
+    raw_feedback: feedbackText || intake.raw_feedback || getFeedbackText(intake.ticket_id || '') || '',
     customer_response: review.final_customer_response || resolution.customer_response || '',
     summary: intake.summary || '',
     ts: new Date().toISOString(),
@@ -2290,8 +2307,8 @@ function openTicketModal(idx) {
     </div>` : ''}
     <div>
       <div class="tkt-section-lbl">Customer Feedback</div>
-      ${m.raw_feedback
-        ? `<div class="tkt-feedback">"${m.raw_feedback}"</div>`
+      ${(m.raw_feedback || getFeedbackText(m.ticket_id))
+        ? `<div class="tkt-feedback">"${m.raw_feedback || getFeedbackText(m.ticket_id)}"</div>`
         : `<div class="tkt-feedback" style="font-style:normal;color:var(--muted)">Not available for this record.</div>`}
     </div>
     ${m.customer_response ? `<div>
