@@ -1437,11 +1437,31 @@ function loadSample(type) {
   setRating(s.rating);
 }
 
+// Backfill any localStorage records missing vehicle_type or software_version
+function backfillStoredMetrics() {
+  if (!vehicleRegistry.length) return;
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    let changed = false;
+    stored.forEach(r => {
+      if ((!r.vehicle_type || r.vehicle_type === '—') || (!r.software_version || r.software_version === '—')) {
+        const reg = vehicleRegistry.find(v => v.vehicle_id === r.vehicle_id);
+        if (reg) {
+          if (!r.vehicle_type || r.vehicle_type === '—') { r.vehicle_type = reg.model || r.vehicle_type; changed = true; }
+          if (!r.software_version || r.software_version === '—') { r.software_version = reg.software_version || r.software_version; changed = true; }
+        }
+      }
+    });
+    if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  } catch(e) {}
+}
+
 // Auto-generate IDs on load
 window.addEventListener('DOMContentLoaded', async () => {
   genIds();
   await loadVehicleRegistry();
   updateVehicleTypeHint();
+  backfillStoredMetrics();
   seedMetrics();
   initSoftwareFilter();
   // Seed Supabase once per browser session (non-blocking)
@@ -1519,7 +1539,7 @@ async function runPipeline() {
     clearInterval(anim);
     const data = await res.json();
     if (data.error) { showError(data.error); return; }
-    saveMetric(data);
+    saveMetric(data, feedback);
     renderResults(data);
     document.getElementById('ticket-id').value = randTicketId();
     // Refresh dashboard metrics from Supabase in background
@@ -1536,7 +1556,7 @@ async function runPipeline() {
 }
 
 // ── Metrics storage ────────────────────────────────────────────
-function saveMetric(data) {
+function saveMetric(data, feedbackText) {
   const intake = data.intake || {};
   const safety = data.safety || {};
   const resolution = data.resolution || {};
@@ -1572,7 +1592,7 @@ function saveMetric(data) {
     action_items: (resolution.action_items || []).length,
     band_messages: data.band_messages || 0,
     key_phrases: intake.key_phrases || [],
-    raw_feedback: intake.raw_feedback || document.getElementById('feedback').value.trim(),
+    raw_feedback: feedbackText || intake.raw_feedback || '',
     customer_response: review.final_customer_response || resolution.customer_response || '',
     summary: intake.summary || '',
     ts: new Date().toISOString(),
@@ -2204,19 +2224,36 @@ function openTicketModal(idx) {
   const ts = m.ts || m.created_at;
   const dateStr = ts ? new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
 
+  // Always live-lookup from registry to fill missing vehicle type / software version
+  const regEntry = vehicleRegistry.find(v => v.vehicle_id === m.vehicle_id) || {};
+  const vehicleType = (m.vehicle_type && m.vehicle_type !== '—') ? m.vehicle_type : (regEntry.model || '—');
+  const softwareVer = (m.software_version && m.software_version !== '—') ? m.software_version : (regEntry.software_version || '—');
+
+  // Patch stale localStorage records so they're correct next time
+  if (m.vehicle_type === '—' || !m.vehicle_type || m.software_version === '—' || !m.software_version) {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const rec = stored.find(r => r.ticket_id === m.ticket_id);
+      if (rec) {
+        if (!rec.vehicle_type || rec.vehicle_type === '—') rec.vehicle_type = vehicleType;
+        if (!rec.software_version || rec.software_version === '—') rec.software_version = softwareVer;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      }
+    } catch(e) {}
+  }
+
   document.getElementById('tkt-modal-id').textContent = m.ticket_id || '—';
   document.getElementById('tkt-modal-date').textContent = dateStr;
 
   const phrases = (m.key_phrases || []);
-  const refundTotal = (m.refund_amount || m.refund || 0) + (m.credit_amount || 0);
 
   document.getElementById('tkt-modal-body').innerHTML = `
     <div>
       <div class="tkt-section-lbl">Vehicle</div>
       <div class="tkt-grid-3">
         <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle ID</div><div class="tkt-cell-val" style="font-family:var(--mono)">${m.vehicle_id||'—'}</div></div>
-        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle Type</div><div class="tkt-cell-val">${(m.vehicle_type||'—').replace('Weimo ','')}</div></div>
-        <div class="tkt-cell"><div class="tkt-cell-lbl">Software</div><div class="tkt-cell-val" style="font-family:var(--mono);font-size:10px">${m.software_version||'—'}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle Type</div><div class="tkt-cell-val">${vehicleType.replace('Weimo ','')}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Software Version</div><div class="tkt-cell-val" style="font-family:var(--mono);font-size:10px">${softwareVer}</div></div>
       </div>
     </div>
     <div>
@@ -2245,10 +2282,12 @@ function openTicketModal(idx) {
       <div class="tkt-section-lbl">Key Phrases</div>
       <div class="tkt-phrases">${phrases.map(p=>`<span class="tkt-phrase">${p}</span>`).join('')}</div>
     </div>` : ''}
-    ${m.raw_feedback ? `<div>
+    <div>
       <div class="tkt-section-lbl">Customer Feedback</div>
-      <div class="tkt-feedback">"${m.raw_feedback}"</div>
-    </div>` : ''}
+      ${m.raw_feedback
+        ? `<div class="tkt-feedback">"${m.raw_feedback}"</div>`
+        : `<div class="tkt-feedback" style="font-style:normal;color:var(--muted)">Not available for this record.</div>`}
+    </div>
     ${m.customer_response ? `<div>
       <div class="tkt-section-lbl">Agent Response to Customer</div>
       <div class="tkt-response">${m.customer_response}</div>
