@@ -257,6 +257,23 @@ async def seed_supabase():
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/clean-bad-vehicles")
+async def clean_bad_vehicles():
+    """Delete Supabase records whose vehicle_id is not in WM-001..WM-200."""
+    sb = get_supabase()
+    if not sb:
+        return JSONResponse(status_code=503, content={"error": "Supabase not configured"})
+    try:
+        valid_ids = [f"WM-{str(i).zfill(3)}" for i in range(1, 201)]
+        res = sb.table("rides").delete().not_.in_("vehicle_id", valid_ids).execute()
+        deleted = len(res.data) if res.data else 0
+        logger.info(f"[Clean] Deleted {deleted} records with invalid vehicle IDs")
+        return JSONResponse(content={"deleted": deleted})
+    except Exception as e:
+        logger.error(f"[Clean] Failed: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 @app.get("/", response_class=HTMLResponse)
 async def index():
     return open("index.html").read()

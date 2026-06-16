@@ -1347,6 +1347,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       .then(d => { if (d.inserted) sessionStorage.setItem('supabase_seeded', '1'); })
       .catch(() => {});
   }
+  // Clean up any bad-vehicle-ID records from Supabase once per session
+  if (!sessionStorage.getItem('vehicles_cleaned')) {
+    fetch('/clean-bad-vehicles', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { sessionStorage.setItem('vehicles_cleaned', '1'); })
+      .catch(() => {});
+  }
 });
 
 function setRating(n) {
@@ -1855,10 +1862,16 @@ function updateKpiHealthBar(scores, periodLabel) {
   if (sub) sub.textContent = `vs. ${periodLabel || 'All Time'} targets`;
 }
 
+function isValidVehicleId(id) {
+  if (!id) return false;
+  const m = id.match(/^WM-(\d{3})$/);
+  return m && parseInt(m[1]) >= 1 && parseInt(m[1]) <= 200;
+}
+
 // ── Dashboard rendering ────────────────────────────────────────
 async function renderDashboard() {
   // Always start with localStorage (has 2000 seeded records + all local pipeline runs)
-  let all = getMetrics().filter(m => m.vehicle_type && m.vehicle_type !== '—');
+  let all = getMetrics().filter(m => m.vehicle_type && m.vehicle_type !== '—' && isValidVehicleId(m.vehicle_id));
 
   // Supplement with any backend-only records (e.g. runs from another device)
   try {
@@ -1868,7 +1881,7 @@ async function renderDashboard() {
       if (json.rides && json.rides.length > 0) {
         const existingIds = new Set(all.map(r => r.ticket_id).filter(Boolean));
         const backendOnly = json.rides
-          .filter(r => r.ticket_id && !existingIds.has(r.ticket_id))
+          .filter(r => r.ticket_id && !existingIds.has(r.ticket_id) && isValidVehicleId(r.vehicle_id))
           .map(r => ({
             ...r,
             refund: (r.refund_amount || 0) + (r.credit_amount || 0),
