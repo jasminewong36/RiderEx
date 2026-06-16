@@ -691,11 +691,9 @@
 
     <div class="form-grid">
       <div class="fg">
-        <label>Ride ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 9999999999999999)</span></label>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="ride-id" placeholder="RIDE-000000000001">
-          <button onclick="genIds()" title="Generate new IDs" style="padding:0 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted2);cursor:pointer;font-size:14px;flex-shrink:0">⟳</button>
-        </div>
+        <label>Ride ID <span style="color:var(--muted);font-weight:400;text-transform:none">Auto-assigned</span></label>
+        <input type="text" id="ride-id" placeholder="RIDE-000000000001" readonly
+               style="opacity:0.55;cursor:default;pointer-events:none">
       </div>
       <div class="fg">
         <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 200)</span></label>
@@ -1266,9 +1264,15 @@ async function loadVehicleRegistry() {
   } catch(e) {}
 }
 
+const _usedRideIds = new Set();
 function randRideId() {
-  const n = Math.floor(Math.random() * 9999999999999999) + 1;
-  return 'RIDE-' + String(n).padStart(16, '0');
+  let id;
+  do {
+    const n = Math.floor(Math.random() * 9999999999999999) + 1;
+    id = 'RIDE-' + String(n).padStart(16, '0');
+  } while (_usedRideIds.has(id));
+  _usedRideIds.add(id);
+  return id;
 }
 
 function randVehicleId() {
@@ -1406,6 +1410,7 @@ async function runPipeline() {
     if (data.error) { showError(data.error); return; }
     saveMetric(data);
     renderResults(data);
+    document.getElementById('ride-id').value = randRideId();
     // Refresh dashboard metrics from Supabase in background
     renderDashboard();
   } catch(e) {
