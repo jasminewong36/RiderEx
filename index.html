@@ -1452,7 +1452,10 @@ function backfillStoredMetrics() {
         }
       }
     });
-    if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    if (changed) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      renderDashboard();
+    }
   } catch(e) {}
 }
 
@@ -1571,8 +1574,8 @@ function saveMetric(data, feedbackText) {
     ticket_id: intake.ticket_id || '—',
     ride_id: data.ride_id,
     vehicle_id: data.vehicle_id,
-    vehicle_type: vEntry.model || '—',
-    software_version: vEntry.software_version || '—',
+    vehicle_type: vEntry.model || document.getElementById('vehicle-type-display')?.value || '—',
+    software_version: vEntry.software_version || document.getElementById('software-version-display')?.value || '—',
     category: intake.category || 'UNKNOWN',
     priority: intake.priority || 'P3',
     safety_level: safety.safety_level || 'NONE',
@@ -2174,14 +2177,17 @@ async function renderDashboard() {
   const swColors = { 'weimo-av-4.2.1':'var(--muted2)', 'weimo-av-4.3.0':'var(--cyan)', 'weimo-av-4.3.1':'var(--primary)', 'weimo-av-4.4.0-beta':'var(--amber)' };
   window._dashRows = tableRows;
   document.getElementById('rides-tbody').innerHTML = tableRows.map((m, idx) => {
-    const vtShort = (m.vehicle_type||'—').replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','').replace('Weimo ','');
-    const swColor = swColors[m.software_version] || 'var(--muted2)';
+    const reg = vehicleRegistry.find(v => v.vehicle_id === m.vehicle_id) || {};
+    const vt  = (m.vehicle_type && m.vehicle_type !== '—') ? m.vehicle_type : (reg.model || '—');
+    const sw  = (m.software_version && m.software_version !== '—') ? m.software_version : (reg.software_version || '—');
+    const vtShort = vt.replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','').replace('Weimo ','');
+    const swColor = swColors[sw] || 'var(--muted2)';
     const dateStr = m.ts ? new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—';
     return `<tr onclick="openTicketModal(${idx})" title="Click for details">
       <td><span style="font-family:var(--mono);font-size:10px;color:var(--cyan)">${m.ticket_id}</span></td>
       <td style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${m.vehicle_id||'—'}</td>
       <td style="font-size:10px;color:var(--text)">${vtShort}</td>
-      <td style="font-family:var(--mono);font-size:9px;color:${swColor}">${m.software_version||'—'}</td>
+      <td style="font-family:var(--mono);font-size:9px;color:${swColor}">${sw}</td>
       <td><span class="chip chip-${catChip[m.category]||'gray'}">${m.category}</span></td>
       <td><span class="chip chip-${priChip[m.priority]||'gray'}">${m.priority}</span></td>
       <td><span class="chip chip-${slChip[m.safety_level]||'gray'}">${m.safety_level}</span></td>
