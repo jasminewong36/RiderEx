@@ -34,20 +34,48 @@ def get_supabase():
         logger.warning(f"Supabase unavailable: {e}")
         return None
 
-def save_to_supabase(result: dict):
+def _lookup_vehicle(vehicle_id: str) -> dict:
+    """Return the registry entry for a vehicle_id, or {}."""
+    try:
+        with open("riderex_vehicles.json") as f:
+            vlist = json.load(f).get("vehicles", [])
+        return next((v for v in vlist if v.get("vehicle_id") == vehicle_id), {})
+    except Exception:
+        return {}
+
+def save_to_supabase(result: dict, feedback_text: str = ""):
     sb = get_supabase()
     if not sb:
         return
     try:
-        intake     = result.get("intake", {})
+        intake     = dict(result.get("intake", {}))
         safety     = result.get("safety", {})
         resolution = result.get("resolution", {})
         review     = result.get("quality_review", {})
         handoff    = result.get("engineering_handoff", {})
+
+        # Embed raw feedback into intake_data so it travels with the record
+        if feedback_text and not intake.get("raw_feedback"):
+            intake["raw_feedback"] = feedback_text
+
+        # Look up vehicle metadata from registry
+        vehicle_id = result.get("vehicle_id", "")
+        vinfo = _lookup_vehicle(vehicle_id)
+        vehicle_type    = vinfo.get("model", "—")
+        software_version = vinfo.get("software_version", "—")
+
+        # Approved customer-facing response (review agent overrides resolution agent)
+        customer_response = (
+            review.get("final_customer_response")
+            or resolution.get("customer_response", "")
+        )
+
         sb.table("rides").insert({
             "ticket_id":            intake.get("ticket_id"),
             "ride_id":              result.get("ride_id"),
-            "vehicle_id":           result.get("vehicle_id"),
+            "vehicle_id":           vehicle_id,
+            "vehicle_type":         vehicle_type,
+            "software_version":     software_version,
             "category":             intake.get("category"),
             "priority":             intake.get("priority"),
             "safety_level":         safety.get("safety_level"),
@@ -69,13 +97,13 @@ def save_to_supabase(result: dict):
             "action_items":         len(resolution.get("action_items", [])),
             "band_messages":        result.get("band_messages", 0),
             "key_phrases":          intake.get("key_phrases", []),
-            "intake_data":          intake,
+            "intake_data":          intake,          # includes raw_feedback
             "safety_data":          safety,
-            "resolution_data":      resolution,
-            "review_data":          review,
+            "resolution_data":      resolution,      # includes customer_response
+            "review_data":          review,          # includes final_customer_response
             "engineering_data":     handoff,
         }).execute()
-        logger.info(f"[Supabase] Saved ride {intake.get('ticket_id')}")
+        logger.info(f"[Supabase] Saved {intake.get('ticket_id')} | {vehicle_id} | {vehicle_type} | feedback={'yes' if feedback_text else 'no'}")
     except Exception as e:
         logger.warning(f"[Supabase] Save failed: {e}")
 
@@ -96,7 +124,7 @@ async def run_pipeline(request: FeedbackRequest):
             vehicle_id=request.vehicle_id,
             rating=request.rating
         )
-        save_to_supabase(result)
+        save_to_supabase(result, feedback_text=request.feedback_text)
         return JSONResponse(content=result)
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
@@ -116,11 +144,12 @@ async def get_metrics(
         return JSONResponse(status_code=503, content={"error": "Supabase not configured"})
     try:
         query = sb.table("rides").select(
-            "id,ticket_id,ride_id,vehicle_id,category,priority,safety_level,"
-            "nhtsa,rating,churn_risk,refund_amount,credit_amount,good_ride,"
-            "sentiment,quality_score,review_decision,requires_engineering,"
-            "engineering_team,vehicle_action,action_items,band_messages,"
-            "key_phrases,created_at"
+            "id,ticket_id,ride_id,vehicle_id,vehicle_type,software_version,"
+            "category,priority,safety_level,nhtsa,rating,churn_risk,"
+            "refund_amount,credit_amount,good_ride,sentiment,quality_score,"
+            "review_decision,requires_engineering,engineering_team,vehicle_action,"
+            "action_items,band_messages,key_phrases,"
+            "intake_data,resolution_data,review_data,created_at"
         ).order("created_at", desc=True).limit(limit)
 
         if category:   query = query.eq("category", category)

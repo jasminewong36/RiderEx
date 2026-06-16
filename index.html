@@ -2029,13 +2029,21 @@ async function renderDashboard() {
         const existingIds = new Set(all.map(r => r.ticket_id).filter(Boolean));
         const backendOnly = json.rides
           .filter(r => r.ticket_id && !existingIds.has(r.ticket_id) && isValidVehicleId(r.vehicle_id))
-          .map(r => ({
-            ...r,
-            refund: (r.refund_amount || 0) + (r.credit_amount || 0),
-            good_ride: r.good_ride,
-            ts: r.created_at,
-            band_messages: r.band_messages || 5,
-          }));
+          .map(r => {
+            const intake = r.intake_data || {};
+            const resolution = r.resolution_data || {};
+            const review = r.review_data || {};
+            return {
+              ...r,
+              refund: (r.refund_amount || 0) + (r.credit_amount || 0),
+              ts: r.created_at,
+              band_messages: r.band_messages || 5,
+              // Extract fields stored in JSON blobs
+              raw_feedback: intake.raw_feedback || '',
+              customer_response: review.final_customer_response || resolution.customer_response || '',
+              summary: intake.summary || '',
+            };
+          });
         if (backendOnly.length) all = [...all, ...backendOnly];
       }
     }
