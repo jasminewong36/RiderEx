@@ -696,6 +696,43 @@
   #perc-corner-tr{top:12px;right:12px;border-top:1.5px solid rgba(99,255,180,0.5);border-right:1.5px solid rgba(99,255,180,0.5)}
   #perc-corner-bl{bottom:12px;left:12px;border-bottom:1.5px solid rgba(99,255,180,0.5);border-left:1.5px solid rgba(99,255,180,0.5)}
   #perc-corner-br{bottom:12px;right:12px;border-bottom:1.5px solid rgba(99,255,180,0.5);border-right:1.5px solid rgba(99,255,180,0.5)}
+  /* ── Software Branch tab ──────────────────────────────── */
+  #page-software .container{padding-top:28px;padding-bottom:40px}
+  .sw-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;overflow:hidden}
+  .sw-card-hdr{padding:15px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+  .sw-card-hdr:hover{background:rgba(255,255,255,0.025)}
+  .sw-branch-name{font-family:var(--mono);font-size:14px;font-weight:700;flex:1}
+  .sw-badge{font-size:9px;font-weight:700;letter-spacing:0.07em;padding:2px 7px;border-radius:2px;text-transform:uppercase;white-space:nowrap}
+  .swb-released{background:rgba(99,255,180,0.10);color:var(--green);border:1px solid rgba(99,255,180,0.22)}
+  .swb-beta{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.28)}
+  .swb-unknown{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border)}
+  .swb-go{background:rgba(99,255,180,0.10);color:var(--green);border:1px solid rgba(99,255,180,0.28)}
+  .swb-conditional{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.28)}
+  .swb-nogo{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.28)}
+  .sw-metrics-row{display:flex;border-top:1px solid var(--border)}
+  .sw-metric{flex:1;padding:11px 14px;border-right:1px solid var(--border);text-align:center}
+  .sw-metric:last-child{border-right:none}
+  .sw-metric-val{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--text)}
+  .sw-metric-lbl{font-size:9px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.05em}
+  .sw-body{border-top:1px solid var(--border)}
+  .sw-section{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.04)}
+  .sw-section:last-child{border-bottom:none}
+  .sw-sec-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+  .sw-run-item{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);border-radius:3px;padding:11px 13px;margin-bottom:8px}
+  .sw-run-item:last-child{margin-bottom:0}
+  .sw-run-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .sw-run-id{font-family:var(--mono);font-size:10px;color:var(--cyan)}
+  .sw-run-quote{font-size:11px;color:var(--muted2);font-style:italic;margin-bottom:8px;line-height:1.5}
+  .sw-run-checks{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px}
+  .sw-chk{display:flex;align-items:center;gap:5px;font-size:10px;padding:2px 0}
+  .sw-chk-icon{width:14px;height:14px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+  .sw-chk-pass{background:rgba(99,255,180,0.15);color:var(--green)}
+  .sw-chk-fail{background:rgba(239,68,68,0.15);color:var(--red)}
+  .sw-chk-warn{background:rgba(251,191,36,0.15);color:var(--amber)}
+  .sw-vehicle-chips{display:flex;flex-wrap:wrap;gap:5px}
+  .sw-vchip{font-family:var(--mono);font-size:9px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:2px;padding:2px 6px;color:var(--muted2)}
+  .sw-caret{font-size:11px;color:var(--muted);transition:transform 0.18s}
+  .sw-card-hdr.open .sw-caret{transform:rotate(180deg)}
 </style>
 </head>
 <body>
@@ -717,6 +754,7 @@
     <button class="nav-tab active" onclick="switchPage('pipeline',this)">🚀 Pipeline</button>
     <button class="nav-tab" onclick="switchPage('dashboard',this)">📊 Dashboard</button>
     <button class="nav-tab" onclick="switchPage('fleet',this)"><img src="/static/logo.png" style="height:14px;width:auto;vertical-align:middle;margin-right:5px;margin-bottom:1px">Fleet</button>
+    <button class="nav-tab" onclick="switchPage('software',this)">🔀 Software</button>
   </nav>
 </header>
 
@@ -1038,7 +1076,7 @@
         <div class="kpi-status-badge" id="kpi-total-status"></div>
         <div class="kpi-val" id="kpi-total">0</div>
         <div class="kpi-label">Total Rides</div>
-        <div class="kpi-sub">processed</div>
+        <div class="kpi-sub" id="kpi-total-sub">processed</div>
         <div class="kpi-target" id="kpi-total-target">Target: 2,000 / week</div>
       </div>
       <div class="kpi kpi-amber">
@@ -1257,6 +1295,29 @@
 </div>
 </div>
 
+<!-- ═══════════════ SOFTWARE BRANCH PAGE ═══════════════ -->
+<div class="page" id="page-software">
+<div class="container">
+  <div class="dash-header">
+    <div>
+      <h2>🔀 Software Branches</h2>
+      <p id="sw-subtitle">Software release tracker &amp; branch readiness</p>
+    </div>
+  </div>
+  <div class="filter-bar" style="margin-bottom:18px">
+    <div class="filter-group">
+      <span class="filter-label">View</span>
+      <div class="filter-pills" id="sw-filter-pills">
+        <button class="fpill active" onclick="setSWFilter('ALL',this)">All Branches</button>
+        <button class="fpill fpill-amber" onclick="setSWFilter('PENDING',this)">Pending Release</button>
+        <button class="fpill fpill-green" onclick="setSWFilter('RELEASED',this)">Released</button>
+      </div>
+    </div>
+  </div>
+  <div id="sw-branches"></div>
+</div>
+</div>
+
 <!-- Vehicle detail modal -->
 <div class="vcard-modal" id="vcard-modal" onclick="if(event.target===this)closeVehicleModal()">
   <div class="vcm-inner">
@@ -1442,6 +1503,7 @@ function switchPage(page, btn) {
   document.getElementById('page-' + page).classList.add('active');
   if (page === 'dashboard') renderDashboard().catch(console.error);
   if (page === 'fleet') initFleet();
+  if (page === 'software') renderSoftwareBranches().catch(console.error);
 }
 
 // ── Pipeline form ──────────────────────────────────────────────
@@ -1559,6 +1621,9 @@ async function runPipeline() {
     clearInterval(anim);
     const data = await res.json();
     if (data.error) { showError(data.error); return; }
+    // Also persist under the API-returned ticket_id in case it differs from the pre-generated form ID
+    const returnedTicketId = (data.intake || {}).ticket_id || data.ticket_id;
+    if (returnedTicketId && returnedTicketId !== ticketId) saveFeedbackText(returnedTicketId, feedback);
     saveMetric(data, feedback);
     renderResults(data);
     document.getElementById('ticket-id').value = randTicketId();
@@ -2017,8 +2082,10 @@ function isValidVehicleId(id) {
 
 // ── Dashboard rendering ────────────────────────────────────────
 async function renderDashboard() {
-  // Always start with localStorage (has 2000 seeded records + all local pipeline runs)
-  let all = getMetrics().filter(m => m.vehicle_type && m.vehicle_type !== '—' && isValidVehicleId(m.vehicle_id));
+  // Always start with localStorage (has seeded records + all local pipeline runs)
+  // Note: do NOT filter by vehicle_type here — real tickets may have vehicle_type='—' if
+  // the registry lookup failed at save time; the table render does live lookup for display.
+  let all = getMetrics().filter(m => isValidVehicleId(m.vehicle_id));
 
   // Supplement with any backend-only records (e.g. runs from another device)
   try {
@@ -2054,8 +2121,8 @@ async function renderDashboard() {
 
   const hasFilters = Object.values(activeFilters).some(v => v !== 'ALL');
   document.getElementById('dash-subtitle').textContent = hasFilters
-    ? `Showing ${metrics.length} of ${all.length} rides — filtered`
-    : `${all.length} total rides processed`;
+    ? `Showing ${metrics.length.toLocaleString()} of ${all.length.toLocaleString()} rides — filtered`
+    : `${all.length.toLocaleString()} total rides processed${realRunCount > 0 ? ` (${realRunCount} from your pipeline)` : ''}`;
 
   if (metrics.length === 0) {
     empty.style.display = 'block';
@@ -2080,8 +2147,14 @@ async function renderDashboard() {
   const avgBand = total ? (metrics.reduce((s,m) => s + (m.band_messages||0), 0) / total).toFixed(1) : 0;
   const p1Count = metrics.filter(m => m.priority === 'P1').length;
 
-  // KPIs row 1
-  document.getElementById('kpi-total').textContent = total;
+  // Count real pipeline submissions (localStorage only, not seeded)
+  let realRunCount = 0;
+  try { realRunCount = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]').length; } catch {}
+  const kpiTotalSub = document.getElementById('kpi-total-sub');
+  if (kpiTotalSub) kpiTotalSub.textContent = realRunCount > 0 ? `${realRunCount} real submission${realRunCount !== 1 ? 's' : ''}` : 'processed';
+
+  // KPIs row 1 — Total Rides uses true unfiltered count so every new submission is reflected
+  document.getElementById('kpi-total').textContent = all.length.toLocaleString();
   document.getElementById('kpi-csat').textContent = avgRating ? avgRating.toFixed(1) + ' ★' : '—';
   document.getElementById('kpi-csat-stars').textContent = avgRating ? starStr(avgRating) : 'no ratings yet';
   document.getElementById('kpi-good').textContent = pct(goodCount, total);
@@ -2106,7 +2179,7 @@ async function renderDashboard() {
   document.getElementById('kpi-nhtsa-target').textContent  = `Target: < ${nT} flags / ${period.label}`;
   document.getElementById('kpi-p1-target').textContent     = `Target: < ${pT} P1s / ${period.label}`;
   const kpiScores = [
-    setKpiStatus('total',      total,         { exc: v=>v>=rT*1.1, ok: v=>v>=rT*0.9, low: v=>v>=rT*0.7 }),
+    setKpiStatus('total',      all.length,    { exc: v=>v>=rT*1.1, ok: v=>v>=rT*0.9, low: v=>v>=rT*0.7 }),
     setKpiStatus('csat',       avgRating||0,  { exc: v=>v>=4.7,    ok: v=>v>=4.3,    low: v=>v>=3.8     }),
     setKpiStatus('good',       goodPct,       { exc: v=>v>=90,     ok: v=>v>=75,     low: v=>v>=60      }),
     setKpiStatus('safety',     safetyPct,     { exc: v=>v<=5,      ok: v=>v<=12,     low: v=>v<=20      }),
@@ -2182,26 +2255,21 @@ async function renderDashboard() {
   const activeTeams = teams.filter(t => teamCounts[t] > 0);
   document.getElementById('chart-engteam').innerHTML = (activeTeams.length ? activeTeams : ['NONE']).map(t => barRow(t.replace('_TEAM','').replace('_',' '), teamCounts[t]||0, total, teamColors[t]||'var(--muted)')).join('');
 
-  // All rides table — sorted by most recent, capped at 10k DOM rows for performance
-  const TABLE_RENDER_LIMIT = 10000;
+  // All rides table — sorted by most recent, no cap (full dataset)
   const sorted = metrics.slice().sort((a,b) => new Date(b.ts) - new Date(a.ts));
   const filteredTotal = sorted.length;
-  const tableRows = sorted.slice(0, TABLE_RENDER_LIMIT);
-  const truncated = filteredTotal > TABLE_RENDER_LIMIT;
   const grandTotal = all.length;
   const hasActiveFilters = Object.values(activeFilters).some(v => v !== 'ALL');
-  document.getElementById('rides-count').textContent = truncated
-    ? `showing ${TABLE_RENDER_LIMIT.toLocaleString()} of ${grandTotal.toLocaleString()} total`
-    : hasActiveFilters
-      ? `${filteredTotal.toLocaleString()} of ${grandTotal.toLocaleString()} total`
-      : `${grandTotal.toLocaleString()} total records`;
+  document.getElementById('rides-count').textContent = hasActiveFilters
+    ? `${filteredTotal.toLocaleString()} of ${grandTotal.toLocaleString()} total`
+    : `${grandTotal.toLocaleString()} total`;
   const catChip  = { SAFETY:'red', COMFORT:'amber', ROUTE:'purple', SOFTWARE:'cyan', COMPLIMENT:'green', UNKNOWN:'gray' };
   const priChip  = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
   const slChip   = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
   const sentChip = { VERY_NEGATIVE:'red', NEGATIVE:'amber', NEUTRAL:'gray', POSITIVE:'green', VERY_POSITIVE:'green' };
   const swColors = { 'weimo-av-4.2.1':'var(--muted2)', 'weimo-av-4.3.0':'var(--cyan)', 'weimo-av-4.3.1':'var(--primary)', 'weimo-av-4.4.0-beta':'var(--amber)' };
-  window._dashRows = tableRows;
-  document.getElementById('rides-tbody').innerHTML = tableRows.map((m, idx) => {
+  window._dashRows = sorted;
+  document.getElementById('rides-tbody').innerHTML = sorted.map((m, idx) => {
     const reg = vehicleRegistry.find(v => v.vehicle_id === m.vehicle_id) || {};
     const vt  = (m.vehicle_type && m.vehicle_type !== '—') ? m.vehicle_type : (reg.model || '—');
     const sw  = (m.software_version && m.software_version !== '—') ? m.software_version : (reg.software_version || '—');
@@ -2315,8 +2383,8 @@ function openTicketModal(idx) {
     </div>` : ''}
     <div>
       <div class="tkt-section-lbl">Customer Feedback</div>
-      ${(m.raw_feedback || getFeedbackText(m.ticket_id))
-        ? `<div class="tkt-feedback">"${m.raw_feedback || getFeedbackText(m.ticket_id)}"</div>`
+      ${(m.raw_feedback || getFeedbackText(m.ticket_id) || (m.intake_data || {}).raw_feedback)
+        ? `<div class="tkt-feedback">"${m.raw_feedback || getFeedbackText(m.ticket_id) || (m.intake_data || {}).raw_feedback}"</div>`
         : `<div class="tkt-feedback" style="font-style:normal;color:var(--muted)">Not available for this record.</div>`}
     </div>
     ${m.customer_response ? `<div>
@@ -2564,6 +2632,235 @@ function renderRelease(data) {
     ['Legal Concerns',   review.legal_concerns || 'None'],
     ['Review Notes',     review.review_notes || '—'],
   ].map(([k,v]) => `<div class="safety-item"><div class="safety-key">${k}</div><div class="safety-val" style="font-size:12px">${v}</div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SOFTWARE BRANCH MODULE
+// ══════════════════════════════════════════════════════════════
+
+let swFilter = 'ALL';
+
+function setSWFilter(val, btn) {
+  swFilter = val;
+  document.querySelectorAll('#sw-filter-pills .fpill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSoftwareBranches();
+}
+
+function swReadinessFromMetric(m) {
+  const sl = m.safety_level || 'NONE';
+  const nhtsa = m.nhtsa;
+  const va = m.vehicle_action || 'NONE';
+  const pri = m.priority || 'P3';
+  const qs = m.quality_score || 100;
+  const rd = m.review_decision || 'APPROVED';
+  const isNogo = sl === 'CRITICAL' || (sl === 'HIGH' && nhtsa) || va === 'GROUND_VEHICLE';
+  const isCond = !isNogo && (sl === 'HIGH' || sl === 'MEDIUM' || pri === 'P1' || pri === 'P2' || va === 'INSPECT_BEFORE_NEXT_RIDE' || qs < 75 || rd === 'REVISION_NEEDED');
+  return isNogo ? 'NO-GO' : isCond ? 'CONDITIONAL' : 'GO';
+}
+
+function swReadinessFromBranch(metrics) {
+  const critical = metrics.filter(m => m.safety_level === 'CRITICAL').length;
+  const high     = metrics.filter(m => m.safety_level === 'HIGH').length;
+  const nhtsa    = metrics.filter(m => m.nhtsa).length;
+  const p1       = metrics.filter(m => m.priority === 'P1').length;
+  const engReq   = metrics.filter(m => m.requires_engineering).length;
+  const scored   = metrics.filter(m => m.quality_score);
+  const avgQ     = scored.length ? scored.reduce((s,m) => s + m.quality_score, 0) / scored.length : 100;
+  if (critical > 0 || (high > 0 && nhtsa > 0)) return 'NO-GO';
+  if (high > 0 || p1 > 2 || avgQ < 72 || (engReq > 0 && nhtsa > 0)) return 'CONDITIONAL';
+  return 'GO';
+}
+
+async function renderSoftwareBranches() {
+  const BRANCH_META = {
+    'weimo-av-4.2.1':      { status:'RELEASED', releaseDate:'Mar 15, 2024', notes:'Initial stable release', color:'var(--muted2)' },
+    'weimo-av-4.3.0':      { status:'RELEASED', releaseDate:'Sep 1, 2024',  notes:'Route optimization & comfort improvements', color:'var(--cyan)' },
+    'weimo-av-4.3.1':      { status:'RELEASED', releaseDate:'Jan 20, 2025', notes:'Safety patch — AEB false trigger fix', color:'var(--primary)' },
+    'weimo-av-4.4.0-beta': { status:'BETA',     releaseDate:null,           notes:'Next-gen perception stack — pre-release', color:'var(--amber)' },
+  };
+
+  const all = getMetrics().filter(m => isValidVehicleId(m.vehicle_id));
+  let realRuns = [];
+  try { realRuns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch {}
+
+  // Supplement with real pipeline runs stored in Supabase (identified by non-empty intake_data)
+  // Seeded records have intake_data:{} so raw_feedback will be absent
+  try {
+    const res = await fetch('/metrics?limit=500');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.rides && json.rides.length > 0) {
+        const existingIds = new Set(realRuns.map(r => r.ticket_id).filter(Boolean));
+        const supabaseRuns = json.rides
+          .filter(r =>
+            r.ticket_id &&
+            !existingIds.has(r.ticket_id) &&
+            isValidVehicleId(r.vehicle_id) &&
+            r.intake_data && r.intake_data.raw_feedback   // distinguishes real runs from seeded
+          )
+          .map(r => ({
+            ...r,
+            ts:            r.created_at,
+            raw_feedback:  r.intake_data.raw_feedback || '',
+            vehicle_action: r.vehicle_action || 'NONE',
+            review_decision: (r.review_data && r.review_data.review_decision) || r.review_decision || 'APPROVED',
+          }));
+        realRuns = [...realRuns, ...supabaseRuns];
+      }
+    }
+  } catch(e) { /* Supabase unavailable — localStorage is the fallback */ }
+
+  // Collect every branch seen across registry, metrics, and real runs
+  const branchSet = new Set([
+    ...Object.keys(BRANCH_META),
+    ...vehicleRegistry.map(v => v.software_version).filter(Boolean),
+    ...all.map(m => m.software_version).filter(s => s && s !== '—'),
+    ...realRuns.map(r => r.software_version).filter(s => s && s !== '—'),
+  ]);
+
+  let branches = [...branchSet].map(sw => {
+    const meta         = BRANCH_META[sw] || { status:'UNKNOWN', releaseDate:null, notes:'', color:'var(--muted)' };
+    const branchAll    = all.filter(m => m.software_version === sw);
+    const branchRuns   = realRuns.filter(r => r.software_version === sw);
+    const vehicles     = vehicleRegistry.filter(v => v.software_version === sw);
+    const total        = branchAll.length;
+    const safetyCount  = branchAll.filter(m => m.category === 'SAFETY').length;
+    const nhtsa        = branchAll.filter(m => m.nhtsa).length;
+    const p1           = branchAll.filter(m => m.priority === 'P1').length;
+    const scored       = branchAll.filter(m => m.quality_score);
+    const avgQuality   = scored.length ? Math.round(scored.reduce((s,m) => s + m.quality_score, 0) / scored.length) : null;
+    const engReq       = branchAll.filter(m => m.requires_engineering).length;
+    const readiness    = swReadinessFromBranch(branchAll);
+    return { sw, meta, total, safetyCount, nhtsa, p1, avgQuality, engReq, vehicles, branchRuns, readiness };
+  });
+
+  // Apply view filter
+  if (swFilter === 'PENDING') branches = branches.filter(b => b.meta.status !== 'RELEASED');
+  if (swFilter === 'RELEASED') branches = branches.filter(b => b.meta.status === 'RELEASED');
+
+  // Sort: BETA/UNKNOWN first (newest version), then RELEASED (newest version)
+  const statusOrder = { BETA:0, UNKNOWN:1, RELEASED:2 };
+  branches.sort((a, b) => {
+    const so = (statusOrder[a.meta.status]??1) - (statusOrder[b.meta.status]??1);
+    return so !== 0 ? so : b.sw.localeCompare(a.sw);
+  });
+
+  const pendingCount = [...branchSet].filter(sw => (BRANCH_META[sw]?.status||'UNKNOWN') !== 'RELEASED').length;
+  document.getElementById('sw-subtitle').textContent =
+    `${branchSet.size} branch${branchSet.size !== 1 ? 'es' : ''} · ${pendingCount} pending release`;
+
+  const rdBadge = r =>
+    r === 'NO-GO'       ? '<span class="sw-badge swb-nogo">🚫 No-Go</span>'
+    : r === 'CONDITIONAL' ? '<span class="sw-badge swb-conditional">⚠️ Conditional</span>'
+    :                       '<span class="sw-badge swb-go">✅ Go</span>';
+
+  const stBadge = s =>
+    s === 'RELEASED' ? '<span class="sw-badge swb-released">Released</span>'
+    : s === 'BETA'   ? '<span class="sw-badge swb-beta">Beta · Pending</span>'
+    :                  '<span class="sw-badge swb-unknown">Unknown</span>';
+
+  // Build the run-level release report for a real pipeline run
+  const runCard = r => {
+    const rd   = swReadinessFromMetric(r);
+    const sl   = r.safety_level || 'NONE';
+    const nhtsa = r.nhtsa;
+    const va   = r.vehicle_action || 'NONE';
+    const pri  = r.priority || 'P3';
+    const qs   = r.quality_score || 100;
+    const revD = r.review_decision || 'APPROVED';
+    const engR = r.requires_engineering;
+    const ts   = r.ts ? new Date(r.ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'2-digit',hour:'numeric',minute:'2-digit'}) : '—';
+    const checks = [
+      { label:'No critical safety',           done:!['CRITICAL','HIGH'].includes(sl), req:true  },
+      { label:'NHTSA not required',           done:!nhtsa,                            req:true  },
+      { label:'Vehicle cleared',              done:va==='CONTINUE_OPERATION'||va==='NONE', req:true  },
+      { label:'Priority P3 or lower',         done:['P3','P4'].includes(pri),         req:false },
+      { label:'Quality score ≥ 80',          done:qs>=80,                            req:false },
+      { label:'Response approved',            done:revD==='APPROVED',                 req:false },
+      { label:'No open engineering tickets',  done:!engR,                             req:false },
+    ];
+    const pending = checks.filter(c => !c.done);
+    return `<div class="sw-run-item">
+      <div class="sw-run-top">
+        <span class="sw-run-id">${r.ticket_id||'—'}</span>
+        ${rdBadge(rd)}
+        <span style="font-size:9px;color:var(--muted);margin-left:auto">${ts} &nbsp;·&nbsp; ${r.vehicle_id||'—'}</span>
+      </div>
+      ${r.raw_feedback ? `<div class="sw-run-quote">"${r.raw_feedback.slice(0,100)}${r.raw_feedback.length>100?'…':''}"</div>` : ''}
+      ${pending.length
+        ? `<div style="font-size:10px;color:var(--amber);margin-bottom:6px">Pending: ${pending.map(c=>c.label).join(' · ')}</div>`
+        : `<div style="font-size:10px;color:var(--green);margin-bottom:6px">All release checks passed</div>`}
+      <div class="sw-run-checks">
+        ${checks.map(c => `<div class="sw-chk">
+          <div class="sw-chk-icon ${c.done?'sw-chk-pass':c.req?'sw-chk-fail':'sw-chk-warn'}">${c.done?'✓':c.req?'✗':'!'}</div>
+          <span style="color:${c.done?'var(--muted)':'var(--text)'};${c.done?'text-decoration:line-through':''}">${c.label}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  };
+
+  if (branches.length === 0) {
+    document.getElementById('sw-branches').innerHTML =
+      '<div style="text-align:center;padding:60px;color:var(--muted)">No branches match this filter.</div>';
+    return;
+  }
+
+  document.getElementById('sw-branches').innerHTML = branches.map(b => {
+    const safetyPct  = b.total ? Math.round(b.safetyCount/b.total*100) : 0;
+    const isPending  = b.meta.status !== 'RELEASED';
+    // Pending branches open by default; released branches collapsed if no real runs
+    const bodyOpen   = isPending || b.branchRuns.length > 0;
+
+    const runSection = b.branchRuns.length > 0
+      ? `<div class="sw-section">
+          <div class="sw-sec-title">Pipeline Release Reports (${b.branchRuns.length})</div>
+          ${b.branchRuns.slice().reverse().map(runCard).join('')}
+        </div>`
+      : isPending
+        ? `<div class="sw-section">
+            <div class="sw-sec-title">Pipeline Release Reports</div>
+            <div style="color:var(--muted);font-size:12px;padding:4px 0">No pipeline runs yet for this branch. Submit a run from a vehicle on <span style="font-family:var(--mono);color:${b.meta.color}">${b.sw}</span> to generate a release report.</div>
+          </div>`
+        : '';
+
+    const vehicleSection = b.vehicles.length
+      ? `<div class="sw-section">
+          <div class="sw-sec-title">Vehicles on This Branch (${b.vehicles.length})</div>
+          <div class="sw-vehicle-chips">
+            ${b.vehicles.slice(0,24).map(v=>`<span class="sw-vchip">${v.vehicle_id}</span>`).join('')}
+            ${b.vehicles.length>24?`<span class="sw-vchip" style="color:var(--muted)">+${b.vehicles.length-24} more</span>`:''}
+          </div>
+        </div>`
+      : '';
+
+    return `<div class="sw-card">
+      <div class="sw-card-hdr${bodyOpen?' open':''}" onclick="
+        this.classList.toggle('open');
+        this.nextElementSibling.nextElementSibling.style.display=this.classList.contains('open')?'block':'none'">
+        <div style="flex:1">
+          <div class="sw-branch-name" style="color:${b.meta.color}">${b.sw}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px">${b.meta.notes}${b.meta.releaseDate?' · Released '+b.meta.releaseDate:' · Not yet released'}</div>
+        </div>
+        ${stBadge(b.meta.status)}
+        ${b.branchRuns.length ? `<span class="sw-badge" style="background:rgba(129,140,248,0.1);color:var(--primary);border:1px solid rgba(129,140,248,0.25)">${b.branchRuns.length} run${b.branchRuns.length!==1?'s':''}</span>` : ''}
+        ${rdBadge(b.readiness)}
+        <span class="sw-caret">▾</span>
+      </div>
+      <div class="sw-metrics-row">
+        <div class="sw-metric"><div class="sw-metric-val">${b.total.toLocaleString()}</div><div class="sw-metric-lbl">Rides</div></div>
+        <div class="sw-metric"><div class="sw-metric-val" style="color:${safetyPct>15?'var(--red)':safetyPct>8?'var(--amber)':'var(--green)'}">${safetyPct}%</div><div class="sw-metric-lbl">Safety Rate</div></div>
+        <div class="sw-metric"><div class="sw-metric-val" style="color:${b.nhtsa>0?'var(--red)':'var(--green)'}">${b.nhtsa}</div><div class="sw-metric-lbl">NHTSA Flags</div></div>
+        <div class="sw-metric"><div class="sw-metric-val" style="color:${(b.avgQuality||0)>=85?'var(--green)':(b.avgQuality||0)>=70?'var(--amber)':'var(--red)'}">${b.avgQuality?b.avgQuality+'/100':'—'}</div><div class="sw-metric-lbl">Avg Quality</div></div>
+        <div class="sw-metric"><div class="sw-metric-val">${b.vehicles.length}</div><div class="sw-metric-lbl">Vehicles</div></div>
+        <div class="sw-metric"><div class="sw-metric-val" style="color:var(--primary)">${b.branchRuns.length}</div><div class="sw-metric-lbl">Pipeline Runs</div></div>
+      </div>
+      <div class="sw-body" style="display:${bodyOpen?'block':'none'}">
+        ${runSection}
+        ${vehicleSection}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function showError(msg) {
@@ -3151,7 +3448,6 @@ function spawnNext() {
 
 spawnNext();
 setTimeout(spawnNext,1600);
-setTimeout(spawnNext,3200);
 
 function loop(ts) {
   requestAnimationFrame(loop);
@@ -3160,7 +3456,7 @@ function loop(ts) {
   totalTime+=dt;
 
   spawnTimer+=dt;
-  if(spawnTimer>2.5+Math.random()*2 && vehicles.length<5){
+  if(spawnTimer>2.5+Math.random()*2 && vehicles.length<4){
     spawnNext(); spawnTimer=0;
   }
 
