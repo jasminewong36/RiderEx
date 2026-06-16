@@ -686,13 +686,13 @@
 </div>
 
 <header style="position:relative;z-index:100">
-  <div class="logo">🚗</div>
+  <div class="logo"><img src="/static/logo.png" style="height:36px;width:auto;display:block;filter:drop-shadow(0 0 6px rgba(255,255,255,0.15))"></div>
   <span class="brand">RiderEx</span>
   <span class="hbadge">5 Agents · Band.ai · AV Customer Support</span>
   <nav class="nav-tabs">
     <button class="nav-tab active" onclick="switchPage('pipeline',this)">🚀 Pipeline</button>
     <button class="nav-tab" onclick="switchPage('dashboard',this)">📊 Dashboard</button>
-    <button class="nav-tab" onclick="switchPage('fleet',this)">🚗 Fleet</button>
+    <button class="nav-tab" onclick="switchPage('fleet',this)"><img src="/static/logo.png" style="height:14px;width:auto;vertical-align:middle;margin-right:5px;margin-bottom:1px">Fleet</button>
   </nav>
 </header>
 
@@ -1115,7 +1115,7 @@
 
       <!-- Vehicle actions -->
       <div class="dash-card">
-        <h3>🚗 Vehicle Action Taken</h3>
+        <h3><img src="/static/logo.png" style="height:16px;width:auto;vertical-align:middle;margin-right:6px;margin-bottom:2px">Vehicle Action Taken</h3>
         <div id="chart-vehicle"></div>
       </div>
 
@@ -1334,7 +1334,7 @@ function updateVehicleTypeHint() {
   if (!hint) return;
   const entry = vehicleRegistry.find(v => v.vehicle_id === vid);
   if (!vid)         { hint.textContent = ''; return; }
-  if (entry)        { hint.textContent = '🚗 ' + entry.model; hint.style.color = 'var(--cyan)'; }
+  if (entry)        { hint.innerHTML = '<img src="/static/logo.png" style="height:13px;vertical-align:middle;margin-right:4px;margin-bottom:1px">' + entry.model; hint.style.color = 'var(--cyan)'; }
   else              { hint.textContent = 'Not found in registry'; hint.style.color = 'var(--muted)'; }
 }
 
