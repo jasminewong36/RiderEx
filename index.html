@@ -661,6 +661,30 @@
   .vcm-btn:hover{border-color:var(--fleet-teal);background:rgba(0,229,200,0.12)}
   .vcm-btn.primary{background:rgba(0,229,200,0.15);border-color:var(--fleet-teal)}
 
+  /* ── Ticket detail modal ── */
+  .tkt-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,5,14,0.88);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+  .tkt-modal.open{display:flex}
+  .tkt-inner{background:var(--surface);border:1px solid var(--border2);border-radius:4px;width:560px;max-height:82vh;overflow-y:auto;position:relative}
+  .tkt-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+  .tkt-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(129,140,248,0.07),transparent)}
+  .tkt-id{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan);letter-spacing:0.06em;flex:1}
+  .tkt-date{font-size:10px;color:var(--muted);font-family:var(--mono)}
+  .tkt-close{background:none;border:1px solid var(--border2);color:var(--muted2);width:28px;height:28px;border-radius:3px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+  .tkt-close:hover{border-color:var(--cyan);color:var(--cyan)}
+  .tkt-body{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+  .tkt-section-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:7px}
+  .tkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .tkt-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+  .tkt-cell{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:3px;padding:8px 11px}
+  .tkt-cell-lbl{font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px}
+  .tkt-cell-val{font-size:12px;font-weight:600;color:var(--text)}
+  .tkt-feedback{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:3px;padding:11px 13px;font-size:12px;line-height:1.65;color:var(--muted2);font-style:italic}
+  .tkt-response{background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.2);border-radius:3px;padding:11px 13px;font-size:12px;line-height:1.65;color:var(--text)}
+  .tkt-phrases{display:flex;flex-wrap:wrap;gap:5px}
+  .tkt-phrase{font-size:9px;padding:3px 7px;border-radius:2px;border:1px solid var(--border2);color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.05em}
+  #rides-tbody tr{cursor:pointer;transition:background 0.12s}
+  #rides-tbody tr:hover{background:rgba(129,140,248,0.07)}
+
   /* ── Perception background scene ── */
   #perc-scene{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
   #perc-road-bg{position:absolute;inset:0;z-index:0}
@@ -741,6 +765,16 @@
         <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 200)</span></label>
         <input type="text" id="vehicle-id" placeholder="WM-001" oninput="updateVehicleTypeHint()">
         <div id="vehicle-type-hint" style="font-size:10px;margin-top:4px;min-height:15px"></div>
+      </div>
+      <div class="fg">
+        <label>Vehicle Type <span style="color:var(--muted);font-weight:400;text-transform:none">Auto-filled</span></label>
+        <input type="text" id="vehicle-type-display" placeholder="—" readonly
+               style="opacity:0.7;cursor:default;pointer-events:none">
+      </div>
+      <div class="fg">
+        <label>Software Version <span style="color:var(--muted);font-weight:400;text-transform:none">Auto-filled</span></label>
+        <input type="text" id="software-version-display" placeholder="—" readonly
+               style="opacity:0.7;cursor:default;pointer-events:none">
       </div>
       <div class="fg">
         <label>Star Rating</label>
@@ -1270,6 +1304,18 @@
   </div>
 </div>
 
+<!-- Ticket detail modal -->
+<div class="tkt-modal" id="tkt-modal" onclick="if(event.target===this)closeTicketModal()">
+  <div class="tkt-inner">
+    <div class="tkt-head">
+      <span class="tkt-id" id="tkt-modal-id">RX-00000000</span>
+      <span class="tkt-date" id="tkt-modal-date"></span>
+      <button class="tkt-close" onclick="closeTicketModal()">✕</button>
+    </div>
+    <div class="tkt-body" id="tkt-modal-body"></div>
+  </div>
+</div>
+
 <script>
 let rating = 1;
 const STORAGE_KEY = 'riderex_metrics';   // real pipeline runs only (post v4)
@@ -1331,11 +1377,27 @@ function genIds() {
 function updateVehicleTypeHint() {
   const vid = document.getElementById('vehicle-id').value.trim();
   const hint = document.getElementById('vehicle-type-hint');
+  const typeEl = document.getElementById('vehicle-type-display');
+  const swEl   = document.getElementById('software-version-display');
   if (!hint) return;
   const entry = vehicleRegistry.find(v => v.vehicle_id === vid);
-  if (!vid)         { hint.textContent = ''; return; }
-  if (entry)        { hint.innerHTML = '<img src="/static/logo.png" style="height:13px;vertical-align:middle;margin-right:4px;margin-bottom:1px">' + entry.model; hint.style.color = 'var(--cyan)'; }
-  else              { hint.textContent = 'Not found in registry'; hint.style.color = 'var(--muted)'; }
+  if (!vid) {
+    hint.textContent = '';
+    if (typeEl) typeEl.value = '';
+    if (swEl)   swEl.value   = '';
+    return;
+  }
+  if (entry) {
+    hint.innerHTML = '<img src="/static/logo.png" style="height:13px;vertical-align:middle;margin-right:4px;margin-bottom:1px">' + entry.model;
+    hint.style.color = 'var(--cyan)';
+    if (typeEl) typeEl.value = entry.model || '—';
+    if (swEl)   swEl.value   = entry.software_version || '—';
+  } else {
+    hint.textContent = 'Not found in registry';
+    hint.style.color = 'var(--muted)';
+    if (typeEl) typeEl.value = '';
+    if (swEl)   swEl.value   = '';
+  }
 }
 
 const samples = {
@@ -1510,6 +1572,9 @@ function saveMetric(data) {
     action_items: (resolution.action_items || []).length,
     band_messages: data.band_messages || 0,
     key_phrases: intake.key_phrases || [],
+    raw_feedback: intake.raw_feedback || document.getElementById('feedback').value.trim(),
+    customer_response: review.final_customer_response || resolution.customer_response || '',
+    summary: intake.summary || '',
     ts: new Date().toISOString(),
   });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(realRuns));
@@ -2087,12 +2152,13 @@ async function renderDashboard() {
   const slChip   = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
   const sentChip = { VERY_NEGATIVE:'red', NEGATIVE:'amber', NEUTRAL:'gray', POSITIVE:'green', VERY_POSITIVE:'green' };
   const swColors = { 'weimo-av-4.2.1':'var(--muted2)', 'weimo-av-4.3.0':'var(--cyan)', 'weimo-av-4.3.1':'var(--primary)', 'weimo-av-4.4.0-beta':'var(--amber)' };
-  document.getElementById('rides-tbody').innerHTML = tableRows.map(m => {
+  window._dashRows = tableRows;
+  document.getElementById('rides-tbody').innerHTML = tableRows.map((m, idx) => {
     const vtShort = (m.vehicle_type||'—').replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','').replace('Weimo ','');
     const swColor = swColors[m.software_version] || 'var(--muted2)';
     const dateStr = m.ts ? new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—';
-    return `<tr>
-      <td><span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${m.ticket_id}</span></td>
+    return `<tr onclick="openTicketModal(${idx})" title="Click for details">
+      <td><span style="font-family:var(--mono);font-size:10px;color:var(--cyan)">${m.ticket_id}</span></td>
       <td style="font-family:var(--mono);font-size:10px;color:var(--muted2)">${m.vehicle_id||'—'}</td>
       <td style="font-size:10px;color:var(--text)">${vtShort}</td>
       <td style="font-family:var(--mono);font-size:9px;color:${swColor}">${m.software_version||'—'}</td>
@@ -2125,6 +2191,78 @@ function pct(n, total) {
 function starStr(avg) {
   const full = Math.round(avg);
   return '★'.repeat(full) + '☆'.repeat(5 - full);
+}
+
+// ── Ticket detail modal ────────────────────────────────────────
+function openTicketModal(idx) {
+  const m = (window._dashRows || [])[idx];
+  if (!m) return;
+  const catChip  = { SAFETY:'red', COMFORT:'amber', ROUTE:'purple', SOFTWARE:'cyan', COMPLIMENT:'green', UNKNOWN:'gray' };
+  const priChip  = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
+  const slChip   = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
+  const sentChip = { VERY_NEGATIVE:'red', NEGATIVE:'amber', NEUTRAL:'gray', POSITIVE:'green', VERY_POSITIVE:'green' };
+  const ts = m.ts || m.created_at;
+  const dateStr = ts ? new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+
+  document.getElementById('tkt-modal-id').textContent = m.ticket_id || '—';
+  document.getElementById('tkt-modal-date').textContent = dateStr;
+
+  const phrases = (m.key_phrases || []);
+  const refundTotal = (m.refund_amount || m.refund || 0) + (m.credit_amount || 0);
+
+  document.getElementById('tkt-modal-body').innerHTML = `
+    <div>
+      <div class="tkt-section-lbl">Vehicle</div>
+      <div class="tkt-grid-3">
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle ID</div><div class="tkt-cell-val" style="font-family:var(--mono)">${m.vehicle_id||'—'}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle Type</div><div class="tkt-cell-val">${(m.vehicle_type||'—').replace('Weimo ','')}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Software</div><div class="tkt-cell-val" style="font-family:var(--mono);font-size:10px">${m.software_version||'—'}</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="tkt-section-lbl">Classification</div>
+      <div class="tkt-grid">
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Category</div><div class="tkt-cell-val"><span class="chip chip-${catChip[m.category]||'gray'}">${m.category||'—'}</span></div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Priority</div><div class="tkt-cell-val"><span class="chip chip-${priChip[m.priority]||'gray'}">${m.priority||'—'}</span></div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Safety Level</div><div class="tkt-cell-val"><span class="chip chip-${slChip[m.safety_level]||'gray'}">${m.safety_level||'—'}</span></div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Sentiment</div><div class="tkt-cell-val"><span class="chip chip-${sentChip[m.sentiment]||'gray'}">${(m.sentiment||'—').replace('_',' ')}</span></div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Rating</div><div class="tkt-cell-val" style="color:var(--amber)">${m.rating ? '★'.repeat(m.rating)+'☆'.repeat(5-m.rating) : '—'}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Churn Risk</div><div class="tkt-cell-val" style="color:${m.churn_risk==='HIGH'?'var(--red)':m.churn_risk==='MEDIUM'?'var(--amber)':'var(--green)'}">${m.churn_risk||'—'}</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="tkt-section-lbl">Resolution</div>
+      <div class="tkt-grid-3">
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Refund</div><div class="tkt-cell-val" style="color:var(--green)">$${m.refund_amount||m.refund||0}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Credit</div><div class="tkt-cell-val" style="color:var(--cyan)">$${m.credit_amount||0}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Quality Score</div><div class="tkt-cell-val" style="color:${(m.quality_score||0)>=85?'var(--green)':(m.quality_score||0)>=70?'var(--amber)':'var(--red)'}">${m.quality_score ? m.quality_score+'/100' : '—'}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle Action</div><div class="tkt-cell-val" style="font-size:10px">${(m.vehicle_action||'—').replace(/_/g,' ')}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Engineering</div><div class="tkt-cell-val">${m.requires_engineering ? '<span class="chip chip-red">REQUIRED</span>' : '<span class="chip chip-gray">NONE</span>'}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Eng. Team</div><div class="tkt-cell-val" style="font-size:10px">${(m.engineering_team||'NONE').replace(/_/g,' ')}</div></div>
+      </div>
+    </div>
+    ${phrases.length ? `<div>
+      <div class="tkt-section-lbl">Key Phrases</div>
+      <div class="tkt-phrases">${phrases.map(p=>`<span class="tkt-phrase">${p}</span>`).join('')}</div>
+    </div>` : ''}
+    ${m.raw_feedback ? `<div>
+      <div class="tkt-section-lbl">Customer Feedback</div>
+      <div class="tkt-feedback">"${m.raw_feedback}"</div>
+    </div>` : ''}
+    ${m.customer_response ? `<div>
+      <div class="tkt-section-lbl">Agent Response to Customer</div>
+      <div class="tkt-response">${m.customer_response}</div>
+    </div>` : ''}
+    ${m.summary ? `<div>
+      <div class="tkt-section-lbl">Summary</div>
+      <div class="tkt-feedback" style="font-style:normal">${m.summary}</div>
+    </div>` : ''}
+  `;
+  document.getElementById('tkt-modal').classList.add('open');
+}
+
+function closeTicketModal() {
+  document.getElementById('tkt-modal').classList.remove('open');
 }
 
 // ── Results rendering (pipeline tab) ──────────────────────────
