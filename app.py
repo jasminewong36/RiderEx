@@ -82,7 +82,7 @@ def save_to_supabase(result: dict):
 
 class FeedbackRequest(BaseModel):
     feedback_text: str
-    ride_id: Optional[str] = "RIDE-0000000000000001"
+    ticket_id: Optional[str] = None
     vehicle_id: Optional[str] = "WM-001"
     rating: Optional[int] = None
 
@@ -92,7 +92,7 @@ async def run_pipeline(request: FeedbackRequest):
     try:
         result = run_riderex_pipeline(
             feedback_text=request.feedback_text,
-            ride_id=request.ride_id,
+            ticket_id=request.ticket_id,
             vehicle_id=request.vehicle_id,
             rating=request.rating
         )

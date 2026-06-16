@@ -691,8 +691,8 @@
 
     <div class="form-grid">
       <div class="fg">
-        <label>Ride ID <span style="color:var(--muted);font-weight:400;text-transform:none">Auto-assigned</span></label>
-        <input type="text" id="ride-id" placeholder="RIDE-000000000001" readonly
+        <label>Ticket ID <span style="color:var(--muted);font-weight:400;text-transform:none">Auto-assigned</span></label>
+        <input type="text" id="ticket-id" placeholder="RX-00000000" readonly
                style="opacity:0.55;cursor:default;pointer-events:none">
       </div>
       <div class="fg">
@@ -1264,14 +1264,14 @@ async function loadVehicleRegistry() {
   } catch(e) {}
 }
 
-const _usedRideIds = new Set();
-function randRideId() {
+const _usedTicketIds = new Set();
+function randTicketId() {
   let id;
   do {
-    const n = Math.floor(Math.random() * 9999999999999999) + 1;
-    id = 'RIDE-' + String(n).padStart(16, '0');
-  } while (_usedRideIds.has(id));
-  _usedRideIds.add(id);
+    const n = Math.floor(Math.random() * 99999999) + 1;
+    id = 'RX-' + String(n).padStart(8, '0');
+  } while (_usedTicketIds.has(id));
+  _usedTicketIds.add(id);
   return id;
 }
 
@@ -1281,7 +1281,7 @@ function randVehicleId() {
 }
 
 function genIds() {
-  document.getElementById('ride-id').value = randRideId();
+  document.getElementById('ticket-id').value = randTicketId();
   document.getElementById('vehicle-id').value = randVehicleId();
   updateVehicleTypeHint();
 }
@@ -1386,7 +1386,7 @@ function animateSteps() {
 
 async function runPipeline() {
   const feedback = document.getElementById('feedback').value.trim();
-  const rideId = document.getElementById('ride-id').value.trim();
+  const ticketId = document.getElementById('ticket-id').value.trim();
   const vehicleId = document.getElementById('vehicle-id').value.trim();
   if (!feedback) { showError('Please enter customer feedback.'); return; }
 
@@ -1403,14 +1403,14 @@ async function runPipeline() {
     const res = await fetch('/run-pipeline', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ feedback_text: feedback, ride_id: rideId, vehicle_id: vehicleId, rating })
+      body: JSON.stringify({ feedback_text: feedback, ticket_id: ticketId, vehicle_id: vehicleId, rating })
     });
     clearInterval(anim);
     const data = await res.json();
     if (data.error) { showError(data.error); return; }
     saveMetric(data);
     renderResults(data);
-    document.getElementById('ride-id').value = randRideId();
+    document.getElementById('ticket-id').value = randTicketId();
     // Refresh dashboard metrics from Supabase in background
     renderDashboard();
   } catch(e) {
@@ -2110,7 +2110,7 @@ function renderResults(data) {
   document.getElementById('ticket-details').innerHTML = [
     ['Ticket ID', intake.ticket_id], ['Category', category], ['Priority', priority],
     ['Sentiment', intake.sentiment], ['Churn Risk', intake.churn_risk], ['Rating', `${data.rating || 'N/A'} ★`],
-    ['Ride ID', data.ride_id], ['Vehicle ID', data.vehicle_id],
+    ['Vehicle ID', data.vehicle_id],
     ['NHTSA Flag', intake.nhtsa_flag ? '⚠️ Yes' : '✅ No'],
     ['Requires Engineering', intake.requires_engineering ? '✅ Yes' : 'No'],
   ].map(([k,v]) => `<div class="safety-item"><div class="safety-key">${k}</div><div class="safety-val">${v||'—'}</div></div>`).join('');

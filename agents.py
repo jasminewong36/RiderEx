@@ -283,13 +283,13 @@ Return ONLY valid JSON:
 # 5 AGENTS
 # ══════════════════════════════════════════════════════════════════════
 
-def agent_intake(feedback: str, ride_id: str, vehicle_id: str, rating: int) -> dict:
+def agent_intake(feedback: str, ticket_id: str, vehicle_id: str, rating: int) -> dict:
     logger.info("\n📥 [Agent 1] Intake & Classification Agent")
-    user = f'Customer feedback: "{feedback}"\nRide: {ride_id} | Vehicle: {vehicle_id} | Rating: {rating or "N/A"}'
+    user = f'Customer feedback: "{feedback}"\nTicket: {ticket_id} | Vehicle: {vehicle_id} | Rating: {rating or "N/A"}'
     result = call_claude(INTAKE_SYSTEM, user)
     result.update({
-        "ticket_id": f"RX-{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        "raw_feedback": feedback, "ride_id": ride_id,
+        "ticket_id": ticket_id or f"RX-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "raw_feedback": feedback,
         "vehicle_id": vehicle_id, "rating": rating,
         "created_at": datetime.now().isoformat()
     })
@@ -345,14 +345,14 @@ def agent_engineering() -> dict:
 
 def run_riderex_pipeline(
     feedback_text: str,
-    ride_id: str = "RIDE-0000000000000001",
+    ticket_id: str = None,
     vehicle_id: str = "WM-001",
     rating: int = None
 ) -> dict:
-    logger.info(f"\n{'='*60}\n🚗 RiderEx | {ride_id} | {vehicle_id}\n{'='*60}")
+    logger.info(f"\n{'='*60}\n🚗 RiderEx | {ticket_id} | {vehicle_id}\n{'='*60}")
     band_channel.clear()
 
-    intake = agent_intake(feedback_text, ride_id, vehicle_id, rating)
+    intake = agent_intake(feedback_text, ticket_id, vehicle_id, rating)
     safety = agent_safety()
     resolution = agent_resolution()
     review = agent_review()
@@ -362,7 +362,7 @@ def run_riderex_pipeline(
     logger.info(f"\n{'='*60}\n🏁 Done | {intake.get('ticket_id')} | Band msgs: {len(band_channel)}\n{'='*60}\n")
 
     return {
-        "ride_id": ride_id, "vehicle_id": vehicle_id, "rating": rating,
+        "ticket_id": intake.get("ticket_id"), "vehicle_id": vehicle_id, "rating": rating,
         "intake": intake, "safety": safety, "resolution": resolution,
         "quality_review": review, "engineering_handoff": handoff,
         "band_messages": len(band_channel),
