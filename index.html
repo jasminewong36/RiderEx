@@ -813,7 +813,7 @@
       </div>
       <div class="fg">
         <label>Vehicle ID <span style="color:var(--muted);font-weight:400;text-transform:none">(1 – 200)</span></label>
-        <input type="text" id="vehicle-id" placeholder="WM-001" oninput="updateVehicleTypeHint()">
+        <input type="text" id="vehicle-id" placeholder="DW-001" oninput="updateVehicleTypeHint()">
         <div id="vehicle-type-hint" style="font-size:10px;margin-top:4px;min-height:15px"></div>
       </div>
       <div class="fg">
@@ -1342,7 +1342,7 @@
 <div class="vcard-modal" id="vcard-modal" onclick="if(event.target===this)closeVehicleModal()">
   <div class="vcm-inner">
     <div class="vcm-head">
-      <span class="vcm-id" id="vcm-id">WM-000</span>
+      <span class="vcm-id" id="vcm-id">DW-000</span>
       <div id="vcm-status-dot" class="vc-status-dot" style="width:10px;height:10px"></div>
       <button class="vcm-close" onclick="closeVehicleModal()">✕</button>
     </div>
@@ -1461,7 +1461,7 @@ function randTicketId() {
 
 function randVehicleId() {
   const n = Math.floor(Math.random() * 200) + 1;
-  return 'WM-' + String(n).padStart(3, '0');
+  return 'DW-' + String(n).padStart(3, '0');
 }
 
 function genIds() {
@@ -1721,7 +1721,7 @@ function updateFleetVehicle(data) {
   if (!v) {
     // Vehicle not in registry — add a live entry
     v = {
-      id: vehicleId, num: parseInt(vehicleId.replace('WM-','')) || 9999,
+      id: vehicleId, num: parseInt(vehicleId.replace('DW-','')) || 9999,
       status:'ACTIVE', score:80, totalRides:0, incidents:0,
       avgRating: data.rating || 4.0, lastActive: new Date(),
       flags:[], icon:'🚗', city:'', state:'', model:'Live Vehicle',
@@ -1994,7 +1994,7 @@ function seedMetrics() {
       const qs=rnd(60,98);
       fallback.push({ticket_id:'RX-'+String(i+1).padStart(6,'0'),
         ride_id:'RIDE-'+String(rnd(1,9999999)).padStart(16,'0'),
-        vehicle_id:'WM-'+String(rnd(1,200)).padStart(3,'0'),
+        vehicle_id:'DW-'+String(rnd(1,200)).padStart(3,'0'),
         vehicle_type:pick(VT_VERS),
         software_version:pick(SW_VERS),
         category:cat,priority,safety_level:sl,
@@ -2123,7 +2123,7 @@ function updateKpiHealthBar(scores, periodLabel) {
 
 function isValidVehicleId(id) {
   if (!id) return false;
-  const m = id.match(/^WM-(\d{3})$/);
+  const m = id.match(/^DW-(\d{3})$/);
   return m && parseInt(m[1]) >= 1 && parseInt(m[1]) <= 200;
 }
 
@@ -2971,7 +2971,7 @@ function buildFleetFromRegistry(vehicles) {
     if (processedTickets > 0) flags.push('PIPELINE_RUN');
     return {
       id: v.vehicle_id,
-      num: parseInt(v.vehicle_id?.replace('WM-', '') || '0'),
+      num: parseInt(v.vehicle_id?.replace('DW-', '') || '0'),
       status, score,
       totalRides: allRideCount[v.vehicle_id] || 0,
       incidents: saved.incidents !== undefined ? saved.incidents : (openTickets),
