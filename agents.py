@@ -372,7 +372,7 @@ def run_riderex_pipeline(
 
 if __name__ == "__main__":
     run_riderex_pipeline(
-        feedback_text="The car slammed on the brakes for no reason at 65mph. Terrifying. Nothing in front of us. Never using Weimo again.",
+        feedback_text="The car slammed on the brakes for no reason at 65mph. Terrifying. Nothing in front of us. Never using Dawei again.",
         ride_id="RIDE-20260510-4821",
         vehicle_id="WM-MX-047",
         rating=1
