@@ -245,7 +245,7 @@ def _build_seed_records(vehicles):
                 'ride_id':   f'RIDE-{random.randint(1,9999999999999):016d}',
                 'vehicle_id': v['vehicle_id'],
                 'vehicle_type': v.get('model', '—'),
-                'software_version': v.get('software_version', 'weimo-av-4.3.0'),
+                'software_version': v.get('software_version', 'dawei-av-4.3.0'),
                 'category': cat, 'priority': priority, 'safety_level': sl,
                 'nhtsa': nhtsa, 'rating': rating, 'churn_risk': churn,
                 'refund_amount': refund, 'credit_amount': credit,
