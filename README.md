@@ -30,7 +30,7 @@ The core of the platform. Submit real passenger feedback and watch 5 agents proc
 
 **Inputs:**
 - **Customer Feedback** — free-text complaint or compliment (e.g. "The car slammed on the brakes for no reason at 65mph")
-- **Vehicle ID** — auto-generated (WM-001 to WM-200), or type any valid ID
+- **Vehicle ID** — auto-generated (DW-001 to DW-200), or type any valid ID
 - **Star Rating** — 1–5 stars from the passenger
 
 **What happens when you submit:**
@@ -83,7 +83,7 @@ A full operations dashboard aggregating data from 250,400 seeded rides (200 vehi
 
 ### 🚗 Fleet Tab
 
-A real-time HUD-style registry of all 200 RiderEx vehicles (WM-001 to WM-200).
+A real-time HUD-style registry of all 200 RiderEx vehicles (DW-001 to DW-200).
 
 **Vehicle cards (front face):**
 - Vehicle ID and status dot (ACTIVE / MAINTENANCE / GROUNDED)
@@ -126,10 +126,10 @@ Tracks all software branches across the fleet and renders release readiness for 
 
 | Branch | Status | Notes |
 |--------|--------|-------|
-| `weimo-av-4.2.1` | Released · Mar 15, 2024 | Initial stable release |
-| `weimo-av-4.3.0` | Released · Sep 1, 2024 | Route optimization & comfort improvements |
-| `weimo-av-4.3.1` | Released · Jan 20, 2025 | Safety patch — AEB false trigger fix |
-| `weimo-av-4.4.0-beta` | Beta · Pending | Next-gen perception stack — pre-release |
+| `dawei-av-4.2.1` | Released · Mar 15, 2024 | Initial stable release |
+| `dawei-av-4.3.0` | Released · Sep 1, 2024 | Route optimization & comfort improvements |
+| `dawei-av-4.3.1` | Released · Jan 20, 2025 | Safety patch — AEB false trigger fix |
+| `dawei-av-4.4.0-beta` | Beta · Pending | Next-gen perception stack — pre-release |
 
 **Per-branch metrics card:**
 
@@ -274,7 +274,7 @@ uv run python app.py
 `riderex_vehicles.json` / `riderex_vehicles.csv` — 200 vehicles with:
 
 - Vehicle ID, model (Pod Gen2 · Shuttle Gen3 · SUV Gen4), city, state, fleet zone
-- Software version (`weimo-av-4.2.1` through `weimo-av-4.4.0-beta`)
+- Software version (`dawei-av-4.2.1` through `dawei-av-4.4.0-beta`)
 - Total mileage, total rides, avg passenger rating, safety score
 - Open support tickets, last incident type, last service date
 
