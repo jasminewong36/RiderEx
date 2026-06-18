@@ -838,7 +838,7 @@
       </div>
       <div class="fg full">
         <label>Customer Feedback</label>
-        <textarea id="feedback" rows="5" placeholder="Paste customer feedback here...">The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Weimo again unless this is fixed.</textarea>
+        <textarea id="feedback" rows="5" placeholder="Paste customer feedback here...">The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use dawei again unless this is fixed.</textarea>
       </div>
     </div>
     <button class="run-btn" id="run-btn" onclick="runPipeline()">
@@ -1498,7 +1498,7 @@ function updateVehicleTypeHint() {
 
 const samples = {
   safety: {
-    feedback: "The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use Weimo again unless this is fixed.",
+    feedback: "The car slammed on the brakes for absolutely no reason while I was on the highway going 65mph. It was terrifying. There was nothing in front of us. My coffee went everywhere and I nearly had a panic attack. I will never use dawei again unless this is fixed.",
     rating: 1
   },
   comfort: {
@@ -1510,7 +1510,7 @@ const samples = {
     rating: 2
   },
   compliment: {
-    feedback: "Honestly one of the best rides I have ever taken. Super smooth, perfectly timed, and I loved watching the car navigate the complex intersection near downtown. The future is here and I am here for it. Will definitely be using Weimo exclusively from now on.",
+    feedback: "Honestly one of the best rides I have ever taken. Super smooth, perfectly timed, and I loved watching the car navigate the complex intersection near downtown. The future is here and I am here for it. Will definitely be using dawei exclusively from now on.",
     rating: 5
   }
 };
@@ -1906,7 +1906,7 @@ function generateBulkSeeds(registry) {
   registry.forEach(v => {
     const baseSs = v.safety_score || 90;
     const baseRating = v.avg_passenger_rating || 4.0;
-    const sw = v.software_version || 'weimo-av-4.3.0';
+    const sw = v.software_version || 'dawei-av-4.3.0';
     const vtype = v.model || '—';
     // Pre-4.4.0-beta versions are already released — they passed signoff
     // so no CRITICAL/HIGH incidents and fewer safety-category rides overall
@@ -1983,8 +1983,8 @@ function seedMetrics() {
     const cats=['SAFETY','COMFORT','ROUTE','SOFTWARE','COMPLIMENT'];
     const priO={SAFETY:['P1','P1','P2'],COMFORT:['P2','P3','P3'],ROUTE:['P2','P3'],SOFTWARE:['P2','P3'],COMPLIMENT:['P4']};
     const slM={SAFETY:['CRITICAL','HIGH','MEDIUM'],COMFORT:['LOW','NONE'],ROUTE:['LOW','NONE'],SOFTWARE:['NONE'],COMPLIMENT:['NONE']};
-    const SW_VERS=['weimo-av-4.2.1','weimo-av-4.3.0','weimo-av-4.3.1','weimo-av-4.4.0-beta'];
-    const VT_VERS=['Weimo Pod Gen2','Weimo Shuttle Gen3','Weimo SUV Gen4'];
+    const SW_VERS=['dawei-av-4.2.1','dawei-av-4.3.0','dawei-av-4.3.1','dawei-av-4.4.0-beta'];
+    const VT_VERS=['dawei Pod Gen2','dawei Shuttle Gen3','dawei SUV Gen4'];
     const fallback=[];
     for(let i=0;i<250000;i++){
       const cat=cats[i%5]; const sl=pick(slM[cat]); const priority=pick(priO[cat]);
@@ -2314,13 +2314,13 @@ async function renderDashboard() {
   const priChip  = { P1:'red', P2:'amber', P3:'blue', P4:'green' };
   const slChip   = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'blue', NONE:'green' };
   const sentChip = { VERY_NEGATIVE:'red', NEGATIVE:'amber', NEUTRAL:'gray', POSITIVE:'green', VERY_POSITIVE:'green' };
-  const swColors = { 'weimo-av-4.2.1':'var(--muted2)', 'weimo-av-4.3.0':'var(--cyan)', 'weimo-av-4.3.1':'var(--primary)', 'weimo-av-4.4.0-beta':'var(--amber)' };
+  const swColors = { 'dawei-av-4.2.1':'var(--muted2)', 'dawei-av-4.3.0':'var(--cyan)', 'dawei-av-4.3.1':'var(--primary)', 'dawei-av-4.4.0-beta':'var(--amber)' };
   window._dashRows = sorted;
   document.getElementById('rides-tbody').innerHTML = sorted.map((m, idx) => {
     const reg = vehicleRegistry.find(v => v.vehicle_id === m.vehicle_id) || {};
     const vt  = (m.vehicle_type && m.vehicle_type !== '—') ? m.vehicle_type : (reg.model || '—');
     const sw  = (m.software_version && m.software_version !== '—') ? m.software_version : (reg.software_version || '—');
-    const vtShort = vt.replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','').replace('Weimo ','');
+    const vtShort = vt.replace('Jaguar I-PACE ','').replace('Jaguar I-Pace ','').replace('dawei ','');
     const swColor = swColors[sw] || 'var(--muted2)';
     const dateStr = m.ts ? new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}) : '—';
     return `<tr onclick="openTicketModal(${idx})" title="Click for details">
@@ -2398,7 +2398,7 @@ function openTicketModal(idx) {
       <div class="tkt-section-lbl">Vehicle</div>
       <div class="tkt-grid-3">
         <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle ID</div><div class="tkt-cell-val" style="font-family:var(--mono)">${m.vehicle_id||'—'}</div></div>
-        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle Type</div><div class="tkt-cell-val">${vehicleType.replace('Weimo ','')}</div></div>
+        <div class="tkt-cell"><div class="tkt-cell-lbl">Vehicle Type</div><div class="tkt-cell-val">${vehicleType.replace('dawei ','')}</div></div>
         <div class="tkt-cell"><div class="tkt-cell-lbl">Software Version</div><div class="tkt-cell-val" style="font-family:var(--mono);font-size:10px">${softwareVer}</div></div>
       </div>
     </div>
@@ -2721,10 +2721,10 @@ function swReadinessFromBranch(metrics) {
 
 async function renderSoftwareBranches() {
   const BRANCH_META = {
-    'weimo-av-4.2.1':      { status:'RELEASED', releaseDate:'Mar 15, 2024', notes:'Initial stable release', color:'var(--muted2)' },
-    'weimo-av-4.3.0':      { status:'RELEASED', releaseDate:'Sep 1, 2024',  notes:'Route optimization & comfort improvements', color:'var(--cyan)' },
-    'weimo-av-4.3.1':      { status:'RELEASED', releaseDate:'Jan 20, 2025', notes:'Safety patch — AEB false trigger fix', color:'var(--primary)' },
-    'weimo-av-4.4.0-beta': { status:'BETA',     releaseDate:null,           notes:'Next-gen perception stack — pre-release', color:'var(--amber)' },
+    'dawei-av-4.2.1':      { status:'RELEASED', releaseDate:'Mar 15, 2024', notes:'Initial stable release', color:'var(--muted2)' },
+    'dawei-av-4.3.0':      { status:'RELEASED', releaseDate:'Sep 1, 2024',  notes:'Route optimization & comfort improvements', color:'var(--cyan)' },
+    'dawei-av-4.3.1':      { status:'RELEASED', releaseDate:'Jan 20, 2025', notes:'Safety patch — AEB false trigger fix', color:'var(--primary)' },
+    'dawei-av-4.4.0-beta': { status:'BETA',     releaseDate:null,           notes:'Next-gen perception stack — pre-release', color:'var(--amber)' },
   };
 
   const all = getMetrics().filter(m => isValidVehicleId(m.vehicle_id));
@@ -3070,7 +3070,7 @@ function renderVehicleCard(v, idx=0) {
   const segs = Array.from({length: scoreSegs}, (_, i) => `<div class="vc-seg ${i < filledSegs ? segClass : ''}"></div>`).join('');
   const barClass = v.score >= 75 ? 'hb-high' : v.score >= 50 ? 'hb-med' : 'hb-low';
   const statusColor = { ACTIVE:'var(--fleet-green)', GROUNDED:'var(--fleet-red)', MAINTENANCE:'var(--fleet-amber)', IDLE:'rgba(0,229,200,0.4)' }[v.status];
-  const modelShort = v.model ? v.model.replace('Weimo ','').replace(' Platform','').substring(0,18) : v.icon;
+  const modelShort = v.model ? v.model.replace('dawei ','').replace(' Platform','').substring(0,18) : v.icon;
   const location = v.city ? `${v.city}, ${v.state}` : '';
   const netOpen   = v.netOpenTickets !== undefined ? v.netOpenTickets : (v.incidents || 0);
   const processed = v.processedTickets || 0;
